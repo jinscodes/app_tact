@@ -1,4 +1,5 @@
 import 'package:app_sticker_note/colors.dart';
+import 'package:app_sticker_note/models/navigate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -13,6 +14,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
   bool _hasEmailText = false;
   bool _hasPasswordText = false;
+  String _email = '';
+  String _password = '';
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onChanged: (value) {
                         setState(() {
                           _hasEmailText = value.isNotEmpty;
+                          _email = value;
                         });
                       },
                       decoration: InputDecoration(
@@ -128,6 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onChanged: (value) {
                         setState(() {
                           _hasPasswordText = value.isNotEmpty;
+                          _password = value;
                         });
                       },
                       decoration: InputDecoration(
@@ -207,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 50.h,
                       child: ElevatedButton(
                         onPressed: () {
-                          print("Login Button Clicked");
+                          print("Login Button Clicked $_email, $_password");
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonGray,
@@ -255,7 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   height: 50.h,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => navigateTo(context, '/signup'),
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
                       backgroundColor: Colors.transparent,

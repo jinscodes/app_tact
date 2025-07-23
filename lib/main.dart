@@ -1,5 +1,6 @@
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/widgets/login.dart';
+import 'package:app_sticker_note/widgets/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -28,6 +29,10 @@ class MyApp extends StatelessWidget {
           ),
           title: 'Sticker Note App',
           home: LoginScreen(),
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/signup': (context) => const SignupScreen(),
+          },
         );
       },
     );
