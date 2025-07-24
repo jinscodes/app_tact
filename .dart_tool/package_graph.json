@@ -11,6 +11,7 @@
         "firebase_auth",
         "firebase_core",
         "flutter",
+        "flutter_dotenv",
         "flutter_screenutil"
       ],
       "devDependencies": [
@@ -51,6 +52,13 @@
         "test_api",
         "vector_math",
         "vm_service"
+      ]
+    },
+    {
+      "name": "flutter_dotenv",
+      "version": "5.2.1",
+      "dependencies": [
+        "flutter"
       ]
     },
     {

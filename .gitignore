@@ -19,6 +19,7 @@ macos/Flutter/ephemeral/
 linux/flutter/ephemeral/
 windows/flutter/ephemeral/
 web/.dart_tool/
+.env
 
 # VS Code & IntelliJ 관련 파일
 .vscode/
