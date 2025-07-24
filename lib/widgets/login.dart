@@ -1,5 +1,7 @@
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/models/navigate.dart';
+import 'package:app_sticker_note/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -11,11 +13,56 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final AuthService _authService = AuthService();
   bool _isPasswordVisible = false;
   bool _hasEmailText = false;
   bool _hasPasswordText = false;
+  bool _isLoading = false;
+  bool _hasEmailError = false;
+  bool _hasPasswordError = false;
   String _email = '';
   String _password = '';
+
+  Future<void> _signIn() async {
+    setState(() {
+      _hasEmailError = false;
+      _hasPasswordError = false;
+    });
+
+    if (_email.isEmpty || _password.isEmpty) {
+      setState(() {
+        _hasEmailError = _email.isEmpty;
+        _hasPasswordError = _password.isEmpty;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      UserCredential? result =
+          await _authService.signInWithEmailAndPassword(_email, _password);
+
+      if (result != null &&
+          result.user != null &&
+          !result.user!.emailVerified) {
+        await _authService.signOut();
+        return;
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _hasEmailError = true;
+        _hasPasswordError = true;
+      });
+      print(e.message);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +128,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         setState(() {
                           _hasEmailText = value.isNotEmpty;
                           _email = value;
+                          // Clear error when user starts typing
+                          if (_hasEmailError && value.isNotEmpty) {
+                            _hasEmailError = false;
+                          }
                         });
                       },
                       decoration: InputDecoration(
@@ -97,17 +148,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: _hasEmailText
+                          borderSide: _hasEmailError
                               ? BorderSide(
-                                  color: AppColors.inputBoldGray,
+                                  color: Colors.red,
                                   width: 2,
                                 )
-                              : BorderSide.none,
+                              : _hasEmailText
+                                  ? BorderSide(
+                                      color: AppColors.inputBoldGray,
+                                      width: 2,
+                                    )
+                                  : BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
                           borderSide: BorderSide(
-                            color: AppColors.inputBoldGray,
+                            color: _hasEmailError
+                                ? Colors.red
+                                : AppColors.inputBoldGray,
                             width: 2,
                           ),
                         ),
@@ -133,6 +191,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         setState(() {
                           _hasPasswordText = value.isNotEmpty;
                           _password = value;
+                          // Clear error when user starts typing
+                          if (_hasPasswordError && value.isNotEmpty) {
+                            _hasPasswordError = false;
+                          }
                         });
                       },
                       decoration: InputDecoration(
@@ -162,17 +224,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: _hasPasswordText
+                          borderSide: _hasPasswordError
                               ? BorderSide(
-                                  color: AppColors.inputBoldGray,
+                                  color: Colors.red,
                                   width: 2,
                                 )
-                              : BorderSide.none,
+                              : _hasPasswordText
+                                  ? BorderSide(
+                                      color: AppColors.inputBoldGray,
+                                      width: 2,
+                                    )
+                                  : BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
                           borderSide: BorderSide(
-                            color: AppColors.inputBoldGray,
+                            color: _hasPasswordError
+                                ? Colors.red
+                                : AppColors.inputBoldGray,
                             width: 2,
                           ),
                         ),
@@ -211,9 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       height: 50.h,
                       child: ElevatedButton(
-                        onPressed: () {
-                          print("Login Button Clicked $_email, $_password");
-                        },
+                        onPressed: _isLoading ? null : _signIn,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonGray,
                           shape: RoundedRectangleBorder(
@@ -221,13 +288,55 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           padding: EdgeInsets.zero,
                         ),
-                        child: Text(
-                          "Sign In",
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        child: _isLoading
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                "Sign In",
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50.h,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          print("Google Sign In Button Clicked");
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              color: AppColors.buttonGray,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.g_mobiledata_outlined,
+                              color: AppColors.buttonGray,
+                              size: 36.sp,
+                            ),
+                            Text(
+                              "Sign in with Google",
+                              style: TextStyle(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.buttonGray,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

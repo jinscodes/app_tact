@@ -1,0 +1,48 @@
+# Flutter/Dart 기본 무시 항목
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.melos_tool/
+.pub-cache/
+build/
+.idea/
+android/.gradle/
+android/local.properties
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+macos/Pods/
+macos/.symlinks/
+macos/Flutter/ephemeral/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+web/.dart_tool/
+
+# VS Code & IntelliJ 관련 파일
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.sw?
+
+# macOS 시스템 파일
+.DS_Store
+
+# 로그 & 출력 파일
+*.log
+*.tmp
+
+# APK, AAB, IPA 등 바이너리 결과물
+*.apk
+*.aab
+*.ipa
+
+# Firebase/Google 서비스 관련 (보안)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Android 보안 키 관련 파일
+android/app/upload-keystore.jks
+android/app/key.properties
