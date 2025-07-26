@@ -1,4 +1,10 @@
+// ignore_for_file: avoid_print
+
+import 'dart:async';
+
 import 'package:app_sticker_note/colors.dart';
+import 'package:app_sticker_note/models/navigate.dart';
+import 'package:app_sticker_note/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -10,6 +16,81 @@ class VerifyScreen extends StatefulWidget {
 }
 
 class _VerifyScreenState extends State<VerifyScreen> {
+  final AuthService _authService = AuthService();
+  bool _isCheckingVerification = false;
+  bool _isResendingEmail = false;
+
+  Future<void> _checkEmailVerification() async {
+    setState(() {
+      _isCheckingVerification = true;
+    });
+
+    try {
+      await _authService.reloadUser();
+
+      if (_authService.isEmailVerified) {
+        navigateTo(context, '/welcome');
+      } else {
+        showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            Future.delayed(Duration(seconds: 2), () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            });
+
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              height: 180.h,
+              color: Colors.white,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Verify Your Email",
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'Email not verified yet. Please check your inbox and click the verification link, or resend the verification email.',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  SizedBox(height: 16.h),
+                ],
+              ),
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print(e);
+    } finally {
+      setState(() {
+        _isCheckingVerification = false;
+      });
+    }
+  }
+
+  Future<void> _resendVerificationEmail() async {
+    setState(() {
+      _isResendingEmail = true;
+    });
+
+    try {
+      await _authService.sendEmailVerification();
+    } catch (e) {
+      print(e);
+    } finally {
+      setState(() {
+        _isResendingEmail = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,9 +135,8 @@ class _VerifyScreenState extends State<VerifyScreen> {
                 width: double.infinity,
                 height: 50.h,
                 child: ElevatedButton(
-                  onPressed: () {
-                    print("Clicked on Check Email");
-                  },
+                  onPressed:
+                      _isCheckingVerification ? null : _checkEmailVerification,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonGray,
                     shape: RoundedRectangleBorder(
@@ -64,14 +144,16 @@ class _VerifyScreenState extends State<VerifyScreen> {
                     ),
                     padding: EdgeInsets.zero,
                   ),
-                  child: Text(
-                    "Check Email",
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: _isCheckingVerification
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          "Check Email",
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
               SizedBox(height: 12.h),
@@ -79,9 +161,8 @@ class _VerifyScreenState extends State<VerifyScreen> {
                 width: double.infinity,
                 height: 50.h,
                 child: ElevatedButton(
-                  onPressed: () => {
-                    print("Clicked on Resent"),
-                  },
+                  onPressed:
+                      _isResendingEmail ? null : _resendVerificationEmail,
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
                     backgroundColor: Colors.transparent,
@@ -94,14 +175,16 @@ class _VerifyScreenState extends State<VerifyScreen> {
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
-                  child: Text(
-                    "Resend Verification Email",
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.buttonGray,
-                    ),
-                  ),
+                  child: _isResendingEmail
+                      ? CircularProgressIndicator(color: AppColors.buttonGray)
+                      : Text(
+                          "Resend Verification Email",
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.buttonGray,
+                          ),
+                        ),
                 ),
               ),
             ],

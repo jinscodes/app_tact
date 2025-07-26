@@ -2,6 +2,7 @@ import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/widgets/login.dart';
 import 'package:app_sticker_note/widgets/signup.dart';
 import 'package:app_sticker_note/widgets/verify.dart';
+import 'package:app_sticker_note/widgets/welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
             '/login': (context) => const LoginScreen(),
             '/signup': (context) => const SignupScreen(),
             '/verify': (context) => const VerifyScreen(),
+            '/welcome': (context) => const WelcomeScreen(),
           },
         );
       },
