@@ -98,20 +98,8 @@ class _VerifyScreenState extends State<VerifyScreen> {
         try {
           await _authService.deleteCurrentUser();
           print('User account deleted');
-
-          if (mounted) {
-            Navigate.toAndRemoveUntil(context, '/login');
-          }
         } catch (e) {
           print('Error deleting account: $e');
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Failed to delete account. Please try again.'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
         }
       });
     }
@@ -132,6 +120,16 @@ class _VerifyScreenState extends State<VerifyScreen> {
           ),
         ),
         centerTitle: true,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppColors.baseBlack,
+          ),
+          onPressed: () {
+            Navigate.toAndRemoveUntil(context, '/login');
+          },
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.h),

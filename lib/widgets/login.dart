@@ -73,333 +73,378 @@ class _LoginScreenState extends State<LoginScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 50.w,
-                  height: 50.h,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.r),
-                    color: Colors.black,
-                  ),
-                  child: Center(
-                    child: Text(
-                      "N",
-                      style: TextStyle(
-                        fontSize: 22.sp,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 30.h),
-                Text(
-                  "Welcome Back",
-                  style: TextStyle(
-                    fontSize: 28.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  'Sign in to access your notes',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: AppColors.fontGray,
-                  ),
-                ),
-                SizedBox(height: 36.h),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Email",
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          _hasEmailText = value.isNotEmpty;
-                          _email = value;
-                          // Clear error when user starts typing
-                          if (_hasEmailError && value.isNotEmpty) {
-                            _hasEmailError = false;
-                          }
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Enter your Email",
-                        hintStyle: TextStyle(
-                          color: AppColors.placeholderGray,
-                          fontSize: 15.sp,
-                        ),
-                        filled: true,
-                        fillColor: AppColors.inputGray,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                          borderSide: _hasEmailError
-                              ? BorderSide(
-                                  color: Colors.red,
-                                  width: 2,
-                                )
-                              : _hasEmailText
-                                  ? BorderSide(
-                                      color: AppColors.inputBoldGray,
-                                      width: 2,
-                                    )
-                                  : BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                          borderSide: BorderSide(
-                            color: _hasEmailError
-                                ? Colors.red
-                                : AppColors.inputBoldGray,
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 16.h,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 18.h),
-                    Text(
-                      "Password",
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    TextField(
-                      obscureText: !_isPasswordVisible,
-                      onChanged: (value) {
-                        setState(() {
-                          _hasPasswordText = value.isNotEmpty;
-                          _password = value;
-                          // Clear error when user starts typing
-                          if (_hasPasswordError && value.isNotEmpty) {
-                            _hasPasswordError = false;
-                          }
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Enter your password",
-                        hintStyle: TextStyle(
-                          color: AppColors.placeholderGray,
-                          fontSize: 15.sp,
-                        ),
-                        filled: true,
-                        fillColor: AppColors.inputGray,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: AppColors.fontGray,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                          borderSide: _hasPasswordError
-                              ? BorderSide(
-                                  color: Colors.red,
-                                  width: 2,
-                                )
-                              : _hasPasswordText
-                                  ? BorderSide(
-                                      color: AppColors.inputBoldGray,
-                                      width: 2,
-                                    )
-                                  : BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                          borderSide: BorderSide(
-                            color: _hasPasswordError
-                                ? Colors.red
-                                : AppColors.inputBoldGray,
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 16.h,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          print("Click Forgot Password");
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          overlayColor: Colors.transparent,
-                          splashFactory: NoSplash.splashFactory,
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          "Forgot password?",
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: AppColors.forgotGray,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 28.h),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50.h,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _signIn,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.buttonGray,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: _isLoading
-                            ? CircularProgressIndicator(color: Colors.white)
-                            : Text(
-                                "Sign In",
-                                style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50.h,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          print("Google Sign In Button Clicked");
-                        },
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: AppColors.buttonGray,
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.g_mobiledata_outlined,
-                              color: AppColors.buttonGray,
-                              size: 36.sp,
-                            ),
-                            Text(
-                              "Sign in with Google",
-                              style: TextStyle(
-                                fontSize: 15.sp,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.buttonGray,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 80.h),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        bottomSheet: Container(
-          height: 110.h,
-          color: Colors.white,
+        body: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Don't have an account?",
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 60.h),
+                  Container(
+                    width: 50.w,
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.r),
+                      color: Colors.black,
+                    ),
+                    child: Center(
+                      child: Text(
+                        "N",
+                        style: TextStyle(
+                          fontSize: 22.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30.h),
+                  Text(
+                    "Welcome Back",
+                    style: TextStyle(
+                      fontSize: 28.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    'Sign in to access your notes',
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: AppColors.fontGray,
                     ),
                   ),
-                ),
-                SizedBox(height: 8.h),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50.h,
-                  child: ElevatedButton(
-                    onPressed: () => Navigate.to(context, '/signup'),
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      backgroundColor: Colors.transparent,
-                      splashFactory: NoSplash.splashFactory,
-                      side: BorderSide(
-                        color: AppColors.inputBoldGray,
-                        width: 1,
+                  SizedBox(height: 36.h),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Email",
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
+                      SizedBox(height: 8.h),
+                      TextField(
+                        onChanged: (value) {
+                          setState(() {
+                            _hasEmailText = value.isNotEmpty;
+                            _email = value;
+                            // Clear error when user starts typing
+                            if (_hasEmailError && value.isNotEmpty) {
+                              _hasEmailError = false;
+                            }
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: "Enter your Email",
+                          hintStyle: TextStyle(
+                            color: AppColors.placeholderGray,
+                            fontSize: 15.sp,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.inputGray,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: _hasEmailError
+                                ? BorderSide(
+                                    color: Colors.red,
+                                    width: 2,
+                                  )
+                                : _hasEmailText
+                                    ? BorderSide(
+                                        color: AppColors.inputBoldGray,
+                                        width: 2,
+                                      )
+                                    : BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(
+                              color: _hasEmailError
+                                  ? Colors.red
+                                  : AppColors.inputBoldGray,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 16.h,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      "Create Account",
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.buttonGray,
+                      SizedBox(height: 18.h),
+                      Text(
+                        "Password",
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
+                      SizedBox(height: 8.h),
+                      TextField(
+                        obscureText: !_isPasswordVisible,
+                        onChanged: (value) {
+                          setState(() {
+                            _hasPasswordText = value.isNotEmpty;
+                            _password = value;
+                            // Clear error when user starts typing
+                            if (_hasPasswordError && value.isNotEmpty) {
+                              _hasPasswordError = false;
+                            }
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: "Enter your password",
+                          hintStyle: TextStyle(
+                            color: AppColors.placeholderGray,
+                            fontSize: 15.sp,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.inputGray,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: AppColors.fontGray,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: _hasPasswordError
+                                ? BorderSide(
+                                    color: Colors.red,
+                                    width: 2,
+                                  )
+                                : _hasPasswordText
+                                    ? BorderSide(
+                                        color: AppColors.inputBoldGray,
+                                        width: 2,
+                                      )
+                                    : BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(
+                              color: _hasPasswordError
+                                  ? Colors.red
+                                  : AppColors.inputBoldGray,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 16.h,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            print("Click Forgot Password");
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            overlayColor: Colors.transparent,
+                            splashFactory: NoSplash.splashFactory,
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            "Forgot password?",
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: AppColors.forgotGray,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 28.h),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50.h,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _signIn,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonGray,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: _isLoading
+                              ? CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                  "Sign In",
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50.h,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            print("Google Sign In Button Clicked");
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: AppColors.buttonGray,
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.g_mobiledata_outlined,
+                                color: AppColors.buttonGray,
+                                size: 36.sp,
+                              ),
+                              Text(
+                                "Sign in with Google",
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.buttonGray,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 50.h),
+                    ],
                   ),
-                ),
-              ],
+                  Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Don't have an account?",
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.fontGray,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50.h,
+                        child: ElevatedButton(
+                          onPressed: () => Navigate.to(context, '/signup'),
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: Colors.transparent,
+                            splashFactory: NoSplash.splashFactory,
+                            side: BorderSide(
+                              color: AppColors.inputBoldGray,
+                              width: 1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                          ),
+                          child: Text(
+                            "Create Account",
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.buttonGray,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
+        // bottomSheet: Container(
+        //   height: 110.h,
+        //   color: Colors.white,
+        //   child: Padding(
+        //     padding: EdgeInsets.symmetric(horizontal: 20.w),
+        //     child: Column(
+        //       children: [
+        //         Align(
+        //           alignment: Alignment.center,
+        //           child: Text(
+        //             "Don't have an account?",
+        //             style: TextStyle(
+        //               fontSize: 14.sp,
+        //               color: AppColors.fontGray,
+        //             ),
+        //           ),
+        //         ),
+        //         SizedBox(height: 8.h),
+        //         SizedBox(
+        //           width: double.infinity,
+        //           height: 50.h,
+        //           child: ElevatedButton(
+        //             onPressed: () => Navigate.to(context, '/signup'),
+        //             style: ElevatedButton.styleFrom(
+        //               elevation: 0,
+        //               backgroundColor: Colors.transparent,
+        //               splashFactory: NoSplash.splashFactory,
+        //               side: BorderSide(
+        //                 color: AppColors.inputBoldGray,
+        //                 width: 1,
+        //               ),
+        //               shape: RoundedRectangleBorder(
+        //                 borderRadius: BorderRadius.circular(8.r),
+        //               ),
+        //             ),
+        //             child: Text(
+        //               "Create Account",
+        //               style: TextStyle(
+        //                 fontSize: 15.sp,
+        //                 fontWeight: FontWeight.bold,
+        //                 color: AppColors.buttonGray,
+        //               ),
+        //             ),
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
       ),
     );
   }
