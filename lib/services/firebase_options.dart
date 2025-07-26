@@ -4,21 +4,6 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DefaultFirebaseOptions {
-  static final String? _webApiKey = dotenv.env['FIREBASE_WEB_API_KEY'];
-  static final String? _androidApiKey = dotenv.env['FIREBASE_ANDROID_API_KEY'];
-  static final String? _iosApiKey = dotenv.env['FIREBASE_IOS_API_KEY'];
-  static final String? _webappId = dotenv.env['FIREBASE_WEB_APP_ID'];
-  static final String? _windowsAppId = dotenv.env['FIREBASE_WINDOWS_APP_ID'];
-  static final String? _androidAppId = dotenv.env['FIREBASE_ANDROID_APP_ID'];
-  static final String? _iosAppId = dotenv.env['FIREBASE_IOS_APP_ID'];
-  static final String? _msgSenderId =
-      dotenv.env['FIREBASE_MESSAGING_SENDER_ID'];
-  static final String? _webMeasurementId =
-      dotenv.env['FIREBASE_WEB_MEASUREMENT_ID'];
-  static final String? _windowsMeasurementId =
-      dotenv.env['FIREBASE_WINDOWS_MEASUREMENT_ID'];
-  static final String? _iosClientId = dotenv.env['FIREBASE_IOS_CLIENT_ID'];
-
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
@@ -33,62 +18,57 @@ class DefaultFirebaseOptions {
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        throw UnsupportedError('Linux is not supported.');
       default:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
-        );
+        throw UnsupportedError('Unknown platform.');
     }
   }
 
-  static final FirebaseOptions web = FirebaseOptions(
-    apiKey: _webApiKey ?? '',
-    appId: _webappId ?? '',
-    messagingSenderId: _msgSenderId ?? '',
-    projectId: 'app-sticky-note',
-    authDomain: 'app-sticky-note.firebaseapp.com',
-    storageBucket: 'app-sticky-note.firebasestorage.app',
-    measurementId: _webMeasurementId ?? '',
-  );
+  static FirebaseOptions get web => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ?? '',
+        appId: dotenv.env['FIREBASE_WEB_APP_ID'] ?? '',
+        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
+        projectId: 'app-sticky-note',
+        authDomain: 'app-sticky-note.firebaseapp.com',
+        storageBucket: 'app-sticky-note.firebasestorage.app',
+        measurementId: dotenv.env['FIREBASE_WEB_MEASUREMENT_ID'] ?? '',
+      );
 
-  static FirebaseOptions windows = FirebaseOptions(
-    apiKey: _webApiKey ?? '',
-    appId: _windowsAppId ?? '',
-    messagingSenderId: _msgSenderId ?? '',
-    projectId: 'app-sticky-note',
-    authDomain: 'app-sticky-note.firebaseapp.com',
-    storageBucket: 'app-sticky-note.firebasestorage.app',
-    measurementId: _windowsMeasurementId ?? '',
-  );
+  static FirebaseOptions get windows => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ?? '',
+        appId: dotenv.env['FIREBASE_WINDOWS_APP_ID'] ?? '',
+        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
+        projectId: 'app-sticky-note',
+        authDomain: 'app-sticky-note.firebaseapp.com',
+        storageBucket: 'app-sticky-note.firebasestorage.app',
+        measurementId: dotenv.env['FIREBASE_WINDOWS_MEASUREMENT_ID'] ?? '',
+      );
 
-  static FirebaseOptions android = FirebaseOptions(
-    apiKey: _androidApiKey ?? '',
-    appId: _androidAppId ?? '',
-    messagingSenderId: _msgSenderId ?? '',
-    projectId: 'app-sticky-note',
-    storageBucket: 'app-sticky-note.firebasestorage.app',
-  );
+  static FirebaseOptions get android => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY'] ?? '',
+        appId: dotenv.env['FIREBASE_ANDROID_APP_ID'] ?? '',
+        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
+        projectId: 'app-sticky-note',
+        storageBucket: 'app-sticky-note.firebasestorage.app',
+      );
 
-  static FirebaseOptions ios = FirebaseOptions(
-    apiKey: _iosApiKey ?? '',
-    appId: _iosAppId ?? '',
-    messagingSenderId: _msgSenderId ?? '',
-    projectId: 'app-sticky-note',
-    storageBucket: 'app-sticky-note.firebasestorage.app',
-    iosClientId: _iosClientId ?? '',
-    iosBundleId: 'com.jay.appStickerNote',
-  );
+  static FirebaseOptions get ios => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_IOS_API_KEY'] ?? '',
+        appId: dotenv.env['FIREBASE_IOS_APP_ID'] ?? '',
+        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
+        projectId: 'app-sticky-note',
+        storageBucket: 'app-sticky-note.firebasestorage.app',
+        iosClientId: dotenv.env['FIREBASE_IOS_CLIENT_ID'] ?? '',
+        iosBundleId: 'com.jay.appStickerNote',
+      );
 
-  static FirebaseOptions macos = FirebaseOptions(
-    apiKey: _iosApiKey ?? '',
-    appId: _iosAppId ?? '',
-    messagingSenderId: _msgSenderId ?? '',
-    projectId: 'app-sticky-note',
-    storageBucket: 'app-sticky-note.firebasestorage.app',
-    iosClientId: _iosClientId ?? '',
-    iosBundleId: 'com.jay.appStickerNote',
-  );
+  static FirebaseOptions get macos => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_IOS_API_KEY'] ?? '',
+        appId: dotenv.env['FIREBASE_IOS_APP_ID'] ?? '',
+        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
+        projectId: 'app-sticky-note',
+        storageBucket: 'app-sticky-note.firebasestorage.app',
+        iosClientId: dotenv.env['FIREBASE_IOS_CLIENT_ID'] ?? '',
+        iosBundleId: 'com.jay.appStickerNote',
+      );
 }
