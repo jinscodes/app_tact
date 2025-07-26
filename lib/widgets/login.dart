@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/models/navigate.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
@@ -51,6 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
         await _authService.signOut();
         return;
       }
+
+      Navigate.to(context, '/home');
     } on FirebaseAuthException catch (e) {
       setState(() {
         _hasEmailError = true;
@@ -369,7 +373,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   height: 50.h,
                   child: ElevatedButton(
-                    onPressed: () => navigateTo(context, '/signup'),
+                    onPressed: () => Navigate.to(context, '/signup'),
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
                       backgroundColor: Colors.transparent,

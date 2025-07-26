@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:async';
 
@@ -29,7 +29,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
       await _authService.reloadUser();
 
       if (_authService.isEmailVerified) {
-        navigateTo(context, '/welcome');
+        Navigate.to(context, '/welcome');
       } else {
         showModalBottomSheet(
           context: context,
@@ -89,6 +89,34 @@ class _VerifyScreenState extends State<VerifyScreen> {
         _isResendingEmail = false;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    if (!_authService.isEmailVerified) {
+      Future.microtask(() async {
+        try {
+          await _authService.deleteCurrentUser();
+          print('User account deleted');
+
+          if (mounted) {
+            Navigate.toAndRemoveUntil(context, '/login');
+          }
+        } catch (e) {
+          print('Error deleting account: $e');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to delete account. Please try again.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      });
+    }
+
+    super.dispose();
   }
 
   @override

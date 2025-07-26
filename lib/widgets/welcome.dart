@@ -44,7 +44,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 width: double.infinity,
                 height: 50.h,
                 child: ElevatedButton(
-                  onPressed: () => navigateTo(context, '/login'),
+                  onPressed: () => Navigate.toAndRemoveUntil(context, '/login'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonGray,
                     shape: RoundedRectangleBorder(
@@ -53,7 +53,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     padding: EdgeInsets.zero,
                   ),
                   child: Text(
-                    "Check Email",
+                    "Login",
                     style: TextStyle(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
