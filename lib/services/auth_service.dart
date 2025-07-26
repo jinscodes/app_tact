@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -75,5 +77,33 @@ class AuthService {
     } catch (e) {
       print('Reload user error: $e');
     }
+  }
+
+  Future<void> deleteCurrentUser() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await user.delete();
+        print('User account deleted: ${user.email}');
+      }
+    } on FirebaseAuthException catch (e) {
+      print('Delete user error: ${e.message}');
+      rethrow;
+    }
+  }
+
+  bool shouldDeleteUnverifiedUser(
+      {Duration timeLimit = const Duration(hours: 24)}) {
+    User? user = _auth.currentUser;
+    if (user == null) return false;
+
+    if (user.emailVerified) return false;
+
+    DateTime? creationTime = user.metadata.creationTime;
+    if (creationTime != null) {
+      return DateTime.now().difference(creationTime) > timeLimit;
+    }
+
+    return false;
   }
 }

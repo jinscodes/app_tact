@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/models/navigate.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
@@ -58,13 +60,11 @@ class _SignupScreenState extends State<SignupScreen> {
           await _authService.registerWithEmailAndPassword(_email, _password);
 
       if (result != null) {
-        print("Email sent to: ${result.user?.email}");
-
         await result.user?.updateDisplayName(_name);
 
         await _authService.sendEmailVerification();
 
-        navigateTo(context, '/verify');
+        Navigate.to(context, '/verify');
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
