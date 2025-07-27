@@ -1,4 +1,5 @@
 import 'package:app_sticker_note/colors.dart';
+import 'package:app_sticker_note/widgets/home.dart';
 import 'package:app_sticker_note/widgets/login.dart';
 import 'package:app_sticker_note/widgets/signup.dart';
 import 'package:app_sticker_note/widgets/verify.dart';
@@ -40,9 +41,9 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: Colors.white,
           ),
           title: 'Sticker Note App',
-          // home: LoginScreen(),
-          home: WelcomeScreen(),
+          home: LoginScreen(),
           routes: {
+            '/home': (context) => const HomeScreen(),
             '/login': (context) => const LoginScreen(),
             '/signup': (context) => const SignupScreen(),
             '/verify': (context) => const VerifyScreen(),
