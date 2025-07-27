@@ -29,7 +29,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
       await _authService.reloadUser();
 
       if (_authService.isEmailVerified) {
-        Navigate.to(context, '/welcome');
+        Navigate.toAndRemoveUntil(context, '/welcome');
       } else {
         showModalBottomSheet(
           context: context,

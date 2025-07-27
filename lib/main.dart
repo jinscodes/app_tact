@@ -40,7 +40,8 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: Colors.white,
           ),
           title: 'Sticker Note App',
-          home: LoginScreen(),
+          // home: LoginScreen(),
+          home: WelcomeScreen(),
           routes: {
             '/login': (context) => const LoginScreen(),
             '/signup': (context) => const SignupScreen(),
