@@ -20,6 +20,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _hasEmailText = false;
   bool _hasPasswordText = false;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   bool _hasNameError = false;
   bool _hasEmailError = false;
   bool _hasPasswordError = false;
@@ -79,6 +80,38 @@ class _SignupScreenState extends State<SignupScreen> {
     } finally {
       setState(() {
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _signUpWithGoogle() async {
+    setState(() {
+      _isGoogleLoading = true;
+    });
+
+    try {
+      UserCredential? result = await _authService.signInWithGoogle();
+
+      if (result != null && result.user != null) {
+        if (result.additionalUserInfo?.isNewUser == true) {
+          print('New Google user created: ${result.user!.email}');
+          Navigate.toAndRemoveUntil(context, '/home');
+        } else {
+          print('Existing Google user signed in: ${result.user!.email}');
+          Navigate.to(context, '/home');
+        }
+      }
+    } catch (e) {
+      print('Google Sign-Up error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sign up with Google. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isGoogleLoading = false;
       });
     }
   }
@@ -314,6 +347,46 @@ class _SignupScreenState extends State<SignupScreen> {
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
+                          ),
+                  ),
+                ),
+                SizedBox(height: 18.h),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50.h,
+                  child: ElevatedButton(
+                    onPressed: _isGoogleLoading ? null : _signUpWithGoogle,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: AppColors.buttonGray,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: _isGoogleLoading
+                        ? CircularProgressIndicator(color: AppColors.buttonGray)
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.g_mobiledata_outlined,
+                                color: AppColors.buttonGray,
+                                size: 36.sp,
+                              ),
+                              Text(
+                                "Sign up with Google",
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.buttonGray,
+                                ),
+                              ),
+                            ],
                           ),
                   ),
                 ),
