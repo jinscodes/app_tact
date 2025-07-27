@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/models/navigate.dart';
@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _hasEmailText = false;
   bool _hasPasswordText = false;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   bool _hasEmailError = false;
   bool _hasPasswordError = false;
   String _email = '';
@@ -56,14 +57,51 @@ class _LoginScreenState extends State<LoginScreen> {
 
       Navigate.to(context, '/home');
     } on FirebaseAuthException catch (e) {
+      print(e.message);
       setState(() {
         _hasEmailError = true;
         _hasPasswordError = true;
       });
-      print(e.message);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sign in. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       setState(() {
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isGoogleLoading = true;
+    });
+
+    try {
+      UserCredential? result = await _authService.signInWithGoogle();
+
+      if (result != null && result.user != null) {
+        if (result.additionalUserInfo?.isNewUser == true) {
+          print('New Google user created: ${result.user!.email}');
+        } else {
+          print('Existing Google user signed in: ${result.user!.email}');
+        }
+        Navigate.toAndRemoveUntil(context, '/home');
+      }
+    } catch (e) {
+      print('Google Sign-In error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sign in with Google. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isGoogleLoading = false;
       });
     }
   }
@@ -134,7 +172,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           setState(() {
                             _hasEmailText = value.isNotEmpty;
                             _email = value;
-                            // Clear error when user starts typing
                             if (_hasEmailError && value.isNotEmpty) {
                               _hasEmailError = false;
                             }
@@ -197,7 +234,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           setState(() {
                             _hasPasswordText = value.isNotEmpty;
                             _password = value;
-                            // Clear error when user starts typing
                             if (_hasPasswordError && value.isNotEmpty) {
                               _hasPasswordError = false;
                             }
@@ -311,9 +347,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity,
                         height: 50.h,
                         child: ElevatedButton(
-                          onPressed: () {
-                            print("Google Sign In Button Clicked");
-                          },
+                          onPressed:
+                              _isGoogleLoading ? null : _signInWithGoogle,
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
                             backgroundColor: Colors.white,
@@ -326,24 +361,27 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             padding: EdgeInsets.zero,
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.g_mobiledata_outlined,
-                                color: AppColors.buttonGray,
-                                size: 36.sp,
-                              ),
-                              Text(
-                                "Sign in with Google",
-                                style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.buttonGray,
+                          child: _isGoogleLoading
+                              ? CircularProgressIndicator(
+                                  color: AppColors.buttonGray)
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.g_mobiledata_outlined,
+                                      color: AppColors.buttonGray,
+                                      size: 36.sp,
+                                    ),
+                                    Text(
+                                      "Sign in with Google",
+                                      style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.buttonGray,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                       SizedBox(height: 50.h),
@@ -396,55 +434,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-        // bottomSheet: Container(
-        //   height: 110.h,
-        //   color: Colors.white,
-        //   child: Padding(
-        //     padding: EdgeInsets.symmetric(horizontal: 20.w),
-        //     child: Column(
-        //       children: [
-        //         Align(
-        //           alignment: Alignment.center,
-        //           child: Text(
-        //             "Don't have an account?",
-        //             style: TextStyle(
-        //               fontSize: 14.sp,
-        //               color: AppColors.fontGray,
-        //             ),
-        //           ),
-        //         ),
-        //         SizedBox(height: 8.h),
-        //         SizedBox(
-        //           width: double.infinity,
-        //           height: 50.h,
-        //           child: ElevatedButton(
-        //             onPressed: () => Navigate.to(context, '/signup'),
-        //             style: ElevatedButton.styleFrom(
-        //               elevation: 0,
-        //               backgroundColor: Colors.transparent,
-        //               splashFactory: NoSplash.splashFactory,
-        //               side: BorderSide(
-        //                 color: AppColors.inputBoldGray,
-        //                 width: 1,
-        //               ),
-        //               shape: RoundedRectangleBorder(
-        //                 borderRadius: BorderRadius.circular(8.r),
-        //               ),
-        //             ),
-        //             child: Text(
-        //               "Create Account",
-        //               style: TextStyle(
-        //                 fontSize: 15.sp,
-        //                 fontWeight: FontWeight.bold,
-        //                 color: AppColors.buttonGray,
-        //               ),
-        //             ),
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
       ),
     );
   }
