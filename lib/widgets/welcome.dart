@@ -18,49 +18,55 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Image.asset(
-                'assets/images/note.png',
-                width: 200.w,
-                height: 200.h,
-              ),
-              Text(
-                'Welcome to the Sticker Note App!',
-                style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Your personal sticky note app to keep your thoughts organized.',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                ),
-              ),
-              SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                height: 50.h,
-                child: ElevatedButton(
-                  onPressed: () => Navigate.toAndRemoveUntil(context, '/login'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonGray,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    padding: EdgeInsets.zero,
-                  ),
-                  child: Text(
-                    "Login",
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 100.h),
+                  Text(
+                    'Welcome to the Sticker Note App!',
                     style: TextStyle(
-                      fontSize: 15.sp,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
                   ),
-                ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Your personal sticky note app to keep your thoughts organized.',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50.h,
+                    child: ElevatedButton(
+                      onPressed: () =>
+                          Navigate.toAndRemoveUntil(context, '/login'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonGray,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: Text(
+                        "Login",
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30.h)
+                ],
               ),
             ],
           ),
