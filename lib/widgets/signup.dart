@@ -98,7 +98,7 @@ class _SignupScreenState extends State<SignupScreen> {
           Navigate.toAndRemoveUntil(context, '/home');
         } else {
           print('Existing Google user signed in: ${result.user!.email}');
-          Navigate.to(context, '/home');
+          Navigate.toAndRemoveUntil(context, '/home');
         }
       }
     } catch (e) {

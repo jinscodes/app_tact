@@ -10,6 +10,33 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  bool get isLoggedIn {
+    User? user = _auth.currentUser;
+    if (user == null) return false;
+
+    return user.emailVerified ||
+        user.providerData
+            .any((provider) => provider.providerId == 'google.com');
+  }
+
+  String getInitialRoute() {
+    User? user = _auth.currentUser;
+
+    if (user == null) {
+      return '/login';
+    }
+
+    bool isVerified = user.emailVerified ||
+        user.providerData
+            .any((provider) => provider.providerId == 'google.com');
+
+    if (isVerified) {
+      return '/home';
+    } else {
+      return '/verify';
+    }
+  }
+
   Future<UserCredential?> signInWithEmailAndPassword(
       String email, String password) async {
     try {

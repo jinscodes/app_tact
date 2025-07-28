@@ -1,6 +1,8 @@
 import 'package:app_sticker_note/colors.dart';
+import 'package:app_sticker_note/widgets/auth_wrapper.dart';
 import 'package:app_sticker_note/widgets/home.dart';
 import 'package:app_sticker_note/widgets/login.dart';
+import 'package:app_sticker_note/widgets/manage_cate.dart';
 import 'package:app_sticker_note/widgets/signup.dart';
 import 'package:app_sticker_note/widgets/verify.dart';
 import 'package:app_sticker_note/widgets/welcome.dart';
@@ -41,13 +43,14 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: Colors.white,
           ),
           title: 'Sticker Note App',
-          home: LoginScreen(),
+          home: const AuthWrapper(),
           routes: {
             '/home': (context) => const HomeScreen(),
             '/login': (context) => const LoginScreen(),
             '/signup': (context) => const SignupScreen(),
             '/verify': (context) => const VerifyScreen(),
             '/welcome': (context) => const WelcomeScreen(),
+            '/manage-category': (context) => const ManageCategoryScreen(),
           },
         );
       },
