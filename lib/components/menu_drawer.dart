@@ -1,21 +1,21 @@
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
+import 'package:app_sticker_note/services/category_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MenuDrawer extends StatelessWidget {
-  final List<String> categories;
   final VoidCallback onSignOut;
 
   const MenuDrawer({
     super.key,
-    required this.categories,
     required this.onSignOut,
   });
 
   @override
   Widget build(BuildContext context) {
     final AuthService authService = AuthService();
+    final CategoryService categoryService = CategoryService();
 
     return Drawer(
       backgroundColor: Colors.white,
@@ -81,27 +81,63 @@ class MenuDrawer extends StatelessWidget {
             },
           ),
           const Divider(),
-          if (categories.isNotEmpty) ...[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              child: Text(
-                'Categories',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ),
-            ...categories.map((category) => ListTile(
-                  leading: const Icon(Icons.label_outline),
-                  title: Text(category),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                )),
-            const Divider(),
-          ],
+          // Display user-created categories from Firebase
+          StreamBuilder<List<Map<String, dynamic>>>(
+            stream: categoryService.getCategories(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return ListTile(
+                  leading: SizedBox(
+                    width: 20.w,
+                    height: 20.h,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  title: Text('Loading categories...'),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return SizedBox.shrink();
+              }
+
+              final categories = snapshot.data ?? [];
+              final customCategories =
+                  categories.where((cat) => !cat['isDefault']).toList();
+
+              if (customCategories.isNotEmpty) {
+                return Column(
+                  children: [
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                      child: Row(
+                        children: [
+                          Text(
+                            'My Categories',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ...customCategories.map((category) => ListTile(
+                          leading: const Icon(Icons.label_outline),
+                          title: Text(category['name']),
+                          onTap: () {
+                            Navigator.pop(context);
+                            // TODO: Navigate to category view
+                          },
+                        )),
+                    const Divider(),
+                  ],
+                );
+              }
+              return SizedBox.shrink();
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.favorite_outline),
             title: const Text('Favorites'),

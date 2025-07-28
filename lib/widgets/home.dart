@@ -16,7 +16,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
-  final List<String> _categories = [];
 
   Future<void> _signOut() async {
     try {
@@ -189,7 +188,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: MenuDrawer(
-        categories: _categories,
         onSignOut: _signOut,
       ),
       body: const Center(
