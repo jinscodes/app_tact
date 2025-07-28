@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      Navigate.to(context, '/home');
+      Navigate.toAndRemoveUntil(context, '/home');
     } on FirebaseAuthException catch (e) {
       print(e.message);
       setState(() {

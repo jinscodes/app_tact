@@ -32,6 +32,24 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "cloud_firestore",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "cloud_firestore_platform_interface",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/cloud_firestore_platform_interface-6.6.12",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "cloud_firestore_web",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "collection",
       "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/collection-1.19.1",
       "packageUri": "lib/",
