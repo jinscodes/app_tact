@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:app_sticker_note/colors.dart';
+import 'package:app_sticker_note/models/category.dart';
 import 'package:app_sticker_note/services/category_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,45 +16,108 @@ class ManageCategoryScreen extends StatefulWidget {
 class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
   final TextEditingController _categoryController = TextEditingController();
   final CategoryService _categoryService = CategoryService();
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    _initializeCategories();
     _categoryController.addListener(() {
       setState(() {});
     });
-
-    _categoryService.initializeDefaultCategories();
   }
 
-  void _addCategory() async {
-    if (_categoryController.text.trim().isNotEmpty) {
-      try {
-        final exists = await _categoryService
-            .categoryExists(_categoryController.text.trim());
-        if (exists) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  'Category "${_categoryController.text}" already exists!'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-          return;
-        }
+  Future<void> _initializeCategories() async {
+    try {
+      await _categoryService.initializeDefaultCategories();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to initialize categories: ${e.toString()}';
+        });
+      }
+    }
+  }
 
-        await _categoryService.addCategory(_categoryController.text.trim());
+  Future<void> _addCategory() async {
+    if (_categoryController.text.trim().isEmpty) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await _categoryService.addCategory(_categoryController.text.trim());
+      _categoryController.clear();
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Category "${_categoryController.text}" added!'),
+          const SnackBar(
+            content: Text('Category added successfully!'),
             backgroundColor: Colors.green,
           ),
         );
-        _categoryController.clear();
-      } catch (e) {
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error adding category: $e'),
+            content: Text(_errorMessage!),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _deleteCategory(Category category) async {
+    // Show confirmation dialog
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Category'),
+        content: Text('Are you sure you want to delete "${category.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      await _categoryService.deleteCategory(category.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Category deleted successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
             backgroundColor: Colors.red,
           ),
         );
@@ -61,136 +125,61 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
     }
   }
 
-  void _editCategory(Map<String, dynamic> category) async {
-    if (category['isDefault']) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Default categories cannot be edited'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    TextEditingController editController = TextEditingController(
-      text: category['name'],
-    );
+  void _showEditDialog(Category category) {
+    final controller = TextEditingController(text: category.name);
 
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Edit Category'),
-          content: TextField(
-            controller: editController,
-            decoration: InputDecoration(
-              hintText: 'Enter category name',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-            autofocus: true,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Category'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Category Name',
+            border: OutlineInputBorder(),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                _deleteCategory(category);
-                Navigator.pop(context);
-              },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: Text('Delete'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (editController.text.trim().isNotEmpty) {
-                  try {
-                    await _categoryService.updateCategory(
-                        category['id'], editController.text.trim());
-                    Navigator.pop(context);
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (controller.text.trim().isNotEmpty) {
+                try {
+                  await _categoryService.updateCategory(
+                    category.id,
+                    controller.text.trim(),
+                  );
+                  Navigator.pop(context);
+                  if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Category updated!'),
+                      const SnackBar(
+                        content: Text('Category updated successfully!'),
                         backgroundColor: Colors.green,
                       ),
                     );
-                  } catch (e) {
+                  }
+                } catch (e) {
+                  Navigator.pop(context);
+                  if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Error updating category: $e'),
+                        content:
+                            Text(e.toString().replaceFirst('Exception: ', '')),
                         backgroundColor: Colors.red,
                       ),
                     );
                   }
                 }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-              ),
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _deleteCategory(Map<String, dynamic> category) async {
-    if (category['isDefault']) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Default categories cannot be deleted'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Delete Category'),
-          content:
-              Text('Are you sure you want to delete "${category['name']}"?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  await _categoryService.deleteCategory(category['id']);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Category deleted!'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error deleting category: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              child: Text('Delete'),
-            ),
-          ],
-        );
-      },
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -305,18 +294,35 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
                           SizedBox(width: 12.w),
                           Container(
                             decoration: BoxDecoration(
-                              color: _categoryController.text.trim().isNotEmpty
-                                  ? AppColors.baseBlack
-                                  : Color(0xFF8E8E95),
+                              color:
+                                  _categoryController.text.trim().isNotEmpty &&
+                                          !_isLoading
+                                      ? AppColors.baseBlack
+                                      : Color(0xFF8E8E95),
                               borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: IconButton(
-                              onPressed: _addCategory,
-                              icon: Icon(
-                                Icons.add,
-                                color: Colors.white,
-                                size: 20.sp,
-                              ),
+                              onPressed:
+                                  _categoryController.text.trim().isNotEmpty &&
+                                          !_isLoading
+                                      ? _addCategory
+                                      : null,
+                              icon: _isLoading
+                                  ? SizedBox(
+                                      width: 20.sp,
+                                      height: 20.sp,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white),
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                      size: 20.sp,
+                                    ),
                               padding: EdgeInsets.symmetric(
                                 horizontal: 16.w,
                                 vertical: 8.h,
@@ -360,21 +366,28 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
                         ),
                       ),
                       SizedBox(height: 20.h),
-                      StreamBuilder<List<Map<String, dynamic>>>(
-                        stream: _categoryService.getCategories(),
+                      StreamBuilder<List<Category>>(
+                        stream: _categoryService.getCategoriesStream(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return Center(
-                              child: CircularProgressIndicator(),
+                              child: Padding(
+                                padding: EdgeInsets.all(20.h),
+                                child: CircularProgressIndicator(),
+                              ),
                             );
                           }
 
                           if (snapshot.hasError) {
-                            return Center(
+                            return Padding(
+                              padding: EdgeInsets.all(20.h),
                               child: Text(
                                 'Error loading categories: ${snapshot.error}',
-                                style: TextStyle(color: Colors.red),
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 14.sp,
+                                ),
                               ),
                             );
                           }
@@ -382,9 +395,10 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
                           final categories = snapshot.data ?? [];
 
                           if (categories.isEmpty) {
-                            return Center(
+                            return Padding(
+                              padding: EdgeInsets.all(20.h),
                               child: Text(
-                                'No categories found',
+                                'No categories found. Add your first category above!',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   color: Colors.grey[600],
@@ -393,84 +407,110 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
                             );
                           }
 
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: categories.length,
-                            separatorBuilder: (context, index) =>
-                                SizedBox(height: 12.h),
-                            itemBuilder: (context, index) {
-                              final category = categories[index];
+                          return Column(
+                            children: categories.map((category) {
                               return Container(
-                                padding: EdgeInsets.all(16.w),
+                                margin: EdgeInsets.only(bottom: 8.h),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 12.h,
+                                ),
                                 decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.grey[300]!,
-                                    width: 1.0,
-                                  ),
+                                  color: Color(0xFFF8F8FA),
                                   borderRadius: BorderRadius.circular(8.r),
+                                  border: Border.all(
+                                    color: Colors.grey[200]!,
+                                    width: 1,
+                                  ),
                                 ),
                                 child: Row(
                                   children: [
+                                    Icon(
+                                      Icons.label_outline,
+                                      size: 16.sp,
+                                      color: Colors.grey[600],
+                                    ),
+                                    SizedBox(width: 12.w),
                                     Expanded(
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            category['name'],
-                                            style: TextStyle(
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.w500,
-                                              color: AppColors.baseBlack,
-                                            ),
-                                          ),
-                                          SizedBox(width: 8.w),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 10.w,
-                                              vertical: 4.h,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: category['isDefault']
-                                                  ? Colors.grey[100]
-                                                  : Colors.green[50],
-                                              borderRadius:
-                                                  BorderRadius.circular(4.r),
-                                            ),
-                                            child: Text(
-                                              category['isDefault']
-                                                  ? 'Default'
-                                                  : 'Custom',
-                                              style: TextStyle(
-                                                fontSize: 12.sp,
-                                                fontWeight: FontWeight.w500,
-                                                color: category['isDefault']
-                                                    ? Colors.grey[700]
-                                                    : Colors.green[700],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                                      child: Text(
+                                        category.name,
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.baseBlack,
+                                        ),
                                       ),
                                     ),
-                                    IconButton(
-                                      onPressed: () => _editCategory(category),
-                                      icon: Icon(
-                                        Icons.edit,
-                                        color: category['isDefault']
-                                            ? Colors.grey[400]
-                                            : AppColors.baseBlack,
-                                        size: 20.sp,
+                                    if (category.isDefault)
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 8.w,
+                                          vertical: 4.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue[100],
+                                          borderRadius:
+                                              BorderRadius.circular(12.r),
+                                        ),
+                                        child: Text(
+                                          'Default',
+                                          style: TextStyle(
+                                            fontSize: 10.sp,
+                                            color: Colors.blue[700],
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
                                       ),
-                                      padding: EdgeInsets.all(8.w),
-                                      constraints: BoxConstraints(
-                                        minWidth: 36.w,
-                                        minHeight: 36.h,
+                                    SizedBox(width: 8.w),
+                                    PopupMenuButton<String>(
+                                      onSelected: (value) {
+                                        if (value == 'edit') {
+                                          _showEditDialog(category);
+                                        } else if (value == 'delete') {
+                                          _deleteCategory(category);
+                                        }
+                                      },
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem(
+                                          value: 'edit',
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.edit, size: 16.sp),
+                                              SizedBox(width: 8.w),
+                                              Text('Edit'),
+                                            ],
+                                          ),
+                                        ),
+                                        if (!category.isDefault)
+                                          PopupMenuItem(
+                                            value: 'delete',
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.delete,
+                                                  size: 16.sp,
+                                                  color: Colors.red,
+                                                ),
+                                                SizedBox(width: 8.w),
+                                                Text(
+                                                  'Delete',
+                                                  style: TextStyle(
+                                                      color: Colors.red),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                      icon: Icon(
+                                        Icons.more_vert,
+                                        size: 18.sp,
+                                        color: Colors.grey[600],
                                       ),
                                     ),
                                   ],
                                 ),
                               );
-                            },
+                            }).toList(),
                           );
                         },
                       ),
