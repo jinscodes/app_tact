@@ -431,80 +431,68 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
                                     ),
                                     SizedBox(width: 12.w),
                                     Expanded(
-                                      child: Text(
-                                        category.name,
-                                        style: TextStyle(
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.baseBlack,
-                                        ),
-                                      ),
-                                    ),
-                                    if (category.isDefault)
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8.w,
-                                          vertical: 4.h,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue[100],
-                                          borderRadius:
-                                              BorderRadius.circular(12.r),
-                                        ),
-                                        child: Text(
-                                          'Default',
-                                          style: TextStyle(
-                                            fontSize: 10.sp,
-                                            color: Colors.blue[700],
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                    SizedBox(width: 8.w),
-                                    PopupMenuButton<String>(
-                                      onSelected: (value) {
-                                        if (value == 'edit') {
-                                          _showEditDialog(category);
-                                        } else if (value == 'delete') {
-                                          _deleteCategory(category);
-                                        }
-                                      },
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem(
-                                          value: 'edit',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.edit, size: 16.sp),
-                                              SizedBox(width: 8.w),
-                                              Text('Edit'),
-                                            ],
-                                          ),
-                                        ),
-                                        if (!category.isDefault)
-                                          PopupMenuItem(
-                                            value: 'delete',
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.delete,
-                                                  size: 16.sp,
-                                                  color: Colors.red,
-                                                ),
-                                                SizedBox(width: 8.w),
-                                                Text(
-                                                  'Delete',
-                                                  style: TextStyle(
-                                                      color: Colors.red),
-                                                ),
-                                              ],
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            category.name,
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500,
+                                              color: AppColors.baseBlack,
                                             ),
                                           ),
-                                      ],
-                                      icon: Icon(
-                                        Icons.more_vert,
-                                        size: 18.sp,
-                                        color: Colors.grey[600],
+                                          if (category.isDefault) ...[
+                                            SizedBox(width: 8.w),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 8.w,
+                                                vertical: 4.h,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.defaultGray,
+                                                borderRadius:
+                                                    BorderRadius.circular(8.r),
+                                              ),
+                                              child: Text(
+                                                'Default',
+                                                style: TextStyle(
+                                                  fontSize: 10.sp,
+                                                  color: AppColors.fontGray,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
                                       ),
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () =>
+                                              _showEditDialog(category),
+                                          child: Icon(
+                                            Icons.edit_outlined,
+                                            size: 18.sp,
+                                            color: AppColors.baseBlack,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        if (!category.isDefault) ...[
+                                          SizedBox(width: 8.w),
+                                          GestureDetector(
+                                            onTap: () =>
+                                                _deleteCategory(category),
+                                            child: Icon(
+                                              Icons.delete_outline,
+                                              size: 18.sp,
+                                              color: Colors.red[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ],
                                 ),

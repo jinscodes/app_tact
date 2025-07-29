@@ -8,4 +8,5 @@ class AppColors {
   static const Color placeholderGray = Color(0xFF969FAB);
   static const Color forgotGray = Color(0xFF424D5C);
   static const Color buttonGray = Color(0xFF101827);
+  static const Color defaultGray = Color(0xFFECECF0);
 }

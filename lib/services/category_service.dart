@@ -135,7 +135,6 @@ class CategoryService {
         'Personal',
         'Work',
         'Ideas',
-        'Shopping',
         'To-Do',
       ];
 
