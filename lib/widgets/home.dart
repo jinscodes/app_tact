@@ -4,6 +4,7 @@ import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/components/menu_drawer.dart';
 import 'package:app_sticker_note/models/navigate.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
+import 'package:app_sticker_note/services/category_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -16,6 +17,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
+  final CategoryService _categoryService = CategoryService();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCategories();
+  }
+
+  Future<void> _initializeCategories() async {
+    try {
+      await _categoryService.initializeDefaultCategories();
+    } catch (e) {
+      print('Error initializing categories: $e');
+    }
+  }
 
   Future<void> _signOut() async {
     try {
