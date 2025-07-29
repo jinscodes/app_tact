@@ -82,12 +82,21 @@ class MenuDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               if (onCategorySelected != null) {
-                onCategorySelected!(null); // null means all notes
+                onCategorySelected!(null);
               }
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.star_border_outlined),
+            title: const Text('Starred'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete_outline),
+            title: const Text('Trash'),
+            onTap: () {},
+          ),
           const Divider(),
-          // Categories Section
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: Row(
@@ -99,17 +108,6 @@ class MenuDrawer extends StatelessWidget {
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey[700],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/manage-category');
-                  },
-                  child: Icon(
-                    Icons.settings,
-                    size: 18.sp,
-                    color: Colors.grey[600],
                   ),
                 ),
               ],
@@ -171,36 +169,17 @@ class MenuDrawer extends StatelessWidget {
                       Icons.label_outline,
                       size: 20.sp,
                       color: category.isDefault
-                          ? Colors.blue[600]
-                          : Colors.grey[600],
+                          ? Colors.grey[600]
+                          : AppColors.baseBlack,
                     ),
                     title: Text(
                       category.name,
                       style: TextStyle(
+                        color: AppColors.baseBlack,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.normal,
                       ),
                     ),
-                    trailing: category.isDefault
-                        ? Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 6.w,
-                              vertical: 2.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue[100],
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Text(
-                              'Default',
-                              style: TextStyle(
-                                fontSize: 9.sp,
-                                color: Colors.blue[700],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          )
-                        : null,
                     onTap: () {
                       Navigator.pop(context);
                       if (onCategorySelected != null) {
@@ -213,6 +192,22 @@ class MenuDrawer extends StatelessWidget {
             },
           ),
           const Divider(),
+          ListTile(
+            leading: const Icon(
+              Icons.category,
+              color: AppColors.baseBlack,
+            ),
+            title: const Text(
+              'Manage Categories',
+              style: TextStyle(
+                color: AppColors.baseBlack,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/manage-category');
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Sign Out', style: TextStyle(color: Colors.red)),
