@@ -2,6 +2,8 @@
 
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/components/menu_drawer.dart';
+import 'package:app_sticker_note/components/show_create_menu.dart';
+import 'package:app_sticker_note/models/category.dart';
 import 'package:app_sticker_note/models/navigate.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
 import 'package:app_sticker_note/services/category_service.dart';
@@ -18,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
   final CategoryService _categoryService = CategoryService();
+  Category? _selectedCategory;
 
   @override
   void initState() {
@@ -33,6 +36,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _onCategorySelected(Category? category) {
+    setState(() {
+      _selectedCategory = category;
+    });
+    // Here you can filter notes by category
+    // For now, just show a snackbar
+    String message = category == null
+        ? 'Showing all notes'
+        : 'Showing notes for: ${category.name}';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   Future<void> _signOut() async {
     try {
       _authService.signOut();
@@ -40,109 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print('Sign out error: $e');
     }
-  }
-
-  void _showCreateMenu() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
-              SizedBox(height: 20.h),
-              Text(
-                'Create New',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 20.h),
-              ListTile(
-                leading: Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(
-                    Icons.note_add,
-                    color: Colors.blue,
-                    size: 24.sp,
-                  ),
-                ),
-                title: Text(
-                  'Create Note',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  'Add a new sticky note',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _createNote();
-                },
-              ),
-              SizedBox(height: 10.h),
-              ListTile(
-                leading: Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: Colors.green[50],
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(
-                    Icons.category,
-                    color: Colors.green,
-                    size: 24.sp,
-                  ),
-                ),
-                title: Text(
-                  'Create Category',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  'Organize your notes',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _createCategory();
-                },
-              ),
-              SizedBox(height: 20.h),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   void _createNote() {
@@ -163,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'All Notes',
+          _selectedCategory == null ? 'All Notes' : _selectedCategory!.name,
           style: TextStyle(
             fontSize: 20.sp,
             fontWeight: FontWeight.w500,
@@ -205,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       drawer: MenuDrawer(
         onSignOut: _signOut,
+        onCategorySelected: _onCategorySelected,
       ),
       body: const Center(
         child: Column(
@@ -239,7 +158,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         child: FloatingActionButton(
-          onPressed: _showCreateMenu,
+          onPressed: () => ShowCreateMenu.show(
+            context: context,
+            onCreateNote: _createNote,
+            onCreateCategory: _createCategory,
+          ),
           backgroundColor: Colors.transparent,
           elevation: 0,
           child: Icon(

@@ -81,7 +81,6 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
   }
 
   Future<void> _deleteCategory(Category category) async {
-    // Show confirmation dialog
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -517,6 +516,46 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
                     ],
                   ),
                 ),
+                SizedBox(height: 20.h),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(20.w),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF5F5F7),
+                    border: Border.all(
+                      color: Colors.grey[300]!,
+                      width: 1.5.w,
+                    ),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Tips:',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.normal,
+                          color: AppColors.baseBlack,
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                      Text(
+                        "• Press Enter to quickly add a new category\n"
+                        "• Default categories (Work, Personal, Travel, Learning) cannot be deleted\n"
+                        "• You can edit category names by clicking the edit icon\n"
+                        "• Categories with existing notes will still appear even if deleted",
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.normal,
+                          color: AppColors.fontGray,
+                          height: 1.6.h,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 60.h),
               ],
             ),
           ),
