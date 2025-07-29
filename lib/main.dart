@@ -1,5 +1,6 @@
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/widgets/auth_wrapper.dart';
+import 'package:app_sticker_note/widgets/create_note.dart';
 import 'package:app_sticker_note/widgets/home.dart';
 import 'package:app_sticker_note/widgets/login.dart';
 import 'package:app_sticker_note/widgets/manage_cate.dart';
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
             '/verify': (context) => const VerifyScreen(),
             '/welcome': (context) => const WelcomeScreen(),
             '/manage-category': (context) => const ManageCategoryScreen(),
+            '/create-note': (context) => const CreateNote(),
           },
         );
       },

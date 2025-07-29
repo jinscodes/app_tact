@@ -19,6 +19,9 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  String? _editingCategoryId;
+  final Map<String, TextEditingController> _editControllers = {};
+
   @override
   void initState() {
     super.initState();
@@ -51,14 +54,6 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
     try {
       await _categoryService.addCategory(_categoryController.text.trim());
       _categoryController.clear();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Category added successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -81,34 +76,13 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
   }
 
   Future<void> _deleteCategory(Category category) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Category'),
-        content: Text('Are you sure you want to delete "${category.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
     try {
       await _categoryService.deleteCategory(category.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Category deleted successfully!'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.placeholderGray,
           ),
         );
       }
@@ -124,67 +98,63 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
     }
   }
 
-  void _showEditDialog(Category category) {
-    final controller = TextEditingController(text: category.name);
+  void _startEditing(Category category) {
+    setState(() {
+      _editingCategoryId = category.id;
+      _editControllers[category.id] =
+          TextEditingController(text: category.name);
+    });
+  }
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Category'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Category Name',
-            border: OutlineInputBorder(),
+  void _cancelEditing() {
+    setState(() {
+      if (_editingCategoryId != null) {
+        _editControllers[_editingCategoryId!]?.dispose();
+        _editControllers.remove(_editingCategoryId);
+        _editingCategoryId = null;
+      }
+    });
+  }
+
+  Future<void> _saveEdit() async {
+    if (_editingCategoryId == null) return;
+
+    final controller = _editControllers[_editingCategoryId!];
+    if (controller == null || controller.text.trim().isEmpty) return;
+
+    try {
+      await _categoryService.updateCategory(
+        _editingCategoryId!,
+        controller.text.trim(),
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Category updated successfully!'),
+            backgroundColor: Colors.green,
           ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+        );
+        _cancelEditing();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            backgroundColor: Colors.red,
           ),
-          TextButton(
-            onPressed: () async {
-              if (controller.text.trim().isNotEmpty) {
-                try {
-                  await _categoryService.updateCategory(
-                    category.id,
-                    controller.text.trim(),
-                  );
-                  Navigator.pop(context);
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Category updated successfully!'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  Navigator.pop(context);
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content:
-                            Text(e.toString().replaceFirst('Exception: ', '')),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                }
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
+        );
+      }
+    }
   }
 
   @override
   void dispose() {
     _categoryController.dispose();
+    for (final controller in _editControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -408,6 +378,9 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
 
                           return Column(
                             children: categories.map((category) {
+                              final isEditing =
+                                  _editingCategoryId == category.id;
+
                               return Container(
                                 margin: EdgeInsets.only(bottom: 8.h),
                                 padding: EdgeInsets.symmetric(
@@ -431,80 +404,133 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
                                     ),
                                     SizedBox(width: 12.w),
                                     Expanded(
-                                      child: Text(
-                                        category.name,
-                                        style: TextStyle(
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.baseBlack,
-                                        ),
+                                      child: Row(
+                                        children: [
+                                          if (isEditing) ...[
+                                            Expanded(
+                                              child: TextField(
+                                                controller: _editControllers[
+                                                    category.id],
+                                                autofocus: true,
+                                                style: TextStyle(
+                                                  fontSize: 14.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: AppColors.baseBlack,
+                                                ),
+                                                decoration: InputDecoration(
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4.r),
+                                                    borderSide: BorderSide(
+                                                      color:
+                                                          AppColors.baseBlack,
+                                                      width: 1,
+                                                    ),
+                                                  ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4.r),
+                                                    borderSide: BorderSide(
+                                                      color:
+                                                          AppColors.baseBlack,
+                                                      width: 1.5,
+                                                    ),
+                                                  ),
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                    horizontal: 8.w,
+                                                    vertical: 4.h,
+                                                  ),
+                                                  isDense: true,
+                                                ),
+                                                onSubmitted: (_) => _saveEdit(),
+                                              ),
+                                            ),
+                                          ] else ...[
+                                            Text(
+                                              category.name,
+                                              style: TextStyle(
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.w500,
+                                                color: AppColors.baseBlack,
+                                              ),
+                                            ),
+                                            if (category.isDefault) ...[
+                                              SizedBox(width: 8.w),
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 8.w,
+                                                  vertical: 4.h,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.defaultGray,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.r),
+                                                ),
+                                                child: Text(
+                                                  'Default',
+                                                  style: TextStyle(
+                                                    fontSize: 10.sp,
+                                                    color: AppColors.fontGray,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ],
                                       ),
                                     ),
-                                    if (category.isDefault)
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8.w,
-                                          vertical: 4.h,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue[100],
-                                          borderRadius:
-                                              BorderRadius.circular(12.r),
-                                        ),
-                                        child: Text(
-                                          'Default',
-                                          style: TextStyle(
-                                            fontSize: 10.sp,
-                                            color: Colors.blue[700],
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
                                     SizedBox(width: 8.w),
-                                    PopupMenuButton<String>(
-                                      onSelected: (value) {
-                                        if (value == 'edit') {
-                                          _showEditDialog(category);
-                                        } else if (value == 'delete') {
-                                          _deleteCategory(category);
-                                        }
-                                      },
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem(
-                                          value: 'edit',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.edit, size: 16.sp),
-                                              SizedBox(width: 8.w),
-                                              Text('Edit'),
-                                            ],
-                                          ),
-                                        ),
-                                        if (!category.isDefault)
-                                          PopupMenuItem(
-                                            value: 'delete',
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.delete,
-                                                  size: 16.sp,
-                                                  color: Colors.red,
-                                                ),
-                                                SizedBox(width: 8.w),
-                                                Text(
-                                                  'Delete',
-                                                  style: TextStyle(
-                                                      color: Colors.red),
-                                                ),
-                                              ],
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (isEditing) ...[
+                                          GestureDetector(
+                                            onTap: _saveEdit,
+                                            child: Icon(
+                                              Icons.check,
+                                              size: 18.sp,
+                                              color: Colors.green[600],
                                             ),
                                           ),
+                                          SizedBox(width: 8.w),
+                                          GestureDetector(
+                                            onTap: _cancelEditing,
+                                            child: Icon(
+                                              Icons.close,
+                                              size: 18.sp,
+                                              color: Colors.red[600],
+                                            ),
+                                          ),
+                                        ] else ...[
+                                          GestureDetector(
+                                            onTap: () =>
+                                                _startEditing(category),
+                                            child: Icon(
+                                              Icons.edit_outlined,
+                                              size: 18.sp,
+                                              color: AppColors.baseBlack,
+                                            ),
+                                          ),
+                                          if (!category.isDefault) ...[
+                                            SizedBox(width: 8.w),
+                                            GestureDetector(
+                                              onTap: () =>
+                                                  _deleteCategory(category),
+                                              child: Icon(
+                                                Icons.delete_outline,
+                                                size: 18.sp,
+                                                color: Colors.red[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ],
                                       ],
-                                      icon: Icon(
-                                        Icons.more_vert,
-                                        size: 18.sp,
-                                        color: Colors.grey[600],
-                                      ),
                                     ),
                                   ],
                                 ),

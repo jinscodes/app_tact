@@ -40,8 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedCategory = category;
     });
-    // Here you can filter notes by category
-    // For now, just show a snackbar
+
     String message = category == null
         ? 'Showing all notes'
         : 'Showing notes for: ${category.name}';
@@ -64,16 +63,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _createNote() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Create Note feature coming soon!'),
-        backgroundColor: Colors.blue,
-      ),
-    );
-  }
-
-  void _createCategory() {
-    Navigate.to(context, '/manage-category');
+    Navigate.to(context, '/create-note');
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text('Create Note feature coming soon!'),
+    //     backgroundColor: Colors.blue,
+    //   ),
+    // );
   }
 
   @override
@@ -161,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () => ShowCreateMenu.show(
             context: context,
             onCreateNote: _createNote,
-            onCreateCategory: _createCategory,
+            onCreateCategory: () => Navigate.to(context, '/manage-category'),
           ),
           backgroundColor: Colors.transparent,
           elevation: 0,
