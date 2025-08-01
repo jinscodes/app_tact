@@ -64,12 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _createNote() {
     Navigate.to(context, '/create-note');
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text('Create Note feature coming soon!'),
-    //     backgroundColor: Colors.blue,
-    //   ),
-    // );
   }
 
   @override

@@ -68,7 +68,7 @@ class NoteService {
     required String title,
     required String description,
     required String categoryId,
-    bool isFavorite = false,
+    bool isStarred = false,
   }) async {
     try {
       final userId = _auth.currentUser?.uid;
@@ -94,7 +94,7 @@ class NoteService {
         categoryId: categoryId,
         userId: userId,
         createdAt: now,
-        isFavorite: isFavorite,
+        isStarred: isStarred,
       );
 
       await docRef.set(note.toMap());
@@ -169,7 +169,7 @@ class NoteService {
 
       final note =
           Note.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
-      await updateNote(noteId: noteId, isFavorite: !note.isFavorite);
+      await updateNote(noteId: noteId, isFavorite: !note.isStarred);
       print('Note favorite toggled: $noteId');
     } catch (e) {
       print('Error toggling favorite: $e');

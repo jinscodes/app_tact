@@ -47,3 +47,8 @@ ios/Runner/GoogleService-Info.plist
 # Android 보안 키 관련 파일
 android/app/upload-keystore.jks
 android/app/key.properties
+
+# 
+firebase.json
+firestore.indexes.json
+firestore.rulse
