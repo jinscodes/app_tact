@@ -19,7 +19,7 @@ class _CreateNoteState extends State<CreateNote> {
   final NoteService _noteService = NoteService();
 
   String? _selectedCategoryId;
-  bool _isFavorite = false;
+  bool _isStarred = false;
   bool _isLoading = false;
 
   @override
@@ -51,7 +51,7 @@ class _CreateNoteState extends State<CreateNote> {
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         categoryId: _selectedCategoryId!,
-        isFavorite: _isFavorite,
+        isStarred: _isStarred,
       );
 
       if (mounted) {
@@ -121,12 +121,12 @@ class _CreateNoteState extends State<CreateNote> {
           IconButton(
             onPressed: () {
               setState(() {
-                _isFavorite = !_isFavorite;
+                _isStarred = !_isStarred;
               });
             },
             icon: Icon(
-              _isFavorite ? Icons.star : Icons.star_border_outlined,
-              color: _isFavorite ? Colors.amber : null,
+              _isStarred ? Icons.star : Icons.star_border_outlined,
+              color: _isStarred ? Colors.amber : null,
             ),
           ),
           GestureDetector(
@@ -170,52 +170,6 @@ class _CreateNoteState extends State<CreateNote> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 20.h),
-
-                // Title Section
-                Text(
-                  'Title',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.baseBlack,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                TextField(
-                  controller: _titleController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter note title',
-                    hintStyle: TextStyle(
-                      color: AppColors.placeholderGray,
-                      fontSize: 14.sp,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.inputGray,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: AppColors.baseBlack,
-                        width: 1.5,
-                      ),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
-                  ),
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: AppColors.baseBlack,
-                  ),
-                ),
-
-                SizedBox(height: 20.h),
-
-                // Category Section
                 Text(
                   'Category',
                   style: TextStyle(
@@ -344,10 +298,48 @@ class _CreateNoteState extends State<CreateNote> {
                     );
                   },
                 ),
-
                 SizedBox(height: 20.h),
-
-                // Description Section
+                Text(
+                  'Title',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.baseBlack,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                TextField(
+                  controller: _titleController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter note title',
+                    hintStyle: TextStyle(
+                      color: AppColors.placeholderGray,
+                      fontSize: 14.sp,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.inputGray,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: BorderSide(
+                        color: AppColors.baseBlack,
+                        width: 1.5,
+                      ),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 12.h,
+                    ),
+                  ),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.baseBlack,
+                  ),
+                ),
+                SizedBox(height: 20.h),
                 Text(
                   'Description',
                   style: TextStyle(
@@ -390,7 +382,6 @@ class _CreateNoteState extends State<CreateNote> {
                     height: 1.5,
                   ),
                 ),
-
                 SizedBox(height: 40.h),
               ],
             ),

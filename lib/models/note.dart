@@ -5,7 +5,7 @@ class Note {
   final String categoryId;
   final String userId;
   final DateTime createdAt;
-  final bool isFavorite;
+  final bool isStarred;
 
   Note({
     required this.id,
@@ -14,7 +14,7 @@ class Note {
     required this.categoryId,
     required this.userId,
     required this.createdAt,
-    this.isFavorite = false,
+    this.isStarred = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -25,7 +25,7 @@ class Note {
       'categoryId': categoryId,
       'userId': userId,
       'createdAt': createdAt.toIso8601String(),
-      'isFavorite': isFavorite,
+      'isStarred': isStarred,
     };
   }
 
@@ -37,7 +37,7 @@ class Note {
       categoryId: map['categoryId'] ?? '',
       userId: map['userId'] ?? '',
       createdAt: DateTime.parse(map['createdAt']),
-      isFavorite: map['isFavorite'] ?? false,
+      isStarred: map['isStarred'] ?? false,
     );
   }
 
@@ -49,7 +49,7 @@ class Note {
       categoryId: data['categoryId'] ?? '',
       userId: data['userId'] ?? '',
       createdAt: DateTime.parse(data['createdAt']),
-      isFavorite: data['isFavorite'] ?? false,
+      isStarred: data['isStarred'] ?? false,
     );
   }
 
@@ -60,7 +60,7 @@ class Note {
     String? categoryId,
     String? userId,
     DateTime? createdAt,
-    bool? isFavorite,
+    bool? isStarred,
   }) {
     return Note(
       id: id ?? this.id,
@@ -69,7 +69,7 @@ class Note {
       categoryId: categoryId ?? this.categoryId,
       userId: userId ?? this.userId,
       createdAt: createdAt ?? this.createdAt,
-      isFavorite: isFavorite ?? this.isFavorite,
+      isStarred: isStarred ?? this.isStarred,
     );
   }
 
@@ -84,6 +84,6 @@ class Note {
 
   @override
   String toString() {
-    return 'Note(id: $id, title: $title, categoryId: $categoryId, createdAt: $createdAt, isFavorite: $isFavorite)';
+    return 'Note(id: $id, title: $title, categoryId: $categoryId, createdAt: $createdAt, isStarred: $isStarred)';
   }
 }
