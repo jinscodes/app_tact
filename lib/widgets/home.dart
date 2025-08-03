@@ -2,11 +2,14 @@
 
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/components/menu_drawer.dart';
+import 'package:app_sticker_note/components/note_card.dart';
 import 'package:app_sticker_note/components/show_create_menu.dart';
 import 'package:app_sticker_note/models/category.dart';
 import 'package:app_sticker_note/models/navigate.dart';
+import 'package:app_sticker_note/models/note.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
 import 'package:app_sticker_note/services/category_service.dart';
+import 'package:app_sticker_note/services/note_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -20,6 +23,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
   final CategoryService _categoryService = CategoryService();
+  final NoteService _noteService = NoteService();
   Category? _selectedCategory;
 
   @override
@@ -64,6 +68,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _createNote() {
     Navigate.to(context, '/create-note');
+  }
+
+  Future<void> _toggleFavorite(Note note) async {
+    try {
+      await _noteService.toggleFavorite(note.id);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Failed to update favorite: ${e.toString().replaceFirst('Exception: ', '')}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -115,24 +135,122 @@ class _HomeScreenState extends State<HomeScreen> {
         onSignOut: _signOut,
         onCategorySelected: _onCategorySelected,
       ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Welcome to Sticky Notes!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+      body: StreamBuilder<List<Note>>(
+        stream: _selectedCategory == null
+            ? _noteService.getNotesStream()
+            : _noteService.getNotesByCategoryStream(_selectedCategory!.id),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 40.w,
+                    height: 40.h,
+                    child: CircularProgressIndicator(
+                      color: AppColors.baseBlack,
+                      strokeWidth: 3.0,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'Loading notes...',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 48.sp,
+                    color: Colors.red,
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'Error loading notes',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Please try again',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final notes = snapshot.data ?? [];
+
+          if (notes.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.note_add_outlined,
+                    size: 64.sp,
+                    color: Colors.grey[400],
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    _selectedCategory == null
+                        ? 'No notes yet'
+                        : 'No notes in ${_selectedCategory!.name}',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Tap the + button to create your first note',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return Padding(
+            padding: EdgeInsets.all(16.w),
+            child: ListView.builder(
+              itemCount: notes.length,
+              itemBuilder: (context, index) {
+                final note = notes[index];
+                return NoteCard(
+                  note: note,
+                  onToggleFavorite: () => _toggleFavorite(note),
+                  onTap: () {
+                    print('Note tapped: ${note.title}');
+                  },
+                );
+              },
             ),
-            SizedBox(height: 16),
-            Text(
-              'You are successfully logged in.',
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
+          );
+        },
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(
