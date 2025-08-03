@@ -113,7 +113,6 @@ class MenuDrawer extends StatelessWidget {
               ],
             ),
           ),
-          // Dynamic Categories List
           StreamBuilder<List<Category>>(
             stream: categoryService.getCategoriesStream(),
             builder: (context, snapshot) {
@@ -162,32 +161,80 @@ class MenuDrawer extends StatelessWidget {
               }
 
               return Column(
-                children: categories.map((category) {
-                  return ListTile(
+                children: [
+                  ListTile(
                     dense: true,
                     leading: Icon(
-                      Icons.label_outline,
+                      Icons.folder_outlined,
                       size: 20.sp,
-                      color: category.isDefault
-                          ? Colors.grey[600]
-                          : AppColors.baseBlack,
+                      color: AppColors.baseBlack,
                     ),
                     title: Text(
-                      category.name,
+                      'All Notes',
                       style: TextStyle(
                         color: AppColors.baseBlack,
                         fontSize: 14.sp,
-                        fontWeight: FontWeight.normal,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     onTap: () {
                       Navigator.pop(context);
                       if (onCategorySelected != null) {
-                        onCategorySelected!(category);
+                        onCategorySelected!(null);
                       }
                     },
-                  );
-                }).toList(),
+                  ),
+                  ...categories.map((category) {
+                    return ListTile(
+                      dense: true,
+                      leading: Icon(
+                        Icons.label_outline,
+                        size: 20.sp,
+                        color: category.isDefault
+                            ? Colors.grey[600]
+                            : AppColors.baseBlack,
+                      ),
+                      title: Row(
+                        children: [
+                          Text(
+                            category.name,
+                            style: TextStyle(
+                              color: AppColors.baseBlack,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          if (category.isDefault) ...[
+                            SizedBox(width: 8.w),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 6.w,
+                                vertical: 2.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.defaultGray,
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Text(
+                                'Default',
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  color: AppColors.fontGray,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        if (onCategorySelected != null) {
+                          onCategorySelected!(category);
+                        }
+                      },
+                    );
+                  }),
+                ],
               );
             },
           ),

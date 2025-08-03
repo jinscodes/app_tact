@@ -32,14 +32,21 @@ class NoteService {
 
   Stream<List<Note>> getNotesByCategoryStream(String categoryId) {
     try {
+      print('Getting notes for category: $categoryId');
       return _notesCollection
           .where('categoryId', isEqualTo: categoryId)
-          .orderBy('createdAt', descending: true)
           .snapshots()
           .map((snapshot) {
-        return snapshot.docs.map((doc) {
+        print(
+            'Category stream snapshot received: ${snapshot.docs.length} notes');
+        final notes = snapshot.docs.map((doc) {
           return Note.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
         }).toList();
+
+        // Sort in memory instead of using orderBy to avoid composite index requirement
+        notes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+        return notes;
       });
     } catch (e) {
       print('Error getting notes by category stream: $e');

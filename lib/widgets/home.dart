@@ -47,12 +47,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     String message = category == null
         ? 'Showing all notes'
-        : 'Showing notes for: ${category.name}';
-
+        : 'Showing notes in "${category.name}"';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -168,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           if (snapshot.hasError) {
+            print('StreamBuilder error: ${snapshot.error}');
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -187,11 +187,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    'Please try again',
+                    '${snapshot.error}',
                     style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey[600],
+                      fontSize: 12.sp,
+                      color: Colors.red[600],
                     ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 8.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedCategory = null;
+                      });
+                    },
+                    child: Text('Show All Notes'),
                   ),
                 ],
               ),
