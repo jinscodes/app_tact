@@ -87,208 +87,242 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _selectedCategory == null ? 'All Notes' : _selectedCategory!.name,
-          style: TextStyle(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        elevation: 0,
-        centerTitle: false,
-        forceMaterialTransparency: true,
-        backgroundColor: Colors.transparent,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.grey[300],
-            height: 1.0,
-          ),
-        ),
-        leading: Builder(
-          builder: (context) => IconButton(
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            icon: Icon(
-              Icons.menu_rounded,
-            ),
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.search,
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.filter_alt_outlined,
-            ),
-          ),
-        ],
-      ),
-      drawer: MenuDrawer(
-        onSignOut: _signOut,
-        onCategorySelected: _onCategorySelected,
-      ),
-      body: StreamBuilder<List<Note>>(
-        stream: _selectedCategory == null
-            ? _noteService.getNotesStream()
-            : _noteService.getNotesByCategoryStream(_selectedCategory!.id),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 40.w,
-                    height: 40.h,
-                    child: CircularProgressIndicator(
-                      color: AppColors.baseBlack,
-                      strokeWidth: 3.0,
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  Text(
-                    'Loading notes...',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
+    return StreamBuilder<List<Note>>(
+      stream: _selectedCategory == null
+          ? _noteService.getNotesStream()
+          : _noteService.getNotesByCategoryStream(_selectedCategory!.id),
+      builder: (context, snapshot) {
+        final notes = snapshot.data ?? [];
+        final noteCount = notes.length;
 
-          if (snapshot.hasError) {
-            print('StreamBuilder error: ${snapshot.error}');
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 48.sp,
-                    color: Colors.red,
+        return Scaffold(
+          appBar: AppBar(
+            title: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  _selectedCategory == null
+                      ? 'All Notes'
+                      : _selectedCategory!.name,
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w500,
                   ),
-                  SizedBox(height: 16.h),
-                  Text(
-                    'Error loading notes',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
+                ),
+                SizedBox(width: 8.w),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.w,
+                    vertical: 4.h,
                   ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    '${snapshot.error}',
+                  decoration: BoxDecoration(
+                    color: AppColors.inputGray,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                  child: Text(
+                    '$noteCount',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: Colors.red[600],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 8.h),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedCategory = null;
-                      });
-                    },
-                    child: Text('Show All Notes'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final notes = snapshot.data ?? [];
-
-          if (notes.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.note_add_outlined,
-                    size: 64.sp,
-                    color: Colors.grey[400],
-                  ),
-                  SizedBox(height: 16.h),
-                  Text(
-                    _selectedCategory == null
-                        ? 'No notes yet'
-                        : 'No notes in ${_selectedCategory!.name}',
-                    style: TextStyle(
-                      fontSize: 18.sp,
                       fontWeight: FontWeight.w500,
-                      color: Colors.grey[600],
+                      color: AppColors.baseBlack,
                     ),
                   ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    'Tap the + button to create your first note',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return Padding(
-            padding: EdgeInsets.all(16.w),
-            child: ListView.builder(
-              itemCount: notes.length,
-              itemBuilder: (context, index) {
-                final note = notes[index];
-                return NoteCard(
-                  note: note,
-                  onToggleFavorite: () => _toggleFavorite(note),
-                  onTap: () {
-                    print('Note tapped: ${note.title}');
-                  },
-                );
-              },
+                ),
+              ],
             ),
-          );
-        },
-      ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          color: AppColors.baseBlack,
-          borderRadius: BorderRadius.circular(30.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: Offset(0, 3),
+            elevation: 0,
+            centerTitle: false,
+            forceMaterialTransparency: true,
+            backgroundColor: Colors.transparent,
+            bottom: PreferredSize(
+              preferredSize: Size.fromHeight(1.0),
+              child: Container(
+                color: Colors.grey[300],
+                height: 1.0,
+              ),
+            ),
+            leading: Builder(
+              builder: (context) => IconButton(
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: Icon(
+                  Icons.menu_rounded,
+                ),
+              ),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.search,
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.filter_alt_outlined,
+                ),
+              ),
+            ],
+          ),
+          drawer: MenuDrawer(
+            onSignOut: _signOut,
+            onCategorySelected: _onCategorySelected,
+          ),
+          body: _buildBody(snapshot),
+          floatingActionButton: Container(
+            decoration: BoxDecoration(
+              color: AppColors.baseBlack,
+              borderRadius: BorderRadius.circular(30.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: FloatingActionButton(
+              onPressed: () => ShowCreateMenu.show(
+                context: context,
+                onCreateNote: _createNote,
+                onCreateCategory: () =>
+                    Navigate.to(context, '/manage-category'),
+              ),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              child: Icon(
+                Icons.add,
+                size: 20.sp,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(AsyncSnapshot<List<Note>> snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 40.w,
+              height: 40.h,
+              child: CircularProgressIndicator(
+                color: AppColors.baseBlack,
+                strokeWidth: 3.0,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Loading notes...',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
-        child: FloatingActionButton(
-          onPressed: () => ShowCreateMenu.show(
-            context: context,
-            onCreateNote: _createNote,
-            onCreateCategory: () => Navigate.to(context, '/manage-category'),
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: Icon(
-            Icons.add,
-            size: 20.sp,
-            color: Colors.white,
-          ),
+      );
+    }
+
+    if (snapshot.hasError) {
+      print('StreamBuilder error: ${snapshot.error}');
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48.sp,
+              color: Colors.red,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Error loading notes',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              '${snapshot.error}',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.red[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8.h),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _selectedCategory = null;
+                });
+              },
+              child: Text('Show All Notes'),
+            ),
+          ],
         ),
+      );
+    }
+
+    final notes = snapshot.data ?? [];
+
+    if (notes.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.note_add_outlined,
+              size: 64.sp,
+              color: Colors.grey[400],
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              _selectedCategory == null
+                  ? 'No notes yet'
+                  : 'No notes in ${_selectedCategory!.name}',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Tap the + button to create your first note',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey[500],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(16.w),
+      child: ListView.builder(
+        itemCount: notes.length,
+        itemBuilder: (context, index) {
+          final note = notes[index];
+          return NoteCard(
+            note: note,
+            onToggleFavorite: () => _toggleFavorite(note),
+            onTap: () {
+              print('Note tapped: ${note.title}');
+            },
+          );
+        },
       ),
     );
   }

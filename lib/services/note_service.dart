@@ -43,7 +43,6 @@ class NoteService {
           return Note.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
         }).toList();
 
-        // Sort in memory instead of using orderBy to avoid composite index requirement
         notes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
         return notes;
