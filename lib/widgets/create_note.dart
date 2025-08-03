@@ -25,12 +25,12 @@ class _CreateNoteState extends State<CreateNote> {
   @override
   void initState() {
     super.initState();
-    _titleController.addListener(() {
-      setState(() {});
-    });
-    _descriptionController.addListener(() {
-      setState(() {});
-    });
+    _titleController.addListener(_updateSaveButtonState);
+    _descriptionController.addListener(_updateSaveButtonState);
+  }
+
+  void _updateSaveButtonState() {
+    setState(() {});
   }
 
   bool get _canSave {
@@ -84,6 +84,8 @@ class _CreateNoteState extends State<CreateNote> {
 
   @override
   void dispose() {
+    _titleController.removeListener(_updateSaveButtonState);
+    _descriptionController.removeListener(_updateSaveButtonState);
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -225,14 +227,9 @@ class _CreateNoteState extends State<CreateNote> {
                       decoration: BoxDecoration(
                         color: AppColors.inputGray,
                         borderRadius: BorderRadius.circular(8.r),
-                        border: _selectedCategoryId != null
-                            ? Border.all(
-                                color: AppColors.baseBlack,
-                                width: 1.5,
-                              )
-                            : null,
                       ),
                       child: DropdownButtonFormField<String>(
+                        key: const Key('category_dropdown'),
                         value: _selectedCategoryId,
                         hint: Text(
                           'Select a category',
@@ -243,6 +240,13 @@ class _CreateNoteState extends State<CreateNote> {
                         ),
                         decoration: InputDecoration(
                           border: InputBorder.none,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(
+                              color: AppColors.baseBlack,
+                              width: 1.5,
+                            ),
+                          ),
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16.w,
                             vertical: 12.h,
