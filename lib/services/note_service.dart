@@ -50,7 +50,7 @@ class NoteService {
   Stream<List<Note>> getFavoriteNotesStream() {
     try {
       return _notesCollection
-          .where('isFavorite', isEqualTo: true)
+          .where('isStarred', isEqualTo: true)
           .orderBy('createdAt', descending: true)
           .snapshots()
           .map((snapshot) {
@@ -110,7 +110,7 @@ class NoteService {
     String? title,
     String? description,
     String? categoryId,
-    bool? isFavorite,
+    bool? isStarred,
   }) async {
     try {
       if (noteId.trim().isEmpty) {
@@ -140,8 +140,8 @@ class NoteService {
         updateData['categoryId'] = categoryId;
       }
 
-      if (isFavorite != null) {
-        updateData['isFavorite'] = isFavorite;
+      if (isStarred != null) {
+        updateData['isStarred'] = isStarred;
       }
 
       if (updateData.isEmpty) {
@@ -169,7 +169,7 @@ class NoteService {
 
       final note =
           Note.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
-      await updateNote(noteId: noteId, isFavorite: !note.isStarred);
+      await updateNote(noteId: noteId, isStarred: !note.isStarred);
       print('Note favorite toggled: $noteId');
     } catch (e) {
       print('Error toggling favorite: $e');
