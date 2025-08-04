@@ -8,11 +8,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class MenuDrawer extends StatelessWidget {
   final VoidCallback onSignOut;
   final Function(Category?)? onCategorySelected;
+  final VoidCallback? onStarredSelected;
+  final bool isStarredSelected;
 
   const MenuDrawer({
     super.key,
     required this.onSignOut,
     this.onCategorySelected,
+    this.onStarredSelected,
+    this.isStarredSelected = false,
   });
 
   @override
@@ -87,9 +91,17 @@ class MenuDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.star_border_outlined),
+            leading: Icon(
+              isStarredSelected ? Icons.star : Icons.star_border_outlined,
+              color: isStarredSelected ? Colors.amber : null,
+            ),
             title: const Text('Starred'),
-            onTap: () {},
+            onTap: () {
+              Navigator.pop(context);
+              if (onStarredSelected != null) {
+                onStarredSelected!();
+              }
+            },
           ),
           ListTile(
             leading: const Icon(Icons.delete_outline),
