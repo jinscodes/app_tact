@@ -150,6 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Icon(
                   Icons.menu_rounded,
                 ),
+                splashRadius: 24,
               ),
             ),
             actions: [
@@ -174,7 +175,9 @@ class _HomeScreenState extends State<HomeScreen> {
             isStarredSelected: _showStarredOnly,
           ),
           body: _buildBody(snapshot),
-          floatingActionButton: Container(
+          floatingActionButton: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
             decoration: BoxDecoration(
               color: AppColors.baseBlack,
               borderRadius: BorderRadius.circular(30.r),
@@ -196,6 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               backgroundColor: Colors.transparent,
               elevation: 0,
+              splashColor: Colors.white.withOpacity(0.2),
               child: Icon(
                 Icons.add,
                 size: 20.sp,

@@ -27,6 +27,59 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  Route<dynamic>? _createSmoothRoute(RouteSettings settings) {
+    Widget page;
+
+    switch (settings.name) {
+      case '/home':
+        page = const HomeScreen();
+        break;
+      case '/login':
+        page = const LoginScreen();
+        break;
+      case '/signup':
+        page = const SignupScreen();
+        break;
+      case '/verify':
+        page = const VerifyScreen();
+        break;
+      case '/welcome':
+        page = const WelcomeScreen();
+        break;
+      case '/manage-category':
+        page = const ManageCategoryScreen();
+        break;
+      case '/create-note':
+        page = const CreateNote();
+        break;
+      default:
+        return null;
+    }
+
+    return PageRouteBuilder(
+      settings: settings,
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionDuration: const Duration(milliseconds: 300),
+      reverseTransitionDuration: const Duration(milliseconds: 250),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOutCubic;
+
+        var tween = Tween(begin: begin, end: end).chain(
+          CurveTween(curve: curve),
+        );
+
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -42,17 +95,17 @@ class MyApp extends StatelessWidget {
             colorSchemeSeed: AppColors.baseBlack,
             brightness: Brightness.light,
             scaffoldBackgroundColor: Colors.white,
+            pageTransitionsTheme: const PageTransitionsTheme(
+              builders: {
+                TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+              },
+            ),
           ),
           title: 'Sticker Note App',
           home: const AuthWrapper(),
-          routes: {
-            '/home': (context) => const HomeScreen(),
-            '/login': (context) => const LoginScreen(),
-            '/signup': (context) => const SignupScreen(),
-            '/verify': (context) => const VerifyScreen(),
-            '/welcome': (context) => const WelcomeScreen(),
-            '/manage-category': (context) => const ManageCategoryScreen(),
-            '/create-note': (context) => const CreateNote(),
+          onGenerateRoute: (RouteSettings settings) {
+            return _createSmoothRoute(settings);
           },
         );
       },

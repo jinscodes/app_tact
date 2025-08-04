@@ -9,12 +9,27 @@ class ShowCreateMenu {
   }) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      transitionAnimationController: AnimationController(
+        duration: const Duration(milliseconds: 300),
+        vsync: Navigator.of(context),
       ),
       builder: (BuildContext context) {
-        return Container(
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
           padding: EdgeInsets.all(20.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -36,76 +51,112 @@ class ShowCreateMenu {
                 ),
               ),
               SizedBox(height: 20.h),
-              ListTile(
-                leading: Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(
-                    Icons.note_add,
-                    color: Colors.blue,
-                    size: 24.sp,
-                  ),
-                ),
-                title: Text(
-                  'Create Note',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  'Add a new sticky note',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
-                  ),
-                ),
+              _buildAnimatedListTile(
+                context: context,
+                icon: Icons.note_add,
+                iconColor: Colors.blue,
+                backgroundColor: Colors.blue[50]!,
+                title: 'Create Note',
+                subtitle: 'Add a new sticky note',
                 onTap: () {
                   Navigator.pop(context);
                   onCreateNote();
                 },
+                delay: 100,
               ),
               SizedBox(height: 10.h),
-              ListTile(
-                leading: Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: Colors.green[50],
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(
-                    Icons.category,
-                    color: Colors.green,
-                    size: 24.sp,
-                  ),
-                ),
-                title: Text(
-                  'Create Category',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  'Organize your notes',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
-                  ),
-                ),
+              _buildAnimatedListTile(
+                context: context,
+                icon: Icons.category,
+                iconColor: Colors.green,
+                backgroundColor: Colors.green[50]!,
+                title: 'Create Category',
+                subtitle: 'Organize your notes',
                 onTap: () {
                   Navigator.pop(context);
                   onCreateCategory();
                 },
+                delay: 200,
               ),
               SizedBox(height: 20.h),
             ],
           ),
         );
       },
+    );
+  }
+
+  static Widget _buildAnimatedListTile({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required Color backgroundColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    required int delay,
+  }) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: Duration(milliseconds: 300 + delay),
+      curve: Curves.easeInOutCubic,
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, 20 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: child,
+          ),
+        );
+      },
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: 24.sp,
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
