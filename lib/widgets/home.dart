@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final CategoryService _categoryService = CategoryService();
   final NoteService _noteService = NoteService();
   Category? _selectedCategory;
+  bool _showStarredOnly = false;
 
   @override
   void initState() {
@@ -43,17 +44,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onCategorySelected(Category? category) {
     setState(() {
       _selectedCategory = category;
+      _showStarredOnly = false;
     });
+  }
 
-    String message = category == null
-        ? 'Showing all notes'
-        : 'Showing notes in "${category.name}"';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  void _onStarredSelected() {
+    setState(() {
+      _selectedCategory = null;
+      _showStarredOnly = true;
+    });
   }
 
   Future<void> _signOut() async {
@@ -88,9 +87,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Note>>(
-      stream: _selectedCategory == null
-          ? _noteService.getNotesStream()
-          : _noteService.getNotesByCategoryStream(_selectedCategory!.id),
+      stream: _showStarredOnly
+          ? _noteService.getFavoriteNotesStream()
+          : _selectedCategory == null
+              ? _noteService.getNotesStream()
+              : _noteService.getNotesByCategoryStream(_selectedCategory!.id),
       builder: (context, snapshot) {
         final notes = snapshot.data ?? [];
         final noteCount = notes.length;
@@ -101,9 +102,11 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  _selectedCategory == null
-                      ? 'All Notes'
-                      : _selectedCategory!.name,
+                  _showStarredOnly
+                      ? 'Starred Notes'
+                      : _selectedCategory == null
+                          ? 'All Notes'
+                          : _selectedCategory!.name,
                   style: TextStyle(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w500,
@@ -167,6 +170,8 @@ class _HomeScreenState extends State<HomeScreen> {
           drawer: MenuDrawer(
             onSignOut: _signOut,
             onCategorySelected: _onCategorySelected,
+            onStarredSelected: _onStarredSelected,
+            isStarredSelected: _showStarredOnly,
           ),
           body: _buildBody(snapshot),
           floatingActionButton: Container(
@@ -287,9 +292,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 16.h),
             Text(
-              _selectedCategory == null
-                  ? 'No notes yet'
-                  : 'No notes in ${_selectedCategory!.name}',
+              _showStarredOnly
+                  ? 'No starred notes yet'
+                  : _selectedCategory == null
+                      ? 'No notes yet'
+                      : 'No notes in ${_selectedCategory!.name}',
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w500,
@@ -298,7 +305,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 8.h),
             Text(
-              'Tap the + button to create your first note',
+              _showStarredOnly
+                  ? 'Star some notes to see them here'
+                  : 'Tap the + button to create your first note',
               style: TextStyle(
                 fontSize: 14.sp,
                 color: Colors.grey[500],
