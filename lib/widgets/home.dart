@@ -10,6 +10,7 @@ import 'package:app_sticker_note/models/note.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
 import 'package:app_sticker_note/services/category_service.dart';
 import 'package:app_sticker_note/services/note_service.dart';
+import 'package:app_sticker_note/widgets/note_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -332,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
             note: note,
             onToggleFavorite: () => _toggleFavorite(note),
             onTap: () {
-              print('Note tapped: ${note.title}');
+              Navigate.toSmooth(context, NoteDetailScreen(note: note));
             },
           );
         },
