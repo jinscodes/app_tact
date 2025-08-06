@@ -3,6 +3,7 @@ import 'package:app_sticker_note/models/category.dart';
 import 'package:app_sticker_note/models/note.dart';
 import 'package:app_sticker_note/services/category_service.dart';
 import 'package:app_sticker_note/services/note_service.dart';
+import 'package:app_sticker_note/widgets/edit_note.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -39,7 +40,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
         });
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to update favorite status'),
@@ -81,12 +82,36 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  // TODO: Navigate to edit note screen
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Edit feature coming soon!')),
+                  await Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          EditNoteScreen(note: _currentNote),
+                      transitionDuration: const Duration(milliseconds: 300),
+                      reverseTransitionDuration:
+                          const Duration(milliseconds: 250),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOutCubic;
+
+                        var tween = Tween(begin: begin, end: end).chain(
+                          CurveTween(curve: curve),
+                        );
+
+                        var offsetAnimation = animation.drive(tween);
+
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                    ),
                   );
+                  // No need to handle return value since edit screen navigates to home
                 },
               ),
               ListTile(
@@ -100,10 +125,11 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                  // TODO: Implement share functionality
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Share feature coming soon!')),
-                  );
+                  if (mounted && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Share feature coming soon!')),
+                    );
+                  }
                 },
               ),
               ListTile(
@@ -164,14 +190,14 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 Navigator.pop(context);
                 try {
                   await _noteService.deleteNote(_currentNote.id);
-                  if (mounted) {
+                  if (mounted && context.mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Note deleted successfully')),
                     );
                   }
                 } catch (e) {
-                  if (mounted) {
+                  if (mounted && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Failed to delete note'),
@@ -212,6 +238,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
         ),
         title: FutureBuilder<Category?>(
           future: _getCategoryById(_currentNote.categoryId),
+          key: ValueKey(
+              '${_currentNote.id}_${_currentNote.categoryId}'), // Force rebuild when note changes
           builder: (context, snapshot) {
             final category = snapshot.data;
             return Row(
