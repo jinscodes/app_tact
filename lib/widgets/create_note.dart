@@ -17,26 +17,57 @@ class _CreateNoteState extends State<CreateNote> {
   final TextEditingController _descriptionController = TextEditingController();
   final CategoryService _categoryService = CategoryService();
   final NoteService _noteService = NoteService();
+  final GlobalKey _dropdownKey = GlobalKey();
 
   String? _selectedCategoryId;
   bool _isStarred = false;
   bool _isLoading = false;
+  List<Category> _categories = [];
+  bool _categoriesLoaded = false;
+  bool _canSaveCache = false;
 
   @override
   void initState() {
     super.initState();
     _titleController.addListener(_updateSaveButtonState);
     _descriptionController.addListener(_updateSaveButtonState);
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categories = await _categoryService.getCategories();
+      if (mounted) {
+        setState(() {
+          _categories = categories;
+          _categoriesLoaded = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _categoriesLoaded = true;
+        });
+      }
+    }
   }
 
   void _updateSaveButtonState() {
-    setState(() {});
+    // Calculate current save state
+    final canSaveNow = _titleController.text.trim().isNotEmpty &&
+        _descriptionController.text.trim().isNotEmpty &&
+        _selectedCategoryId != null;
+
+    // Only setState if the save button state actually changes
+    if (canSaveNow != _canSaveCache) {
+      setState(() {
+        _canSaveCache = canSaveNow;
+      });
+    }
   }
 
   bool get _canSave {
-    return _titleController.text.trim().isNotEmpty &&
-        _descriptionController.text.trim().isNotEmpty &&
-        _selectedCategoryId != null;
+    return _canSaveCache;
   }
 
   Future<void> _saveNote() async {
@@ -89,6 +120,124 @@ class _CreateNoteState extends State<CreateNote> {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Widget _buildCategoryDropdown() {
+    if (!_categoriesLoaded) {
+      return Container(
+        height: 50.h,
+        decoration: BoxDecoration(
+          color: AppColors.inputGray,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: SizedBox(
+            width: 20.sp,
+            height: 20.sp,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    if (_categories.isEmpty) {
+      return Container(
+        height: 50.h,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        decoration: BoxDecoration(
+          color: AppColors.inputGray,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: Text(
+            'No categories available',
+            style: TextStyle(
+              color: AppColors.placeholderGray,
+              fontSize: 14.sp,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.inputGray,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: DropdownButtonFormField<String>(
+        key: _dropdownKey,
+        value: _selectedCategoryId,
+        hint: Text(
+          'Select a category',
+          style: TextStyle(
+            color: AppColors.placeholderGray,
+            fontSize: 14.sp,
+          ),
+        ),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: BorderSide(
+              color: AppColors.baseBlack,
+              width: 1.5,
+            ),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: 12.h,
+          ),
+        ),
+        style: TextStyle(
+          fontSize: 14.sp,
+          color: AppColors.baseBlack,
+        ),
+        dropdownColor: Colors.white,
+        items: _categories.map((category) {
+          return DropdownMenuItem<String>(
+            value: category.id,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.label_outline,
+                  size: 16.sp,
+                  color: AppColors.placeholderGray,
+                ),
+                SizedBox(width: 8.w),
+                Text(category.name),
+                if (category.isDefault) ...[
+                  SizedBox(width: 8.w),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6.w,
+                      vertical: 2.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.defaultGray,
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: Text(
+                      'Default',
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        color: AppColors.fontGray,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        }).toList(),
+        onChanged: (String? categoryId) {
+          setState(() {
+            _selectedCategoryId = categoryId;
+          });
+          _updateSaveButtonState();
+        },
+      ),
+    );
   }
 
   @override
@@ -181,127 +330,7 @@ class _CreateNoteState extends State<CreateNote> {
                   ),
                 ),
                 SizedBox(height: 8.h),
-                StreamBuilder<List<Category>>(
-                  stream: _categoryService.getCategoriesStream(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container(
-                        height: 50.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.inputGray,
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Center(
-                          child: SizedBox(
-                            width: 20.sp,
-                            height: 20.sp,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (snapshot.hasError) {
-                      return Container(
-                        height: 50.h,
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        decoration: BoxDecoration(
-                          color: AppColors.inputGray,
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Error loading categories',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-
-                    final categories = snapshot.data ?? [];
-
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.inputGray,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: DropdownButtonFormField<String>(
-                        key: const Key('category_dropdown'),
-                        value: _selectedCategoryId,
-                        hint: Text(
-                          'Select a category',
-                          style: TextStyle(
-                            color: AppColors.placeholderGray,
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                            borderSide: BorderSide(
-                              color: AppColors.baseBlack,
-                              width: 1.5,
-                            ),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 12.h,
-                          ),
-                        ),
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: AppColors.baseBlack,
-                        ),
-                        dropdownColor: Colors.white,
-                        items: categories.map((category) {
-                          return DropdownMenuItem<String>(
-                            value: category.id,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.label_outline,
-                                  size: 16.sp,
-                                  color: AppColors.placeholderGray,
-                                ),
-                                SizedBox(width: 8.w),
-                                Text(category.name),
-                                if (category.isDefault) ...[
-                                  SizedBox(width: 8.w),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 6.w,
-                                      vertical: 2.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.defaultGray,
-                                      borderRadius: BorderRadius.circular(4.r),
-                                    ),
-                                    child: Text(
-                                      'Default',
-                                      style: TextStyle(
-                                        fontSize: 10.sp,
-                                        color: AppColors.fontGray,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (String? categoryId) {
-                          setState(() {
-                            _selectedCategoryId = categoryId;
-                          });
-                        },
-                      ),
-                    );
-                  },
-                ),
+                _buildCategoryDropdown(),
                 SizedBox(height: 20.h),
                 Text(
                   'Title',
