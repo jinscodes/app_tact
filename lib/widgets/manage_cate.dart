@@ -18,17 +18,45 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
   final CategoryService _categoryService = CategoryService();
   bool _isLoading = false;
   String? _errorMessage;
-
   String? _editingCategoryId;
   final Map<String, TextEditingController> _editControllers = {};
+  List<Category> _categories = [];
+  bool _categoriesLoaded = false;
+  bool _canAddCache = false;
 
   @override
   void initState() {
     super.initState();
     _initializeCategories();
-    _categoryController.addListener(() {
-      setState(() {});
-    });
+    _loadCategories();
+    _categoryController.addListener(_updateAddButtonState);
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categories = await _categoryService.getCategories();
+      if (mounted) {
+        setState(() {
+          _categories = categories;
+          _categoriesLoaded = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _categoriesLoaded = true;
+        });
+      }
+    }
+  }
+
+  void _updateAddButtonState() {
+    final canAddNow = _categoryController.text.trim().isNotEmpty;
+    if (canAddNow != _canAddCache) {
+      setState(() {
+        _canAddCache = canAddNow;
+      });
+    }
   }
 
   Future<void> _initializeCategories() async {
@@ -54,6 +82,7 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
     try {
       await _categoryService.addCategory(_categoryController.text.trim());
       _categoryController.clear();
+      await _loadCategories();
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -78,14 +107,7 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
   Future<void> _deleteCategory(Category category) async {
     try {
       await _categoryService.deleteCategory(category.id);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Category deleted successfully!'),
-            backgroundColor: AppColors.placeholderGray,
-          ),
-        );
-      }
+      await _loadCategories();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -129,13 +151,8 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Category updated successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
         _cancelEditing();
+        await _loadCategories();
       }
     } catch (e) {
       if (mounted) {
@@ -151,11 +168,184 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
 
   @override
   void dispose() {
+    _categoryController.removeListener(_updateAddButtonState);
     _categoryController.dispose();
     for (final controller in _editControllers.values) {
       controller.dispose();
     }
     super.dispose();
+  }
+
+  Widget _buildCategoriesList() {
+    if (!_categoriesLoaded) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.h),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_categories.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.all(20.h),
+        child: Text(
+          'No categories found. Add your first category above!',
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: Colors.grey[600],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: _categories.map((category) {
+        final isEditing = _editingCategoryId == category.id;
+
+        return Container(
+          margin: EdgeInsets.only(bottom: 8.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: 12.h,
+          ),
+          decoration: BoxDecoration(
+            color: Color(0xFFF8F8FA),
+            borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(
+              color: Colors.grey[200]!,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.label_outline,
+                size: 16.sp,
+                color: Colors.grey[600],
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Row(
+                  children: [
+                    if (isEditing) ...[
+                      Expanded(
+                        child: TextField(
+                          controller: _editControllers[category.id],
+                          autofocus: true,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.baseBlack,
+                          ),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4.r),
+                              borderSide: BorderSide(
+                                color: AppColors.baseBlack,
+                                width: 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4.r),
+                              borderSide: BorderSide(
+                                color: AppColors.baseBlack,
+                                width: 1.5,
+                              ),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 4.h,
+                            ),
+                            isDense: true,
+                          ),
+                          onSubmitted: (_) => _saveEdit(),
+                        ),
+                      ),
+                    ] else ...[
+                      Text(
+                        category.name,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.baseBlack,
+                        ),
+                      ),
+                      if (category.isDefault) ...[
+                        SizedBox(width: 8.w),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.defaultGray,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Text(
+                            'Default',
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color: AppColors.fontGray,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ],
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isEditing) ...[
+                    GestureDetector(
+                      onTap: _saveEdit,
+                      child: Icon(
+                        Icons.check,
+                        size: 18.sp,
+                        color: Colors.green[600],
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    GestureDetector(
+                      onTap: _cancelEditing,
+                      child: Icon(
+                        Icons.close,
+                        size: 18.sp,
+                        color: Colors.red[600],
+                      ),
+                    ),
+                  ] else ...[
+                    GestureDetector(
+                      onTap: () => _startEditing(category),
+                      child: Icon(
+                        Icons.edit_outlined,
+                        size: 18.sp,
+                        color: AppColors.baseBlack,
+                      ),
+                    ),
+                    if (!category.isDefault) ...[
+                      SizedBox(width: 8.w),
+                      GestureDetector(
+                        onTap: () => _deleteCategory(category),
+                        child: Icon(
+                          Icons.delete_outline,
+                          size: 18.sp,
+                          color: Colors.red[600],
+                        ),
+                      ),
+                    ],
+                  ],
+                ],
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
   }
 
   @override
@@ -263,19 +453,15 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
                           SizedBox(width: 12.w),
                           Container(
                             decoration: BoxDecoration(
-                              color:
-                                  _categoryController.text.trim().isNotEmpty &&
-                                          !_isLoading
-                                      ? AppColors.baseBlack
-                                      : Color(0xFF8E8E95),
+                              color: _canAddCache && !_isLoading
+                                  ? AppColors.baseBlack
+                                  : Color(0xFF8E8E95),
                               borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: IconButton(
-                              onPressed:
-                                  _categoryController.text.trim().isNotEmpty &&
-                                          !_isLoading
-                                      ? _addCategory
-                                      : null,
+                              onPressed: _canAddCache && !_isLoading
+                                  ? _addCategory
+                                  : null,
                               icon: _isLoading
                                   ? SizedBox(
                                       width: 20.sp,
@@ -335,210 +521,7 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
                         ),
                       ),
                       SizedBox(height: 20.h),
-                      StreamBuilder<List<Category>>(
-                        stream: _categoryService.getCategoriesStream(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(20.h),
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          }
-
-                          if (snapshot.hasError) {
-                            return Padding(
-                              padding: EdgeInsets.all(20.h),
-                              child: Text(
-                                'Error loading categories: ${snapshot.error}',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 14.sp,
-                                ),
-                              ),
-                            );
-                          }
-
-                          final categories = snapshot.data ?? [];
-
-                          if (categories.isEmpty) {
-                            return Padding(
-                              padding: EdgeInsets.all(20.h),
-                              child: Text(
-                                'No categories found. Add your first category above!',
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            );
-                          }
-
-                          return Column(
-                            children: categories.map((category) {
-                              final isEditing =
-                                  _editingCategoryId == category.id;
-
-                              return Container(
-                                margin: EdgeInsets.only(bottom: 8.h),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                  vertical: 12.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFF8F8FA),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  border: Border.all(
-                                    color: Colors.grey[200]!,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.label_outline,
-                                      size: 16.sp,
-                                      color: Colors.grey[600],
-                                    ),
-                                    SizedBox(width: 12.w),
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          if (isEditing) ...[
-                                            Expanded(
-                                              child: TextField(
-                                                controller: _editControllers[
-                                                    category.id],
-                                                autofocus: true,
-                                                style: TextStyle(
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: AppColors.baseBlack,
-                                                ),
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4.r),
-                                                    borderSide: BorderSide(
-                                                      color:
-                                                          AppColors.baseBlack,
-                                                      width: 1,
-                                                    ),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4.r),
-                                                    borderSide: BorderSide(
-                                                      color:
-                                                          AppColors.baseBlack,
-                                                      width: 1.5,
-                                                    ),
-                                                  ),
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                    horizontal: 8.w,
-                                                    vertical: 4.h,
-                                                  ),
-                                                  isDense: true,
-                                                ),
-                                                onSubmitted: (_) => _saveEdit(),
-                                              ),
-                                            ),
-                                          ] else ...[
-                                            Text(
-                                              category.name,
-                                              style: TextStyle(
-                                                fontSize: 14.sp,
-                                                fontWeight: FontWeight.w500,
-                                                color: AppColors.baseBlack,
-                                              ),
-                                            ),
-                                            if (category.isDefault) ...[
-                                              SizedBox(width: 8.w),
-                                              Container(
-                                                padding: EdgeInsets.symmetric(
-                                                  horizontal: 8.w,
-                                                  vertical: 4.h,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: AppColors.defaultGray,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.r),
-                                                ),
-                                                child: Text(
-                                                  'Default',
-                                                  style: TextStyle(
-                                                    fontSize: 10.sp,
-                                                    color: AppColors.fontGray,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width: 8.w),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        if (isEditing) ...[
-                                          GestureDetector(
-                                            onTap: _saveEdit,
-                                            child: Icon(
-                                              Icons.check,
-                                              size: 18.sp,
-                                              color: Colors.green[600],
-                                            ),
-                                          ),
-                                          SizedBox(width: 8.w),
-                                          GestureDetector(
-                                            onTap: _cancelEditing,
-                                            child: Icon(
-                                              Icons.close,
-                                              size: 18.sp,
-                                              color: Colors.red[600],
-                                            ),
-                                          ),
-                                        ] else ...[
-                                          GestureDetector(
-                                            onTap: () =>
-                                                _startEditing(category),
-                                            child: Icon(
-                                              Icons.edit_outlined,
-                                              size: 18.sp,
-                                              color: AppColors.baseBlack,
-                                            ),
-                                          ),
-                                          if (!category.isDefault) ...[
-                                            SizedBox(width: 8.w),
-                                            GestureDetector(
-                                              onTap: () =>
-                                                  _deleteCategory(category),
-                                              child: Icon(
-                                                Icons.delete_outline,
-                                                size: 18.sp,
-                                                color: Colors.red[600],
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        },
-                      ),
+                      _buildCategoriesList(),
                     ],
                   ),
                 ),
