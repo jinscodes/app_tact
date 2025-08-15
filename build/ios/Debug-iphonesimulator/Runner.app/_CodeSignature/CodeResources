@@ -46,7 +46,7 @@
 		</data>
 		<key>Frameworks/App.framework/App</key>
 		<data>
-		WQYZKvDYsIzJwmC3poXAchE/4pY=
+		9kGuug0k2BIqkTvjq52XKcX5UsQ=
 		</data>
 		<key>Frameworks/App.framework/Info.plist</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>Frameworks/App.framework/_CodeSignature/CodeResources</key>
 		<data>
-		43FqGa1b5Z0YbFEy0Fj0o8PBC50=
+		KU1dWbFwGl+3MLVgZ5c6fb8pKrY=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/.env</key>
 		<data>
@@ -90,7 +90,7 @@
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/kernel_blob.bin</key>
 		<data>
-		JI2XhaH8Eza4bY7SlanDSMEZpxo=
+		fHbXNszEG6COAlmwwMSiPMQGdKU=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -996,7 +996,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		G4Fu9yagyXh3eHtP+9/a4VUF1cc=
+		JujZ9+jCbXu+CbzjiqNsOLWyqcA=
 		</data>
 		<key>PkgInfo</key>
 		<data>
@@ -1008,7 +1008,7 @@
 		</data>
 		<key>__preview.dylib</key>
 		<data>
-		3GzXoMxbxVZIXgp/H9xUSj1jolE=
+		cjIe7fgl9lXgyoAlU5SbReDReZQ=
 		</data>
 		<key>google_sign_in_ios_privacy.bundle/Info.plist</key>
 		<data>
@@ -1095,7 +1095,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			+grj/aXnOkDhvFhUZmaxXK+B7wats8S95EmrLCf4/BE=
+			hJOMwIAylkMH+QSpJdxpZ2M5ffZBdBTqd1Xb6UE5Rto=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/Info.plist</key>
@@ -1109,7 +1109,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			nQyLjm0Q3efoqr0s476ewTYzQynd6SNurk3LtRap3Ew=
+			f8PbrNG8abjLSE4eEj7aavZGZab7auhiJxKj+u7/maQ=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/.env</key>
@@ -1172,7 +1172,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			TKfrf2jAQPSWCZza0RZoyyb7SYvGxdNT2dEBmcWn2uY=
+			jTwXyuCs5bP2jwjPlUatjOhSJv2NC8mWjkXcEySnez8=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
@@ -2508,7 +2508,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			F3pspSFPFrPQHdONb66GTO2FxPIpTBPmRRcRN8V8HGs=
+			oz0WFIc5av4M9i+bH07uOxagg1so7YQPNr/RGj3Z5eE=
 			</data>
 		</dict>
 		<key>google_sign_in_ios_privacy.bundle/Info.plist</key>
