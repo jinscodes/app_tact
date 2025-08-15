@@ -48,7 +48,38 @@ ios/Runner/GoogleService-Info.plist
 android/app/upload-keystore.jks
 android/app/key.properties
 
-# 
+# Firebase 설정 파일
 firebase.json
 firestore.indexes.json
-firestore.rulse
+firestore.rules
+
+# Coverage
+coverage/
+*.lcov
+
+# Symbolication & profiling
+*.symbols
+*.prof
+*.dSYM.zip
+*.dSYM
+
+# Exceptions
+*.lock
+pubspec.lock # If using Flutter package development, consider committing this
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/readme.md
+
+# Gradle Wrapper
+.gradle/
+gradlew
+gradlew.bat
+
+# Xcode
+*.xcuserstate
+*.xcworkspace
+DerivedData/
