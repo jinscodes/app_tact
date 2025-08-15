@@ -10,6 +10,7 @@ import 'package:app_sticker_note/models/note.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
 import 'package:app_sticker_note/services/category_service.dart';
 import 'package:app_sticker_note/services/note_service.dart';
+import 'package:app_sticker_note/widgets/note_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -331,8 +332,33 @@ class _HomeScreenState extends State<HomeScreen> {
           return NoteCard(
             note: note,
             onToggleFavorite: () => _toggleFavorite(note),
-            onTap: () {
-              print('Note tapped: ${note.title}');
+            onTap: () async {
+              await Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      NoteDetailScreen(note: note),
+                  transitionDuration: const Duration(milliseconds: 300),
+                  reverseTransitionDuration: const Duration(milliseconds: 250),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOutCubic;
+
+                    var tween = Tween(begin: begin, end: end).chain(
+                      CurveTween(curve: curve),
+                    );
+
+                    var offsetAnimation = animation.drive(tween);
+
+                    return SlideTransition(
+                      position: offsetAnimation,
+                      child: child,
+                    );
+                  },
+                ),
+              );
             },
           );
         },
