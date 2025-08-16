@@ -1,10 +1,10 @@
 import 'package:app_sticker_note/colors.dart';
-import 'package:app_sticker_note/widgets/auth_wrapper.dart';
 import 'package:app_sticker_note/widgets/create_note.dart';
 import 'package:app_sticker_note/widgets/home.dart';
 import 'package:app_sticker_note/widgets/login.dart';
 import 'package:app_sticker_note/widgets/manage_cate.dart';
 import 'package:app_sticker_note/widgets/signup.dart';
+import 'package:app_sticker_note/widgets/splash_screen.dart';
 import 'package:app_sticker_note/widgets/verify.dart';
 import 'package:app_sticker_note/widgets/welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -31,6 +31,9 @@ class MyApp extends StatelessWidget {
     Widget page;
 
     switch (settings.name) {
+      case '/splash':
+        page = const SplashScreen();
+        break;
       case '/home':
         page = const HomeScreen();
         break;
@@ -103,7 +106,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
           title: 'Sticker Note App',
-          home: const AuthWrapper(),
+          home: const SplashScreen(),
           onGenerateRoute: (RouteSettings settings) {
             return _createSmoothRoute(settings);
           },
