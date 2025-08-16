@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
     Widget page;
 
     switch (settings.name) {
+      case '/':
       case '/splash':
         page = const SplashScreen();
         break;
