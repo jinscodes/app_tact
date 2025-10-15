@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'services/firebase_options.dart';
 
@@ -98,7 +99,9 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
             colorSchemeSeed: AppColors.baseBlack,
             brightness: Brightness.light,
-            scaffoldBackgroundColor: Colors.white,
+            scaffoldBackgroundColor: Colors.transparent,
+            textTheme: GoogleFonts.interTextTheme(),
+            fontFamily: GoogleFonts.inter().fontFamily,
             pageTransitionsTheme: const PageTransitionsTheme(
               builders: {
                 TargetPlatform.android: CupertinoPageTransitionsBuilder(),
@@ -107,6 +110,18 @@ class MyApp extends StatelessWidget {
             ),
           ),
           title: 'Sticker Note App',
+          builder: (context, child) {
+            return Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
+                ),
+              ),
+              child: child,
+            );
+          },
           home: const SplashScreen(),
           onGenerateRoute: (RouteSettings settings) {
             return _createSmoothRoute(settings);

@@ -17,6 +17,7 @@ dependencies:
   cloud_firestore: ^5.4.4
   flutter_dotenv: ^5.2.1
   google_sign_in: ^6.1.5
+  google_fonts: ^5.0.0
 
 dev_dependencies:
   flutter_test:
