@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, avoid_print, deprecated_member_use
+// ignore_for_file: use_build_context_synchronously, avoid_print, deprecated_member_use, unused_field
 
 import 'package:app_sticker_note/colors.dart';
 import 'package:app_sticker_note/models/navigate.dart';
@@ -6,6 +6,7 @@ import 'package:app_sticker_note/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,11 +18,12 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
   bool _isPasswordVisible = false;
-  bool _hasEmailText = false; // kept for potential future use
-  bool _hasPasswordText = false; // kept for potential future use
+  bool _hasEmailText = false;
+  bool _hasPasswordText = false;
   bool _isLoading = false;
   bool _hasEmailError = false;
   bool _hasPasswordError = false;
+  bool _isGoogleLoading = false;
   String _emailErrorMessage = '';
   String _passwordErrorMessage = '';
   final TextEditingController _emailController = TextEditingController();
@@ -31,23 +33,12 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _hasEmailError = false;
       _hasPasswordError = false;
-      _emailErrorMessage = '';
-      _passwordErrorMessage = '';
     });
 
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       setState(() {
-        if (email.isEmpty) {
-          _hasEmailError = true;
-          _emailErrorMessage = 'Please enter your email';
-        }
-        if (password.isEmpty) {
-          _hasPasswordError = true;
-          _passwordErrorMessage = 'Please enter your password';
-        }
+        _hasEmailError = _emailController.text.isEmpty;
+        _hasPasswordError = _passwordController.text.isEmpty;
       });
       return;
     }
@@ -57,8 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      UserCredential? result =
-          await _authService.signInWithEmailAndPassword(email, password);
+      UserCredential? result = await _authService.signInWithEmailAndPassword(
+          _emailController.text, _passwordController.text);
 
       if (result != null &&
           result.user != null &&
@@ -71,30 +62,78 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       print(e.message);
       setState(() {
-        if (e.code == 'user-not-found') {
-          _hasEmailError = true;
-          _emailErrorMessage = 'No account found with this email';
-        } else if (e.code == 'wrong-password') {
-          _hasPasswordError = true;
-          _passwordErrorMessage = 'Incorrect password';
-        } else if (e.code == 'invalid-email') {
-          _hasEmailError = true;
-          _emailErrorMessage = 'Invalid email format';
-        } else if (e.code == 'too-many-requests') {
-          _hasEmailError = true;
-          _hasPasswordError = true;
-          _emailErrorMessage =
-              'Too many failed attempts. Please try again later';
-        } else {
-          _hasEmailError = true;
-          _hasPasswordError = true;
-          _emailErrorMessage = 'Login failed. Please check your credentials';
-        }
+        _hasEmailError = true;
+        _hasPasswordError = true;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sign in. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    print('Starting Google Sign-In process...');
+    setState(() {
+      _isGoogleLoading = true;
+    });
+
+    try {
+      // Clear any previous session first
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut();
+      print('Cleared previous Google Sign-In session');
+
+      print('Calling AuthService.signInWithGoogle()...');
+      UserCredential? result = await _authService.signInWithGoogle();
+
+      if (result != null && result.user != null) {
+        print('Google Sign-In successful! User: ${result.user!.email}');
+        if (result.additionalUserInfo?.isNewUser == true) {
+          print('New Google user created: ${result.user!.email}');
+        } else {
+          print('Existing Google user signed in: ${result.user!.email}');
+        }
+        Navigate.toAndRemoveUntil(context, '/home');
+      } else {
+        // User cancelled the sign-in
+        print('Google sign-in was cancelled by user');
+      }
+    } on FirebaseAuthException catch (e) {
+      print(
+          'Firebase Auth error during Google sign-in: ${e.code} - ${e.message}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Authentication error: ${e.message}'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    } on Exception catch (e) {
+      print('General error during Google sign-in: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to sign in with Google. Please try again.'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGoogleLoading = false;
+        });
+      }
     }
   }
 
@@ -369,30 +408,41 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: Color(0xFF393A4D),
                                 ),
                                 child: InkWell(
-                                  onTap: () {
-                                    // Google sign-in
-                                    _signIn();
-                                  },
+                                  onTap: _isGoogleLoading
+                                      ? null
+                                      : () => _signInWithGoogle(),
                                   borderRadius: BorderRadius.circular(10.r),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.g_mobiledata,
-                                        color: Colors.white,
-                                        size: 30.sp,
-                                      ),
-                                      SizedBox(width: 8.w),
-                                      Text(
-                                        'Google',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.bold,
+                                  child: _isGoogleLoading
+                                      ? Center(
+                                          child: SizedBox(
+                                            width: 20.w,
+                                            height: 20.w,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
+                                        )
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.g_mobiledata,
+                                              color: Colors.white,
+                                              size: 30.sp,
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              'Google',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ],
-                                  ),
                                 ),
                               ),
                             ),
