@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -15,8 +16,9 @@ class AuthService {
     if (user == null) return false;
 
     return user.emailVerified ||
-        user.providerData
-            .any((provider) => provider.providerId == 'google.com');
+        user.providerData.any((provider) =>
+            provider.providerId == 'google.com' ||
+            provider.providerId == 'github.com');
   }
 
   String getInitialRoute() {
@@ -27,8 +29,9 @@ class AuthService {
     }
 
     bool isVerified = user.emailVerified ||
-        user.providerData
-            .any((provider) => provider.providerId == 'google.com');
+        user.providerData.any((provider) =>
+            provider.providerId == 'google.com' ||
+            provider.providerId == 'github.com');
 
     if (isVerified) {
       return '/home';
@@ -89,6 +92,66 @@ class AuthService {
       return await _auth.signInWithCredential(credential);
     } catch (e) {
       print('Error signing in with Google: $e');
+      rethrow;
+    }
+  }
+
+  Future<UserCredential?> signInWithGitHub() async {
+    try {
+      // Create a GitHub provider
+      GithubAuthProvider githubProvider = GithubAuthProvider();
+
+      // Add scopes if needed
+      githubProvider.addScope('user:email');
+      githubProvider.addScope('read:user');
+
+      // Sign in with popup for web, redirect for mobile
+      if (kIsWeb) {
+        return await _auth.signInWithPopup(githubProvider);
+      } else {
+        return await _auth.signInWithProvider(githubProvider);
+      }
+    } on FirebaseAuthException catch (e) {
+      print('GitHub sign-in error: ${e.code} - ${e.message}');
+
+      // Handle specific GitHub authentication errors
+      switch (e.code) {
+        case 'account-exists-with-different-credential':
+          throw FirebaseAuthException(
+            code: e.code,
+            message:
+                'An account already exists with the same email address but different sign-in credentials.',
+          );
+        case 'invalid-credential':
+          throw FirebaseAuthException(
+            code: e.code,
+            message: 'The credential received is malformed or has expired.',
+          );
+        case 'operation-not-allowed':
+          throw FirebaseAuthException(
+            code: e.code,
+            message: 'GitHub sign-in is not enabled. Please contact support.',
+          );
+        case 'user-disabled':
+          throw FirebaseAuthException(
+            code: e.code,
+            message: 'The user account has been disabled.',
+          );
+        case 'user-not-found':
+          throw FirebaseAuthException(
+            code: e.code,
+            message: 'GitHub account not found.',
+          );
+        case 'web-storage-unsupported':
+          throw FirebaseAuthException(
+            code: e.code,
+            message: 'Web storage is not supported or disabled.',
+          );
+        default:
+          rethrow;
+      }
+    } catch (e) {
+      print('Error signing in with GitHub: $e');
       rethrow;
     }
   }

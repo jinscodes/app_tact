@@ -24,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _hasEmailError = false;
   bool _hasPasswordError = false;
   bool _isGoogleLoading = false;
+  bool _isGitHubLoading = false; // Add GitHub loading state
   String _emailErrorMessage = '';
   String _passwordErrorMessage = '';
   final TextEditingController _emailController = TextEditingController();
@@ -85,7 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Clear any previous session first
       final GoogleSignIn googleSignIn = GoogleSignIn();
       await googleSignIn.signOut();
       print('Cleared previous Google Sign-In session');
@@ -102,7 +102,6 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         Navigate.toAndRemoveUntil(context, '/home');
       } else {
-        // User cancelled the sign-in
         print('Google sign-in was cancelled by user');
       }
     } on FirebaseAuthException catch (e) {
@@ -132,6 +131,79 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(() {
           _isGoogleLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _signInWithGitHub() async {
+    print('Starting GitHub Sign-In process...');
+    setState(() {
+      _isGitHubLoading = true;
+    });
+
+    try {
+      print('Calling AuthService.signInWithGitHub()...');
+      UserCredential? result = await _authService.signInWithGitHub();
+
+      if (result != null && result.user != null) {
+        print('GitHub Sign-In successful! User: ${result.user!.email}');
+        if (result.additionalUserInfo?.isNewUser == true) {
+          print('New GitHub user created: ${result.user!.email}');
+        } else {
+          print('Existing GitHub user signed in: ${result.user!.email}');
+        }
+        Navigate.toAndRemoveUntil(context, '/home');
+      } else {
+        print('GitHub sign-in was cancelled by user');
+      }
+    } on FirebaseAuthException catch (e) {
+      print(
+          'Firebase Auth error during GitHub sign-in: ${e.code} - ${e.message}');
+      if (mounted) {
+        String errorMessage;
+        switch (e.code) {
+          case 'account-exists-with-different-credential':
+            errorMessage =
+                'An account already exists with this email using a different sign-in method.';
+            break;
+          case 'invalid-credential':
+            errorMessage = 'GitHub authentication failed. Please try again.';
+            break;
+          case 'operation-not-allowed':
+            errorMessage = 'GitHub sign-in is not enabled.';
+            break;
+          case 'user-disabled':
+            errorMessage = 'This account has been disabled.';
+            break;
+          default:
+            errorMessage =
+                e.message ?? 'Failed to sign in with GitHub. Please try again.';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    } on Exception catch (e) {
+      print('General error during GitHub sign-in: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to sign in with GitHub. Please try again.'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGitHubLoading = false;
         });
       }
     }
@@ -458,29 +530,41 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: Color(0xFF393A4D),
                                 ),
                                 child: InkWell(
-                                  onTap: () {
-                                    // GitHub sign-in placeholder
-                                  },
+                                  onTap: _isGitHubLoading
+                                      ? null
+                                      : () => _signInWithGitHub(),
                                   borderRadius: BorderRadius.circular(10.r),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.code,
-                                        color: Colors.white,
-                                        size: 24.sp,
-                                      ),
-                                      SizedBox(width: 8.w),
-                                      Text(
-                                        'GitHub',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.bold,
+                                  child: _isGitHubLoading
+                                      ? Center(
+                                          child: SizedBox(
+                                            width: 20.w,
+                                            height: 20.w,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
+                                        )
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.code,
+                                              color: Colors.white,
+                                              size: 24.sp,
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              'GitHub',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ],
-                                  ),
                                 ),
                               ),
                             ),
