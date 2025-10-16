@@ -17,6 +17,13 @@ dependencies:
   cloud_firestore: ^5.4.4
   flutter_dotenv: ^5.2.1
   google_sign_in: ^6.1.5
+  google_fonts: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/app_icon.png"
 
 dev_dependencies:
   flutter_test:

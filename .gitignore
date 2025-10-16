@@ -42,6 +42,7 @@ web/.dart_tool/
 
 # Firebase/Google 서비스 관련 (보안)
 android/app/google-services.json
+android/key.properties
 ios/Runner/GoogleService-Info.plist
 
 # Android 보안 키 관련 파일
