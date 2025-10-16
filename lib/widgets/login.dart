@@ -22,6 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _hasEmailError = false;
   bool _hasPasswordError = false;
+  String _emailErrorMessage = '';
+  String _passwordErrorMessage = '';
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -29,6 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _hasEmailError = false;
       _hasPasswordError = false;
+      _emailErrorMessage = '';
+      _passwordErrorMessage = '';
     });
 
     final String email = _emailController.text.trim();
@@ -36,8 +40,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       setState(() {
-        _hasEmailError = email.isEmpty;
-        _hasPasswordError = password.isEmpty;
+        if (email.isEmpty) {
+          _hasEmailError = true;
+          _emailErrorMessage = 'Please enter your email';
+        }
+        if (password.isEmpty) {
+          _hasPasswordError = true;
+          _passwordErrorMessage = 'Please enter your password';
+        }
       });
       return;
     }
@@ -61,15 +71,26 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       print(e.message);
       setState(() {
-        _hasEmailError = true;
-        _hasPasswordError = true;
+        if (e.code == 'user-not-found') {
+          _hasEmailError = true;
+          _emailErrorMessage = 'No account found with this email';
+        } else if (e.code == 'wrong-password') {
+          _hasPasswordError = true;
+          _passwordErrorMessage = 'Incorrect password';
+        } else if (e.code == 'invalid-email') {
+          _hasEmailError = true;
+          _emailErrorMessage = 'Invalid email format';
+        } else if (e.code == 'too-many-requests') {
+          _hasEmailError = true;
+          _hasPasswordError = true;
+          _emailErrorMessage =
+              'Too many failed attempts. Please try again later';
+        } else {
+          _hasEmailError = true;
+          _hasPasswordError = true;
+          _emailErrorMessage = 'Login failed. Please check your credentials';
+        }
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to sign in. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
-      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -149,7 +170,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(16.r),
                             border: Border.all(
                               width: 2,
-                              color: Colors.white.withOpacity(0.2),
+                              color: _hasEmailError
+                                  ? Colors.red.withOpacity(0.8)
+                                  : Colors.white.withOpacity(0.2),
                             ),
                           ),
                           child: Center(
@@ -171,14 +194,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 hintStyle:
                                     TextStyle(color: AppColors.placeholderGray),
                                 border: InputBorder.none,
-                                errorText: _hasEmailError
-                                    ? 'Please enter your email'
-                                    : null,
                               ),
                               onChanged: (v) {
                                 setState(() {
                                   _hasEmailText = v.isNotEmpty;
-                                  if (v.isNotEmpty) _hasEmailError = false;
+                                  if (v.isNotEmpty) {
+                                    _hasEmailError = false;
+                                    _emailErrorMessage = '';
+                                  }
                                 });
                               },
                             ),
@@ -208,7 +231,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(16.r),
                             border: Border.all(
                               width: 2,
-                              color: Colors.white.withOpacity(0.2),
+                              color: _hasEmailError
+                                  ? Colors.red.withOpacity(0.8)
+                                  : Colors.white.withOpacity(0.2),
                             ),
                           ),
                           child: Center(
@@ -227,9 +252,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 hintStyle:
                                     TextStyle(color: AppColors.placeholderGray),
                                 border: InputBorder.none,
-                                errorText: _hasPasswordError
-                                    ? 'Please enter your password'
-                                    : null,
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _isPasswordVisible
@@ -247,13 +269,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               onChanged: (v) {
                                 setState(() {
                                   _hasPasswordText = v.isNotEmpty;
-                                  if (v.isNotEmpty) _hasPasswordError = false;
+                                  if (v.isNotEmpty) {
+                                    _hasPasswordError = false;
+                                    _passwordErrorMessage = '';
+                                  }
                                 });
                               },
                             ),
                           ),
                         ),
-                        SizedBox(height: 12.h),
+                        SizedBox(height: 8.h),
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(

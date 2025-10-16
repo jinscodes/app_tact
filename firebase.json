@@ -7,36 +7,36 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "app-sticky-note",
-          "appId": "1:731609511479:android:730da4e37c98a9958bf1b2",
+          "projectId": "apptact-a4f0c",
+          "appId": "1:154863278677:android:0e483083ffeadf074592dc",
           "fileOutput": "android/app/google-services.json"
         }
       },
       "ios": {
         "default": {
-          "projectId": "app-sticky-note",
-          "appId": "1:731609511479:ios:274eb68c630624dd8bf1b2",
+          "projectId": "apptact-a4f0c",
+          "appId": "1:154863278677:ios:a6816fec09a27b454592dc",
           "uploadDebugSymbols": false,
           "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
       },
       "macos": {
         "default": {
-          "projectId": "app-sticky-note",
-          "appId": "1:731609511479:ios:274eb68c630624dd8bf1b2",
+          "projectId": "apptact-a4f0c",
+          "appId": "1:154863278677:ios:34290ceff70482bc4592dc",
           "uploadDebugSymbols": false,
           "fileOutput": "macos/Runner/GoogleService-Info.plist"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "app-sticky-note",
+          "projectId": "apptact-a4f0c",
           "configurations": {
-            "android": "1:731609511479:android:730da4e37c98a9958bf1b2",
-            "ios": "1:731609511479:ios:274eb68c630624dd8bf1b2",
-            "macos": "1:731609511479:ios:274eb68c630624dd8bf1b2",
-            "web": "1:731609511479:web:4ba490d6e6609e4e8bf1b2",
-            "windows": "1:731609511479:web:9512a6d23f10723a8bf1b2"
+            "android": "1:154863278677:android:0e483083ffeadf074592dc",
+            "ios": "1:154863278677:ios:a6816fec09a27b454592dc",
+            "macos": "1:154863278677:ios:34290ceff70482bc4592dc",
+            "web": "1:154863278677:web:cf8b84abc79a76ce4592dc",
+            "windows": "1:154863278677:web:ea4ffa87e0c22b3d4592dc"
           }
         }
       }
