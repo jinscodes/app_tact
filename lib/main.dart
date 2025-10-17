@@ -68,17 +68,19 @@ class MyApp extends StatelessWidget {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
-        const curve = Curves.easeInOutCubic;
 
-        var tween = Tween(begin: begin, end: end).chain(
-          CurveTween(curve: curve),
-        );
+        var slideTween = Tween(begin: begin, end: end);
+        var slideAnimation = animation.drive(slideTween);
 
-        var offsetAnimation = animation.drive(tween);
+        var opacityTween = Tween(begin: 0.0, end: 1.0);
+        var opacityAnimation = animation.drive(opacityTween);
 
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
+        return FadeTransition(
+          opacity: opacityAnimation,
+          child: SlideTransition(
+            position: slideAnimation,
+            child: child,
+          ),
         );
       },
     );

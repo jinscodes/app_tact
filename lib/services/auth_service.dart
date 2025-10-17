@@ -98,14 +98,11 @@ class AuthService {
 
   Future<UserCredential?> signInWithGitHub() async {
     try {
-      // Create a GitHub provider
       GithubAuthProvider githubProvider = GithubAuthProvider();
 
-      // Add scopes if needed
       githubProvider.addScope('user:email');
       githubProvider.addScope('read:user');
 
-      // Sign in with popup for web, redirect for mobile
       if (kIsWeb) {
         return await _auth.signInWithPopup(githubProvider);
       } else {
@@ -114,7 +111,6 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       print('GitHub sign-in error: ${e.code} - ${e.message}');
 
-      // Handle specific GitHub authentication errors
       switch (e.code) {
         case 'account-exists-with-different-credential':
           throw FirebaseAuthException(
