@@ -7,8 +7,8 @@ import 'package:app_sticker_note/components/login_input.dart';
 import 'package:app_sticker_note/components/logo_and_title.dart';
 import 'package:app_sticker_note/components/signup_with_github.dart';
 import 'package:app_sticker_note/components/signup_with_google.dart';
-import 'package:app_sticker_note/models/navigate.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
+import 'package:app_sticker_note/widgets/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -69,7 +69,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
         await _authService.sendEmailVerification();
 
-        Navigate.to(context, '/verify');
+        // Navigator.push(context, MaterialPageRoute(builder: (context) => VerifyEmailScreen()));
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -88,87 +88,104 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
+  void _navigateToLogin() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(body: LayoutBuilder(
-        builder: (context, constrains) {
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constrains.maxHeight),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      LogoAndTitle(
-                        title: "Create Account",
-                        subtitle: "Sign up to et started",
-                      ),
-                      LoginInput(
-                        type: "name",
-                        hasError: _hasNameError,
-                        hasText: _hasNameText,
-                      ),
-                      SizedBox(height: 12.h),
-                      LoginInput(
-                        type: "email",
-                        hasError: _hasEmailError,
-                        hasText: _hasEmailText,
-                      ),
-                      SizedBox(height: 12.h),
-                      LoginInput(
-                        type: "password",
-                        hasError: _hasPasswordError,
-                        hasText: _hasPasswordText,
-                      ),
-                      SizedBox(height: 18.h),
-                      LoginButton(
-                        text: "Sign Up",
-                        isLoading: _isLoading,
-                        onTap: _signUp,
-                      ),
-                      DividerWithText(),
-                      Row(
-                        children: [
-                          SignupWithGoogle(),
-                          SignupWithGithub(),
-                        ],
-                      ),
-                      SizedBox(height: 18.h),
-                      Row(
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
+        ),
+      ),
+      child: Scaffold(
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: LayoutBuilder(
+            builder: (context, constrains) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constrains.maxHeight),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
-                            "Already have an account? ",
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
+                          LogoAndTitle(
+                            title: "Create Account",
+                            subtitle: "Sign up to et started",
                           ),
-                          GestureDetector(
-                            onTap: () => Navigate.to(context, '/login'),
-                            child: Text(
-                              'Sign in',
-                              style: TextStyle(
-                                color: AppColors.fontPurple,
-                                fontWeight: FontWeight.bold,
+                          LoginInput(
+                            type: "name",
+                            hasError: _hasNameError,
+                            hasText: _hasNameText,
+                          ),
+                          SizedBox(height: 12.h),
+                          LoginInput(
+                            type: "email",
+                            hasError: _hasEmailError,
+                            hasText: _hasEmailText,
+                          ),
+                          SizedBox(height: 12.h),
+                          LoginInput(
+                            type: "password",
+                            hasError: _hasPasswordError,
+                            hasText: _hasPasswordText,
+                          ),
+                          SizedBox(height: 18.h),
+                          LoginButton(
+                            text: "Sign Up",
+                            isLoading: _isLoading,
+                            onTap: _signUp,
+                          ),
+                          DividerWithText(),
+                          Row(
+                            children: [
+                              SignupWithGoogle(),
+                              SignupWithGithub(),
+                            ],
+                          ),
+                          SizedBox(height: 18.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Already have an account? ",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ),
                               ),
-                            ),
+                              GestureDetector(
+                                onTap: () => _navigateToLogin(),
+                                child: Text(
+                                  'Sign in',
+                                  style: TextStyle(
+                                    color: AppColors.fontPurple,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        },
-      )),
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 }

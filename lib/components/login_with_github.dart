@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
-import 'package:app_sticker_note/models/navigate.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +33,7 @@ class _LoginWithGitHubState extends State<LoginWithGitHub> {
         } else {
           print('Existing GitHub user signed in: ${result.user!.email}');
         }
-        Navigate.toAndRemoveUntil(context, '/home');
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       } else {
         print('GitHub sign-in was cancelled by user');
       }

@@ -7,8 +7,8 @@ import 'package:app_sticker_note/components/login_input.dart';
 import 'package:app_sticker_note/components/login_with_github.dart';
 import 'package:app_sticker_note/components/login_with_google.dart';
 import 'package:app_sticker_note/components/logo_and_title.dart';
-import 'package:app_sticker_note/models/navigate.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
+import 'package:app_sticker_note/widgets/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      Navigate.toAndRemoveUntil(context, '/home');
+      Navigator.pushNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
       print(e.message);
       setState(() {
@@ -83,6 +83,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _navigateToSignup() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => SignupScreen()));
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -92,13 +97,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
+        ),
+      ),
       child: Scaffold(
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                  child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Padding(
                   padding:
@@ -146,10 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
-                            onPressed: () {
-                              Navigate.toAndRemoveUntil(
-                                  context, '/forgot-password');
-                            },
+                            onPressed: () {},
                             child: Text(
                               'Forgot password?',
                               style: TextStyle(
@@ -183,8 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () =>
-                                  Navigate.toAndRemoveUntil(context, '/signup'),
+                              onTap: () => _navigateToSignup(),
                               child: Text(
                                 'Sign up',
                                 style: TextStyle(
@@ -199,9 +208,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+              ));
+            },
+          ),
         ),
       ),
     );
