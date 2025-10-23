@@ -1,10 +1,8 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:app_sticker_note/services/auth_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginWithGoogle extends StatefulWidget {
   const LoginWithGoogle({super.key});
@@ -14,54 +12,23 @@ class LoginWithGoogle extends StatefulWidget {
 }
 
 class _LoginWithGoogleState extends State<LoginWithGoogle> {
-  bool _isGoogleLoading = false;
   final AuthService _authService = AuthService();
+  bool _isGoogleLoading = false;
 
   Future<void> _signInWithGoogle() async {
-    print('Starting Google Sign-In process...');
     setState(() {
       _isGoogleLoading = true;
     });
 
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      await googleSignIn.signOut();
-      print('Cleared previous Google Sign-In session');
-
-      print('Calling AuthService.signInWithGoogle()...');
-      UserCredential? result = await _authService.signInWithGoogle();
-
-      if (result != null && result.user != null) {
-        print('Google Sign-In successful! User: ${result.user!.email}');
-        if (result.additionalUserInfo?.isNewUser == true) {
-          print('New Google user created: ${result.user!.email}');
-        } else {
-          print('Existing Google user signed in: ${result.user!.email}');
-        }
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-      } else {
-        print('Google sign-in was cancelled by user');
-      }
-    } on FirebaseAuthException catch (e) {
-      print(
-          'Firebase Auth error during Google sign-in: ${e.code} - ${e.message}');
+      await _authService.signInWithGoogle();
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Authentication error: ${e.message}'),
+            content: Text('Google authentication failed: $e'),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 4),
-          ),
-        );
-      }
-    } on Exception catch (e) {
-      print('General error during Google sign-in: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to sign in with Google. Please try again.'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }

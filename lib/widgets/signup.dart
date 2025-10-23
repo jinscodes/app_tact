@@ -1,17 +1,13 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
-import 'package:app_sticker_note/colors.dart';
-import 'package:app_sticker_note/components/divider_with_text.dart';
-import 'package:app_sticker_note/components/login_button.dart';
-import 'package:app_sticker_note/components/login_input.dart';
-import 'package:app_sticker_note/components/logo_and_title.dart';
-import 'package:app_sticker_note/components/signup_with_github.dart';
-import 'package:app_sticker_note/components/signup_with_google.dart';
+import 'package:app_sticker_note/components/step1_email.dart';
+import 'package:app_sticker_note/components/step2_password.dart';
+import 'package:app_sticker_note/components/step3_confirm.dart';
+import 'package:app_sticker_note/components/step4_email_verification.dart';
 import 'package:app_sticker_note/services/auth_service.dart';
 import 'package:app_sticker_note/widgets/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -22,170 +18,202 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final AuthService _authService = AuthService();
-  final bool _hasNameText = false;
-  final bool _hasEmailText = false;
-  final bool _hasPasswordText = false;
+
+  String _name = '';
+  String _email = '';
+  String _password = '';
+
+  int _currentStep = 1;
   bool _isLoading = false;
-  bool _hasNameError = false;
-  bool _hasEmailError = false;
-  bool _hasPasswordError = false;
-  final String _name = '';
-  final String _email = '';
-  final String _password = '';
 
-  Future<void> _signUp() async {
+  void _handleStep1Complete(String name, String email) {
     setState(() {
-      _hasNameError = false;
-      _hasEmailError = false;
-      _hasPasswordError = false;
+      _name = name;
+      _email = email;
+      _currentStep = 2;
     });
+  }
 
-    if (_name.isEmpty || _email.isEmpty || _password.isEmpty) {
-      setState(() {
-        _hasNameError = _name.isEmpty;
-        _hasEmailError = _email.isEmpty;
-        _hasPasswordError = _password.isEmpty;
-      });
-      return;
-    }
+  void _handleStep2Complete(String password) {
+    setState(() {
+      _password = password;
+      _currentStep = 3;
+    });
+  }
 
-    if (_password.length < 6) {
-      setState(() {
-        _hasPasswordError = true;
-      });
-      return;
-    }
-
+  Future<void> _handleStep3Complete(
+      String name, String email, String password) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      UserCredential? result =
-          await _authService.registerWithEmailAndPassword(_email, _password);
-
-      if (result != null) {
-        await result.user?.updateDisplayName(_name);
-
-        await _authService.sendEmailVerification();
-
-        // Navigator.push(context, MaterialPageRoute(builder: (context) => VerifyEmailScreen()));
-      }
-    } on FirebaseAuthException catch (e) {
       setState(() {
-        if (e.code == 'invalid-email') {
-          _hasEmailError = true;
-        } else if (e.code == 'weak-password') {
-          _hasPasswordError = true;
-        } else if (e.code == 'email-already-in-use') {
-          _hasEmailError = true;
-        }
-      });
-    } finally {
-      setState(() {
+        _currentStep = 4;
         _isLoading = false;
       });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send verification code: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleEmailVerificationComplete() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _authService.currentUser?.updateDisplayName(_name);
+
+      await _authService.signOut();
+
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('Email verified successfully! Please log in to continue.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        String errorMessage = 'An error occurred during signup';
+
+        switch (e.code) {
+          case 'invalid-email':
+            errorMessage = 'Invalid email address';
+            break;
+          case 'weak-password':
+            errorMessage = 'Password is too weak';
+            break;
+          case 'email-already-in-use':
+            errorMessage = 'Email is already in use';
+            break;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An unexpected error occurred: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleResendVerificationCode() async {
+    try {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification code resent!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to resend code: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  void _handleStepBack() {
+    if (_currentStep > 1) {
+      setState(() {
+        _currentStep--;
+      });
+    } else {
+      Navigator.pop(context);
     }
   }
 
   void _navigateToLogin() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
-        ),
-      ),
-      child: Scaffold(
-        body: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: LayoutBuilder(
-            builder: (context, constrains) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constrains.maxHeight),
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          LogoAndTitle(
-                            title: "Create Account",
-                            subtitle: "Sign up to et started",
-                          ),
-                          LoginInput(
-                            type: "name",
-                            hasError: _hasNameError,
-                            hasText: _hasNameText,
-                          ),
-                          SizedBox(height: 12.h),
-                          LoginInput(
-                            type: "email",
-                            hasError: _hasEmailError,
-                            hasText: _hasEmailText,
-                          ),
-                          SizedBox(height: 12.h),
-                          LoginInput(
-                            type: "password",
-                            hasError: _hasPasswordError,
-                            hasText: _hasPasswordText,
-                          ),
-                          SizedBox(height: 18.h),
-                          LoginButton(
-                            text: "Sign Up",
-                            isLoading: _isLoading,
-                            onTap: _signUp,
-                          ),
-                          DividerWithText(),
-                          Row(
-                            children: [
-                              SignupWithGoogle(),
-                              SignupWithGithub(),
-                            ],
-                          ),
-                          SizedBox(height: 18.h),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Already have an account? ",
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () => _navigateToLogin(),
-                                child: Text(
-                                  'Sign in',
-                                  style: TextStyle(
-                                    color: AppColors.fontPurple,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
+    switch (_currentStep) {
+      case 1:
+        return Step1Email(
+          initialName: _name,
+          initialEmail: _email,
+          onNext: _handleStep1Complete,
+          onBack: _handleStepBack,
+        );
+      case 2:
+        return Step2Password(
+          initialPassword: _password,
+          onNext: _handleStep2Complete,
+          onBack: _handleStepBack,
+        );
+      case 3:
+        return Step3Confirm(
+          name: _name,
+          email: _email,
+          password: _password,
+          onSignup: _handleStep3Complete,
+          onBack: _handleStepBack,
+          onNavigateToLogin: _navigateToLogin,
+          isLoading: _isLoading,
+        );
+      case 4:
+        return Step4EmailVerification(
+          email: _email,
+          onVerificationComplete: _handleEmailVerificationComplete,
+          onBack: _handleStepBack,
+          onResendCode: _handleResendVerificationCode,
+          isLoading: _isLoading,
+        );
+      default:
+        return Step1Email(
+          initialName: _name,
+          initialEmail: _email,
+          onNext: _handleStep1Complete,
+          onBack: _handleStepBack,
+        );
+    }
   }
 }

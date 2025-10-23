@@ -1,8 +1,6 @@
 import 'package:app_sticker_note/colors.dart';
-import 'package:app_sticker_note/widgets/create_note.dart';
 import 'package:app_sticker_note/widgets/home.dart';
 import 'package:app_sticker_note/widgets/login.dart';
-import 'package:app_sticker_note/widgets/manage_cate.dart';
 import 'package:app_sticker_note/widgets/signup.dart';
 import 'package:app_sticker_note/widgets/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,9 +14,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -190,12 +186,6 @@ class MyApp extends StatelessWidget {
         break;
       case '/signup':
         page = const SignupScreen();
-        break;
-      case '/manage-category':
-        page = const ManageCategoryScreen();
-        break;
-      case '/create-note':
-        page = const CreateNote();
         break;
       default:
         return null;

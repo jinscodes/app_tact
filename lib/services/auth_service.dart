@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
+  AuthService();
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
@@ -50,20 +52,6 @@ class AuthService {
       return result;
     } on FirebaseAuthException catch (e) {
       print('Sign in error: ${e.message}');
-      rethrow;
-    }
-  }
-
-  Future<UserCredential?> registerWithEmailAndPassword(
-      String email, String password) async {
-    try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return result;
-    } on FirebaseAuthException catch (e) {
-      print('Registration error: ${e.message}');
       rethrow;
     }
   }
@@ -205,31 +193,26 @@ class AuthService {
     }
   }
 
-  Future<void> deleteCurrentUser() async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        await user.delete();
-        print('User account deleted: ${user.email}');
-      }
-    } on FirebaseAuthException catch (e) {
-      print('Delete user error: ${e.message}');
-      rethrow;
-    }
+  bool isGoogleEmail(String email) {
+    String processedEmail = email.trim().toLowerCase();
+    bool result = processedEmail.contains('gmail');
+    return result;
   }
 
-  bool shouldDeleteUnverifiedUser(
-      {Duration timeLimit = const Duration(hours: 24)}) {
-    User? user = _auth.currentUser;
-    if (user == null) return false;
+  Future<bool> signUpWithGoogle() async {
+    try {
+      await _googleSignIn.signOut();
 
-    if (user.emailVerified) return false;
+      UserCredential? result = await signInWithGoogle();
 
-    DateTime? creationTime = user.metadata.creationTime;
-    if (creationTime != null) {
-      return DateTime.now().difference(creationTime) > timeLimit;
+      if (result != null && result.user != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error during Google sign-up: $e');
+      rethrow;
     }
-
-    return false;
   }
 }
