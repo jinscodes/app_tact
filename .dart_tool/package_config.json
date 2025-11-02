@@ -440,7 +440,7 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "app_sticker_note",
+      "name": "app_tact",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.6"

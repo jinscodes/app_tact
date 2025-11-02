@@ -1,14 +1,14 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print, deprecated_member_use, unused_field
 
-import 'package:app_sticker_note/colors.dart';
-import 'package:app_sticker_note/components/divider_with_text.dart';
-import 'package:app_sticker_note/components/login_button.dart';
-import 'package:app_sticker_note/components/login_input.dart';
-import 'package:app_sticker_note/components/login_with_github.dart';
-import 'package:app_sticker_note/components/login_with_google.dart';
-import 'package:app_sticker_note/components/logo_and_title.dart';
-import 'package:app_sticker_note/services/auth_service.dart';
-import 'package:app_sticker_note/widgets/signup.dart';
+import 'package:app_tact/colors.dart';
+import 'package:app_tact/components/divider_with_text.dart';
+import 'package:app_tact/components/login_button.dart';
+import 'package:app_tact/components/login_input.dart';
+import 'package:app_tact/components/login_with_github.dart';
+import 'package:app_tact/components/login_with_google.dart';
+import 'package:app_tact/components/logo_and_title.dart';
+import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/widgets/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,14 +56,40 @@ class _LoginScreenState extends State<LoginScreen> {
       UserCredential? result = await _authService.signInWithEmailAndPassword(
           _emailController.text, _passwordController.text);
 
-      if (result != null &&
-          result.user != null &&
-          !result.user!.emailVerified) {
-        await _authService.signOut();
-        return;
-      }
+      if (result != null && result.user != null) {
+        if (!result.user!.emailVerified) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.warning, color: Colors.white),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Please verify your email before logging in',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.orange,
+                duration: Duration(seconds: 4),
+                action: SnackBarAction(
+                  label: 'Verify Now',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/verify');
+                  },
+                ),
+              ),
+            );
+          }
+          return;
+        }
 
-      Navigator.pushNamed(context, '/home');
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      }
     } on FirebaseAuthException catch (e) {
       print(e.message);
       setState(() {

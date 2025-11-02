@@ -1,6 +1,6 @@
-import 'package:app_sticker_note/colors.dart';
-import 'package:app_sticker_note/components/login_button.dart';
-import 'package:app_sticker_note/components/logo_and_title.dart';
+import 'package:app_tact/colors.dart';
+import 'package:app_tact/components/login_button.dart';
+import 'package:app_tact/components/logo_and_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -49,43 +49,26 @@ class _Step3ConfirmState extends State<Step3Confirm> {
     }
 
     try {
-      print('🔄 Starting account creation for: ${widget.email}');
-
-      // Create the Firebase user account
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: widget.email,
         password: widget.password,
       );
 
-      print('✅ Account created successfully');
-      print('📧 User email: ${userCredential.user?.email}');
-      print('🔒 Email verified: ${userCredential.user?.emailVerified}');
-
-      // Update the user's display name
       await userCredential.user?.updateDisplayName(widget.name);
-      print('👤 Display name updated to: ${widget.name}');
 
-      // Check if user exists before sending verification
       if (userCredential.user != null) {
-        print('📤 Sending verification email...');
-
-        // Send email verification with action code settings
         await userCredential.user!.sendEmailVerification(
           ActionCodeSettings(
-            // Replace with your actual domain/app
             url: 'https://apptact-a4f0c.firebaseapp.com/',
             handleCodeInApp: true,
-            iOSBundleId: 'com.example.appStickerNote',
-            androidPackageName: 'com.example.app_sticker_note',
+            iOSBundleId: 'com.jay.appTact',
+            androidPackageName: 'com.jay.app_tact',
             androidInstallApp: true,
             androidMinimumVersion: '1.0.0',
           ),
         );
 
-        print('✅ Verification email sent successfully');
-
-        // Show success message with additional instructions
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -99,11 +82,6 @@ class _Step3ConfirmState extends State<Step3Confirm> {
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    'Check your inbox and spam folder',
-                    style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                   ),
                 ],
               ),

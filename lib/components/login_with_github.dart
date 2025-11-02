@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
-import 'package:app_sticker_note/services/auth_service.dart';
+import 'package:app_tact/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

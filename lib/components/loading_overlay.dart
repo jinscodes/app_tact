@@ -1,4 +1,4 @@
-import 'package:app_sticker_note/components/loading_spinner.dart';
+import 'package:app_tact/components/loading_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

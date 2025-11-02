@@ -1,4 +1,4 @@
-import 'package:app_sticker_note/colors.dart';
+import 'package:app_tact/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

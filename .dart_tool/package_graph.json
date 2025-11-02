@@ -1,10 +1,10 @@
 {
   "roots": [
-    "app_sticker_note"
+    "app_tact"
   ],
   "packages": [
     {
-      "name": "app_sticker_note",
+      "name": "app_tact",
       "version": "1.0.0+1",
       "dependencies": [
         "cloud_firestore",

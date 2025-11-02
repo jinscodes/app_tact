@@ -1,4 +1,4 @@
-import 'package:app_sticker_note/widgets/auth_wrapper.dart';
+import 'package:app_tact/widgets/auth_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

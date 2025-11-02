@@ -1,8 +1,11 @@
-import 'package:app_sticker_note/colors.dart';
-import 'package:app_sticker_note/widgets/home.dart';
-import 'package:app_sticker_note/widgets/login.dart';
-import 'package:app_sticker_note/widgets/signup.dart';
-import 'package:app_sticker_note/widgets/splash_screen.dart';
+import 'package:app_tact/colors.dart';
+import 'package:app_tact/widgets/auth_wrapper.dart';
+import 'package:app_tact/widgets/home.dart';
+import 'package:app_tact/widgets/links.dart';
+import 'package:app_tact/widgets/login.dart';
+import 'package:app_tact/widgets/notes.dart';
+import 'package:app_tact/widgets/signup.dart';
+import 'package:app_tact/widgets/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -186,6 +189,15 @@ class MyApp extends StatelessWidget {
         break;
       case '/signup':
         page = const SignupScreen();
+        break;
+      case '/verify':
+        page = const AuthWrapper();
+        break;
+      case '/links':
+        page = const LinksScreen();
+        break;
+      case '/notes':
+        page = const NotesScreen();
         break;
       default:
         return null;

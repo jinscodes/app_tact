@@ -59,7 +59,7 @@ class DefaultFirebaseOptions {
         projectId: 'app-sticky-note',
         storageBucket: 'app-sticky-note.firebasestorage.app',
         iosClientId: dotenv.env['FIREBASE_IOS_CLIENT_ID'] ?? '',
-        iosBundleId: 'com.jay.appStickerNote',
+        iosBundleId: 'com.jay.appTact',
       );
 
   static FirebaseOptions get macos => FirebaseOptions(
@@ -69,6 +69,6 @@ class DefaultFirebaseOptions {
         projectId: 'app-sticky-note',
         storageBucket: 'app-sticky-note.firebasestorage.app',
         iosClientId: dotenv.env['FIREBASE_IOS_CLIENT_ID'] ?? '',
-        iosBundleId: 'com.jay.appStickerNote',
+        iosBundleId: 'com.jay.appTact',
       );
 }

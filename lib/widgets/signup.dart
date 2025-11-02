@@ -1,11 +1,11 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
-import 'package:app_sticker_note/components/step1_email.dart';
-import 'package:app_sticker_note/components/step2_password.dart';
-import 'package:app_sticker_note/components/step3_confirm.dart';
-import 'package:app_sticker_note/components/step4_email_verification.dart';
-import 'package:app_sticker_note/services/auth_service.dart';
-import 'package:app_sticker_note/widgets/login.dart';
+import 'package:app_tact/components/step1_email.dart';
+import 'package:app_tact/components/step2_password.dart';
+import 'package:app_tact/components/step3_confirm.dart';
+import 'package:app_tact/components/step4_email_verification.dart';
+import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/widgets/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

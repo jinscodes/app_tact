@@ -2,10 +2,10 @@
 
 import 'dart:async';
 
-import 'package:app_sticker_note/colors.dart';
-import 'package:app_sticker_note/components/login_button.dart';
-import 'package:app_sticker_note/components/logo_and_title.dart';
-import 'package:app_sticker_note/services/auth_service.dart';
+import 'package:app_tact/colors.dart';
+import 'package:app_tact/components/login_button.dart';
+import 'package:app_tact/components/logo_and_title.dart';
+import 'package:app_tact/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
