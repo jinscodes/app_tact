@@ -76,8 +76,8 @@ class NavigationBox extends StatelessWidget {
                       title,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -85,8 +85,8 @@ class NavigationBox extends StatelessWidget {
                       subtitle,
                       style: TextStyle(
                         color: Colors.grey[300],
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
