@@ -1,5 +1,6 @@
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/logo_and_title.dart';
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -89,12 +90,9 @@ class _NotesScreenState extends State<NotesScreen> {
                           icon: Icons.add,
                           onTap: () {
                             // TODO: Navigate to create note screen
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content:
-                                    Text('Create note feature coming soon!'),
-                                backgroundColor: Colors.green,
-                              ),
+                            MessageUtils.showInfoMessage(
+                              context,
+                              'Create note feature coming soon!',
                             );
                           },
                         ),

@@ -8,6 +8,7 @@ import 'package:app_tact/components/login_with_github.dart';
 import 'package:app_tact/components/login_with_google.dart';
 import 'package:app_tact/components/logo_and_title.dart';
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -59,30 +60,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (result != null && result.user != null) {
         if (!result.user!.emailVerified) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    Icon(Icons.warning, color: Colors.white),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Please verify your email before logging in',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: Colors.orange,
-                duration: Duration(seconds: 4),
-                action: SnackBarAction(
-                  label: 'Verify Now',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/verify');
-                  },
-                ),
-              ),
+            MessageUtils.showWarningMessage(
+              context,
+              'Please verify your email before logging in',
             );
           }
           return;
@@ -96,12 +76,8 @@ class _LoginScreenState extends State<LoginScreen> {
         _hasEmailError = true;
         _hasPasswordError = true;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to sign in. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      MessageUtils.showErrorMessage(
+          context, 'Failed to sign in. Please try again.');
     } finally {
       setState(() {
         _isLoading = false;

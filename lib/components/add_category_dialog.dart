@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:app_tact/services/links_service.dart';
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -239,20 +240,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
       print('Error creating category: $e');
       // Show error message
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Error: ${e.toString()}',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.red[400],
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.all(16.w),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-          ),
-        );
+        MessageUtils.showErrorMessage(context, 'Error: ${e.toString()}');
       }
     } finally {
       if (mounted) {

@@ -1,6 +1,7 @@
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/login_button.dart';
 import 'package:app_tact/components/logo_and_title.dart';
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -35,16 +36,8 @@ class _Step3ConfirmState extends State<Step3Confirm> {
 
   Future<void> _handleSignup() async {
     if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please agree to Terms & Conditions',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      MessageUtils.showErrorMessage(
+          context, 'Please agree to Terms & Conditions');
       return;
     }
 
@@ -70,26 +63,7 @@ class _Step3ConfirmState extends State<Step3Confirm> {
         );
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Verification email sent!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              duration: Duration(seconds: 5),
-            ),
-          );
+          MessageUtils.showSuccessMessage(context, 'Verification email sent!');
         }
       } else {
         throw Exception('User creation failed - user is null');
