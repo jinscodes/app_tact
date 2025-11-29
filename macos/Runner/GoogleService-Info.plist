@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>731609511479-q7m4d4977qltnhr5bht0eubv4fhi2tk7.apps.googleusercontent.com</string>
+	<string>154863278677-d8iphvp402555fi08bpactv7nb2i4aam.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.731609511479-q7m4d4977qltnhr5bht0eubv4fhi2tk7</string>
+	<string>com.googleusercontent.apps.154863278677-d8iphvp402555fi08bpactv7nb2i4aam</string>
 	<key>API_KEY</key>
-	<string>AIzaSyA9SEjX0-9UkRzkQ-qobf7AQy5dk4HJk0E</string>
+	<string>AIzaSyCtc9yxN29ECmDFyIikqDuKloH-ULD1Xj8</string>
 	<key>GCM_SENDER_ID</key>
-	<string>731609511479</string>
+	<string>154863278677</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.jay.appStickerNote</string>
+	<string>com.jay.appTact</string>
 	<key>PROJECT_ID</key>
-	<string>app-sticky-note</string>
+	<string>apptact-a4f0c</string>
 	<key>STORAGE_BUCKET</key>
-	<string>app-sticky-note.firebasestorage.app</string>
+	<string>apptact-a4f0c.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:731609511479:ios:c515962e0d9a7d648bf1b2</string>
+	<string>1:154863278677:ios:34290ceff70482bc4592dc</string>
 </dict>
 </plist>

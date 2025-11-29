@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print
 
-import 'package:app_sticker_note/models/note.dart';
+import 'package:app_tact/models/note.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

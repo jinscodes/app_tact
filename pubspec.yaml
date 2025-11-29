@@ -1,4 +1,4 @@
-name: app_sticker_note
+name: app_tact
 description: "A new Flutter project."
 publish_to: "none"
 version: 1.0.0+1
@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   cupertino_icons: ^1.0.8
   flutter_screenutil: ^5.9.3
   firebase_core: ^3.6.0

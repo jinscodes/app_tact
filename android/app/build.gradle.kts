@@ -25,7 +25,7 @@ android {
     ndkVersion = "27.0.12077973"
 
     defaultConfig {
-        applicationId = "com.jay.app_sticky_note"
+        applicationId = "com.jay.app_tact"
         minSdk = 23
         targetSdk = 35
         versionCode = 1
