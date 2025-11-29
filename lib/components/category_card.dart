@@ -6,6 +6,7 @@ import 'package:app_tact/components/delete_category_dialog.dart';
 import 'package:app_tact/components/link_item_card.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
+import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -72,7 +73,7 @@ class CategoryCard extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          '${category.linkCount} links • Created ${_formatDate(category.createdAt)}',
+          '${category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(category.createdAt)}',
           style: TextStyle(
             color: Colors.grey[400],
             fontSize: 12.sp,
@@ -139,11 +140,57 @@ class CategoryCard extends StatelessWidget {
         ...links.map((link) => LinkItemCard(
               link: link,
               onTap: onLinkTap,
+              onEdit: () => _showEditLinkDialog(context, link),
+              onDelete: () => _showDeleteLinkDialog(context, link),
             )),
         SizedBox(height: 8.h),
         _buildActionButtons(context),
         SizedBox(height: 16.h),
       ],
+    );
+  }
+
+  void _showEditLinkDialog(BuildContext context, LinkItem link) {
+    onError('Edit link feature coming soon!');
+  }
+
+  void _showDeleteLinkDialog(BuildContext context, LinkItem link) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color(0xFF2E2939),
+        title: Text(
+          'Delete Link',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${link.title}"?',
+          style: TextStyle(color: Colors.grey[400]),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey[400]),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                await linksService.deleteLinkItem(link.categoryId, link.id);
+              } catch (e) {
+                onError('Error deleting link: $e');
+              }
+            },
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Colors.red[400]),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -180,21 +227,6 @@ class CategoryCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date).inDays;
-
-    if (difference == 0) {
-      return 'today';
-    } else if (difference == 1) {
-      return 'yesterday';
-    } else if (difference < 7) {
-      return '$difference days ago';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
-  }
-
   void _showAddLinkDialog(BuildContext context, String categoryId) {
     AddLinkDialog.show(
       context,
@@ -210,9 +242,7 @@ class CategoryCard extends StatelessWidget {
       context,
       category: category,
       linksService: linksService,
-      onSuccess: () {
-        // Category deleted successfully - no message needed
-      },
+      onSuccess: () {},
       onError: onError,
     );
   }
