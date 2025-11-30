@@ -3,6 +3,7 @@
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/add_link_dialog.dart';
 import 'package:app_tact/components/delete_category_dialog.dart';
+import 'package:app_tact/components/edit_link_dialog.dart';
 import 'package:app_tact/components/link_item_card.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
@@ -26,6 +27,26 @@ class CategoryCard extends StatelessWidget {
     required this.onError,
   });
 
+  void _showAddLinkDialog(BuildContext context, String categoryId) {
+    AddLinkDialog.show(
+      context,
+      categoryId: categoryId,
+      linksService: linksService,
+      onSuccess: () => onSuccess('Link added successfully!'),
+      onError: onError,
+    );
+  }
+
+  void _showDeleteCategoryDialog(BuildContext context, Category category) {
+    DeleteCategoryDialog.show(
+      context,
+      category: category,
+      linksService: linksService,
+      onSuccess: () {},
+      onError: onError,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -45,66 +66,71 @@ class CategoryCard extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        childrenPadding: EdgeInsets.symmetric(horizontal: 16.w),
-        backgroundColor: Colors.transparent,
-        collapsedBackgroundColor: Colors.transparent,
-        iconColor: Colors.white,
-        collapsedIconColor: Colors.white,
-        leading: Container(
-          padding: EdgeInsets.all(12.w),
-          decoration: BoxDecoration(
-            color: Color(0xFF7B68EE).withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Icon(
-            Icons.folder_outlined,
-            color: Color(0xFF7B68EE),
-            size: 24.sp,
-          ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
         ),
-        title: Text(
-          category.name,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
+        child: ExpansionTile(
+          tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          childrenPadding: EdgeInsets.symmetric(horizontal: 16.w),
+          backgroundColor: Colors.transparent,
+          collapsedBackgroundColor: Colors.transparent,
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white,
+          leading: Container(
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: Color(0xFF7B68EE).withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Icon(
+              Icons.folder_outlined,
+              color: Color(0xFF7B68EE),
+              size: 24.sp,
+            ),
           ),
-        ),
-        subtitle: Text(
-          '${category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(category.createdAt)}',
-          style: TextStyle(
-            color: Colors.grey[400],
-            fontSize: 12.sp,
+          title: Text(
+            category.name,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        children: [
-          StreamBuilder<List<LinkItem>>(
-            stream: linksService.getLinksByCategoryStream(category.id),
-            builder: (context, linkSnapshot) {
-              if (linkSnapshot.connectionState == ConnectionState.waiting) {
-                return Padding(
-                  padding: EdgeInsets.all(20.h),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
+          subtitle: Text(
+            '${category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(category.createdAt)}',
+            style: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 12.sp,
+            ),
+          ),
+          children: [
+            StreamBuilder<List<LinkItem>>(
+              stream: linksService.getLinksByCategoryStream(category.id),
+              builder: (context, linkSnapshot) {
+                if (linkSnapshot.connectionState == ConnectionState.waiting) {
+                  return Padding(
+                    padding: EdgeInsets.all(20.h),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
                     ),
-                  ),
-                );
-              }
+                  );
+                }
 
-              final links = linkSnapshot.data ?? [];
+                final links = linkSnapshot.data ?? [];
 
-              if (links.isEmpty) {
-                return _buildEmptyState(context);
-              }
+                if (links.isEmpty) {
+                  return _buildEmptyState(context);
+                }
 
-              return _buildLinksState(context, links);
-            },
-          ),
-        ],
+                return _buildLinksState(context, links);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -151,7 +177,13 @@ class CategoryCard extends StatelessWidget {
   }
 
   void _showEditLinkDialog(BuildContext context, LinkItem link) {
-    onError('Edit link feature coming soon!');
+    EditLinkDialog.show(
+      context,
+      link: link,
+      linksService: linksService,
+      onSuccess: () {},
+      onError: onError,
+    );
   }
 
   void _showDeleteLinkDialog(BuildContext context, LinkItem link) {
@@ -224,26 +256,6 @@ class CategoryCard extends StatelessWidget {
           child: Text('Delete'),
         ),
       ],
-    );
-  }
-
-  void _showAddLinkDialog(BuildContext context, String categoryId) {
-    AddLinkDialog.show(
-      context,
-      categoryId: categoryId,
-      linksService: linksService,
-      onSuccess: () => onSuccess('Link added successfully!'),
-      onError: onError,
-    );
-  }
-
-  void _showDeleteCategoryDialog(BuildContext context, Category category) {
-    DeleteCategoryDialog.show(
-      context,
-      category: category,
-      linksService: linksService,
-      onSuccess: () {},
-      onError: onError,
     );
   }
 }

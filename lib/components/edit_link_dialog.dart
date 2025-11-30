@@ -1,29 +1,30 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class AddLinkDialog extends StatefulWidget {
-  final String categoryId;
+class EditLinkDialog extends StatefulWidget {
+  final LinkItem link;
   final LinksService linksService;
   final VoidCallback onSuccess;
   final Function(String) onError;
 
-  const AddLinkDialog({
+  const EditLinkDialog({
     super.key,
-    required this.categoryId,
+    required this.link,
     required this.linksService,
     required this.onSuccess,
     required this.onError,
   });
 
   @override
-  State<AddLinkDialog> createState() => _AddLinkDialogState();
+  State<EditLinkDialog> createState() => _EditLinkDialogState();
 
   static void show(
     BuildContext context, {
-    required String categoryId,
+    required LinkItem link,
     required LinksService linksService,
     required VoidCallback onSuccess,
     required Function(String) onError,
@@ -32,8 +33,8 @@ class AddLinkDialog extends StatefulWidget {
       context: context,
       barrierDismissible: true,
       useSafeArea: true,
-      builder: (context) => AddLinkDialog(
-        categoryId: categoryId,
+      builder: (context) => EditLinkDialog(
+        link: link,
         linksService: linksService,
         onSuccess: onSuccess,
         onError: onError,
@@ -42,30 +43,25 @@ class AddLinkDialog extends StatefulWidget {
   }
 }
 
-class _AddLinkDialogState extends State<AddLinkDialog> {
-  final titleController = TextEditingController();
-  final urlController = TextEditingController();
-  final descriptionController = TextEditingController();
+class _EditLinkDialogState extends State<EditLinkDialog> {
+  late final TextEditingController titleController;
+  late final TextEditingController urlController;
+  late final TextEditingController descriptionController;
   bool _isLoading = false;
-  bool _isInputEmpty = true;
 
   @override
   void initState() {
     super.initState();
-    titleController.addListener(_updateInputState);
-    urlController.addListener(_updateInputState);
+    titleController = TextEditingController(text: widget.link.title);
+    urlController = TextEditingController(text: widget.link.url);
+    descriptionController =
+        TextEditingController(text: widget.link.description);
   }
 
-  void _updateInputState() {
-    setState(() {
-      _isInputEmpty = titleController.text.trim().isEmpty ||
-          urlController.text.trim().isEmpty;
-    });
-  }
-
-  Future<void> _handleAddLink() async {
+  Future<void> _handleEditLink() async {
     if (titleController.text.trim().isEmpty ||
         urlController.text.trim().isEmpty) {
+      widget.onError('Title and URL are required');
       return;
     }
 
@@ -74,16 +70,22 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
     });
 
     try {
-      await widget.linksService.addLinkToCategory(
-        widget.categoryId,
-        titleController.text.trim(),
-        urlController.text.trim(),
-        descriptionController.text.trim(),
+      await widget.linksService.updateLinkItem(
+        widget.link.categoryId,
+        widget.link.id,
+        title: titleController.text.trim(),
+        url: urlController.text.trim(),
+        description: descriptionController.text.trim(),
       );
-      Navigator.pop(context);
-      widget.onSuccess();
+
+      if (mounted) {
+        Navigator.pop(context);
+        widget.onSuccess();
+      }
     } catch (e) {
-      widget.onError('Error adding link: $e');
+      if (mounted) {
+        widget.onError('Error updating link: $e');
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -95,8 +97,6 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
 
   @override
   void dispose() {
-    titleController.removeListener(_updateInputState);
-    urlController.removeListener(_updateInputState);
     titleController.dispose();
     urlController.dispose();
     descriptionController.dispose();
@@ -139,7 +139,7 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
                 SizedBox(height: 10.h),
                 Center(
                   child: Text(
-                    "Add New Link",
+                    "Edit Link",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18.sp,
@@ -346,29 +346,18 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
                       child: Container(
                         height: 42.h,
                         decoration: BoxDecoration(
-                          gradient: _isInputEmpty || _isLoading
-                              ? LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [
-                                    Colors.grey.withOpacity(0.5),
-                                    Colors.grey.withOpacity(0.5),
-                                  ],
-                                )
-                              : LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [
-                                    Color(0xFF7B68EE),
-                                    Color(0xFF9B59B6),
-                                  ],
-                                ),
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Color(0xFF7B68EE),
+                              Color(0xFF9B59B6),
+                            ],
+                          ),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: ElevatedButton(
-                          onPressed: _isInputEmpty || _isLoading
-                              ? null
-                              : _handleAddLink,
+                          onPressed: _isLoading ? null : _handleEditLink,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
@@ -387,11 +376,9 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
                                   ),
                                 )
                               : Text(
-                                  "Add Link",
+                                  "Save Changes",
                                   style: TextStyle(
-                                    color: _isInputEmpty
-                                        ? Colors.grey[600]
-                                        : Colors.white,
+                                    color: Colors.white,
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.bold,
                                   ),
