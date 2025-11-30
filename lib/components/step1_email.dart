@@ -6,6 +6,7 @@ import 'package:app_tact/components/logo_and_title.dart';
 import 'package:app_tact/components/signup_with_github.dart';
 import 'package:app_tact/components/signup_with_google.dart';
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -72,13 +73,8 @@ class _Step1EmailState extends State<Step1Email> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Google authentication failed: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        MessageUtils.showErrorMessage(
+            context, 'Google authentication failed: $e');
       }
     }
   }

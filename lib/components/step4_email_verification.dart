@@ -6,6 +6,7 @@ import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/login_button.dart';
 import 'package:app_tact/components/logo_and_title.dart';
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -92,11 +93,9 @@ class _Step4EmailVerificationState extends State<Step4EmailVerification> {
       await _authService.sendEmailVerification();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Verification email sent to ${widget.email}'),
-            backgroundColor: Colors.green,
-          ),
+        MessageUtils.showSuccessMessage(
+          context,
+          'Verification email sent to ${widget.email}',
         );
       }
     } catch (e) {
@@ -139,12 +138,9 @@ class _Step4EmailVerificationState extends State<Step4EmailVerification> {
       if (_authService.isEmailVerified && mounted) {
         _stopVerificationDetection();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email verified successfully!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-          ),
+        MessageUtils.showSuccessMessage(
+          context,
+          'Email verified successfully!',
         );
 
         await Future.delayed(const Duration(milliseconds: 500));

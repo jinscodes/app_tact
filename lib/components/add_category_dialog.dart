@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:app_tact/services/links_service.dart';
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -35,9 +36,23 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
   final TextEditingController _categoryController = TextEditingController();
   final LinksService _linksService = LinksService();
   bool _isLoading = false;
+  bool _isInputEmpty = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoryController.addListener(_updateInputState);
+  }
+
+  void _updateInputState() {
+    setState(() {
+      _isInputEmpty = _categoryController.text.trim().isEmpty;
+    });
+  }
 
   @override
   void dispose() {
+    _categoryController.removeListener(_updateInputState);
     _categoryController.dispose();
     super.dispose();
   }
@@ -153,26 +168,34 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                     child: Container(
                       height: 42.h,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [
-                            Color(0xFFB93CFF),
-                            Color(0xFF4F46E5),
-                          ],
-                        ),
+                        gradient: _isInputEmpty || _isLoading
+                            ? LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [
+                                  Colors.grey.withOpacity(0.5),
+                                  Colors.grey.withOpacity(0.5),
+                                ],
+                              )
+                            : LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [
+                                  Color(0xFFB93CFF),
+                                  Color(0xFF4F46E5),
+                                ],
+                              ),
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(8.r),
-                          onTap: () async {
-                            if (_categoryController.text.trim().isNotEmpty &&
-                                !_isLoading) {
-                              await _handleAddCategory();
-                            }
-                          },
+                          onTap: _isInputEmpty || _isLoading
+                              ? null
+                              : () async {
+                                  await _handleAddCategory();
+                                },
                           child: Center(
                             child: _isLoading
                                 ? SizedBox(
@@ -188,7 +211,9 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                                 : Text(
                                     "Add",
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: _isInputEmpty
+                                          ? Colors.grey[600]
+                                          : Colors.white,
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -239,20 +264,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
       print('Error creating category: $e');
       // Show error message
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Error: ${e.toString()}',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.red[400],
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.all(16.w),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-          ),
-        );
+        MessageUtils.showErrorMessage(context, 'Error: ${e.toString()}');
       }
     } finally {
       if (mounted) {

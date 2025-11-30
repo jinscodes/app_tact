@@ -1,5 +1,5 @@
 import 'package:app_tact/colors.dart';
-import 'package:app_tact/components/logo_and_title.dart';
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -18,7 +18,7 @@ class _NotesScreenState extends State<NotesScreen> {
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
+          colors: [Color.fromARGB(255, 23, 30, 63), Color(0xFF2E2939)],
         ),
       ),
       child: Scaffold(
@@ -26,14 +26,6 @@ class _NotesScreenState extends State<NotesScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color: Colors.white,
-              size: 20.sp,
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
           title: Text(
             'Notes',
             style: TextStyle(
@@ -49,12 +41,6 @@ class _NotesScreenState extends State<NotesScreen> {
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Column(
               children: [
-                SizedBox(height: 40.h),
-                LogoAndTitle(
-                  title: "Your Notes",
-                  subtitle: "Create and organize notes",
-                ),
-                SizedBox(height: 60.h),
                 Expanded(
                   child: Center(
                     child: Column(
@@ -67,7 +53,7 @@ class _NotesScreenState extends State<NotesScreen> {
                         ),
                         SizedBox(height: 20.h),
                         Text(
-                          'No notes yet',
+                          'No categories yet',
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 18.sp,
@@ -76,27 +62,11 @@ class _NotesScreenState extends State<NotesScreen> {
                         ),
                         SizedBox(height: 8.h),
                         Text(
-                          'Start creating your first note',
+                          'Start by creating your first category',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 14.sp,
                           ),
-                        ),
-                        SizedBox(height: 40.h),
-                        _buildAddButton(
-                          context: context,
-                          text: 'Create Note',
-                          icon: Icons.add,
-                          onTap: () {
-                            // TODO: Navigate to create note screen
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content:
-                                    Text('Create note feature coming soon!'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          },
                         ),
                       ],
                     ),
@@ -106,49 +76,17 @@ class _NotesScreenState extends State<NotesScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildAddButton({
-    required BuildContext context,
-    required String text,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        height: 50.h,
-        decoration: BoxDecoration(
-          color: AppColors.fontPurple.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: AppColors.fontPurple.withOpacity(0.5),
-            width: 1,
-          ),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: AppColors.fontPurple,
-                size: 18.sp,
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                text,
-                style: TextStyle(
-                  color: AppColors.fontPurple,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            MessageUtils.showInfoMessage(
+              context,
+              'Add category feature coming soon!',
+            );
+          },
+          backgroundColor: AppColors.softPurple,
+          foregroundColor: Colors.white,
+          icon: Icon(Icons.add),
+          label: Text('Add Category'),
         ),
       ),
     );

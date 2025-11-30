@@ -5,6 +5,7 @@ import 'package:app_tact/components/step2_password.dart';
 import 'package:app_tact/components/step3_confirm.dart';
 import 'package:app_tact/components/step4_email_verification.dart';
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -54,13 +55,8 @@ class _SignupScreenState extends State<SignupScreen> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to send verification code: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        MessageUtils.showErrorMessage(
+            context, 'Failed to send verification code: $e');
         setState(() {
           _isLoading = false;
         });
@@ -81,12 +77,9 @@ class _SignupScreenState extends State<SignupScreen> {
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content:
-                Text('Email verified successfully! Please log in to continue.'),
-            backgroundColor: Colors.green,
-          ),
+        MessageUtils.showSuccessMessage(
+          context,
+          'Email verified successfully! Please log in to continue.',
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -105,23 +98,12 @@ class _SignupScreenState extends State<SignupScreen> {
             break;
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        MessageUtils.showErrorMessage(context, errorMessage);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('An unexpected error occurred: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        MessageUtils.showErrorMessage(
+            context, 'An unexpected error occurred: $e');
       }
     } finally {
       if (mounted) {
@@ -135,23 +117,11 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<void> _handleResendVerificationCode() async {
     try {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Verification code resent!'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        MessageUtils.showSuccessMessage(context, 'Verification code resent!');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to resend code: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        MessageUtils.showErrorMessage(context, 'Failed to resend code: $e');
       }
     }
   }

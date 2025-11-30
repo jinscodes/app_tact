@@ -38,7 +38,6 @@ class LinksService {
         .collection('linkItems');
   }
 
-  /// Creates the Firebase collection structure and adds a category
   Future<String> createCategoryWithCollection(String categoryName) async {
     try {
       if (categoryName.trim().isEmpty) {
@@ -104,7 +103,6 @@ class LinksService {
     }
   }
 
-  /// Adds a link item to a specific category
   Future<String> addLinkToCategory(
       String categoryId, String title, String url, String description) async {
     try {
@@ -112,7 +110,6 @@ class LinksService {
         throw Exception('Title and URL are required');
       }
 
-      // Create link item
       final linkRef = _getLinkItemsCollection(categoryId).doc();
       final linkItem = LinkItem(
         id: linkRef.id,
@@ -124,13 +121,10 @@ class LinksService {
         createdAt: DateTime.now(),
       );
 
-      // Update category link count and add link item in a batch
       final batch = _firestore.batch();
 
-      // Add the link item
       batch.set(linkRef, linkItem.toMap());
 
-      // Update category link count
       final categoryRef = _getCategoryCollection().doc(categoryId);
       batch.update(categoryRef, {
         'linkCount': FieldValue.increment(1),
@@ -144,7 +138,6 @@ class LinksService {
     }
   }
 
-  /// Gets all categories for the current user
   Future<List<Category>> getCategories() async {
     try {
       final snapshot = await _getCategoryCollection()
@@ -160,7 +153,6 @@ class LinksService {
     }
   }
 
-  /// Gets categories as a stream for real-time updates
   Stream<List<Category>> getCategoriesStream() {
     try {
       return _getCategoryCollection()
@@ -177,7 +169,6 @@ class LinksService {
     }
   }
 
-  /// Gets all link items for a specific category
   Future<List<LinkItem>> getLinksByCategory(String categoryId) async {
     try {
       final snapshot = await _getLinkItemsCollection(categoryId)
@@ -194,36 +185,36 @@ class LinksService {
     }
   }
 
-  /// Gets link items as a stream for real-time updates
   Stream<List<LinkItem>> getLinksByCategoryStream(String categoryId) {
     try {
       return _getLinkItemsCollection(categoryId)
-          .where('isPlaceholder', isNotEqualTo: true)
           .orderBy('createdAt', descending: true)
           .snapshots()
           .map((snapshot) {
         return snapshot.docs
+            .where((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return data['isPlaceholder'] != true;
+            })
             .map((doc) => LinkItem.fromFirestore(
                 doc.id, doc.data() as Map<String, dynamic>))
             .toList();
       });
     } catch (e) {
+      print('Error in getLinksByCategoryStream: $e');
       return Stream.value([]);
     }
   }
 
-  /// Deletes a category and all its link items
   Future<void> deleteCategory(String categoryId) async {
     try {
       final batch = _firestore.batch();
 
-      // Delete all link items in the category
       final linkItems = await _getLinkItemsCollection(categoryId).get();
       for (final doc in linkItems.docs) {
         batch.delete(doc.reference);
       }
 
-      // Delete the category
       batch.delete(_getCategoryCollection().doc(categoryId));
 
       await batch.commit();
@@ -232,15 +223,12 @@ class LinksService {
     }
   }
 
-  /// Deletes a specific link item
   Future<void> deleteLinkItem(String categoryId, String linkId) async {
     try {
       final batch = _firestore.batch();
 
-      // Delete the link item
       batch.delete(_getLinkItemsCollection(categoryId).doc(linkId));
 
-      // Update category link count
       batch.update(_getCategoryCollection().doc(categoryId), {
         'linkCount': FieldValue.increment(-1),
       });
@@ -251,7 +239,6 @@ class LinksService {
     }
   }
 
-  /// Updates a link item
   Future<void> updateLinkItem(
     String categoryId,
     String linkId, {

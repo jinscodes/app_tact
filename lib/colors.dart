@@ -7,6 +7,8 @@ class AppColors {
   static const Color fontGray3 = Color(0xFF717078);
   static const Color fontPurple = Color(0xFFD2A5FF);
   static const Color deepPurple = Color(0xFF5B3E85);
+  static const Color softPurple = Color(0xFF614E7A);
+  static const Color softRed = Color(0xFF882836);
   static const Color inputGray = Color(0xFFF3F4F6);
   static const Color inputBoldGray = Color(0xFFD9D9D9);
   static const Color placeholderGray = Color(0xFF969FAB);
