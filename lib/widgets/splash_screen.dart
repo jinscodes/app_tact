@@ -168,8 +168,8 @@ class _SplashScreenState extends State<SplashScreen>
                   position: _slideAnimation,
                   child: Image.asset(
                     'assets/tact_logo.png',
-                    width: 150.w,
-                    height: 150.h,
+                    width: 80.w,
+                    height: 80.h,
                   ),
                 ),
               ),

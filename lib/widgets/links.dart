@@ -17,6 +17,38 @@ class LinksScreen extends StatefulWidget {
 class _LinksScreenState extends State<LinksScreen> {
   final LinksService _linksService = LinksService();
 
+  Future<void> _launchURL(String url) async {
+    try {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color(0xFF2E2939),
+          title: Text('Open Link', style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('URL:', style: TextStyle(color: Colors.grey[400])),
+              SizedBox(height: 8.h),
+              SelectableText(
+                url,
+                style: TextStyle(color: Color(0xFF7B68EE)),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Close', style: TextStyle(color: Colors.grey[400])),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      MessageUtils.showErrorMessage(context, 'Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -154,37 +186,5 @@ class _LinksScreenState extends State<LinksScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _launchURL(String url) async {
-    try {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: Color(0xFF2E2939),
-          title: Text('Open Link', style: TextStyle(color: Colors.white)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('URL:', style: TextStyle(color: Colors.grey[400])),
-              SizedBox(height: 8.h),
-              SelectableText(
-                url,
-                style: TextStyle(color: Color(0xFF7B68EE)),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Close', style: TextStyle(color: Colors.grey[400])),
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      MessageUtils.showErrorMessage(context, 'Error: $e');
-    }
   }
 }

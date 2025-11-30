@@ -4,6 +4,7 @@ import 'package:app_tact/components/logo_and_title.dart';
 import 'package:app_tact/components/navigation_box.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/widgets/links.dart';
+import 'package:app_tact/widgets/notes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -21,6 +22,13 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => LinksScreen()),
+    );
+  }
+
+  void _navigateToNotes() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => NotesScreen()),
     );
   }
 
@@ -65,9 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: "Notes",
                         subtitle: "Create and organize notes",
                         icon: Icons.note_alt,
-                        onTap: () {
-                          Navigator.pushNamed(context, '/notes');
-                        },
+                        onTap: () => _navigateToNotes(),
                       ),
                     ],
                   ),
