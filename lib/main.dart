@@ -3,7 +3,6 @@ import 'package:app_tact/widgets/auth_wrapper.dart';
 import 'package:app_tact/widgets/home.dart';
 import 'package:app_tact/widgets/links.dart';
 import 'package:app_tact/widgets/login.dart';
-import 'package:app_tact/widgets/notes.dart';
 import 'package:app_tact/widgets/signup.dart';
 import 'package:app_tact/widgets/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -195,9 +194,6 @@ class MyApp extends StatelessWidget {
         break;
       case '/links':
         page = const LinksScreen();
-        break;
-      case '/notes':
-        page = const NotesScreen();
         break;
       default:
         return null;
