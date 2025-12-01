@@ -1,5 +1,6 @@
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/widgets/about_screen.dart';
 import 'package:app_tact/widgets/privacy_security_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -85,7 +86,14 @@ class _SettingsContentState extends State<SettingsContent> {
               icon: Icons.info_outline,
               title: 'About',
               subtitle: 'Version 1.0.0',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AboutScreen(),
+                  ),
+                );
+              },
             ),
             SizedBox(height: 20.h),
             _buildSectionTitle('Account Actions'),
