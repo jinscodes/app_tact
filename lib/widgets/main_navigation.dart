@@ -1,3 +1,4 @@
+import 'package:app_tact/colors.dart';
 import 'package:app_tact/widgets/links_content.dart';
 import 'package:app_tact/widgets/profile_content.dart';
 import 'package:app_tact/widgets/settings_content.dart';
@@ -82,7 +83,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color.fromARGB(255, 23, 30, 63), Color(0xFF2E2939)],
+          colors: [AppColors.gradientDarkBlue2, AppColors.gradientPurple],
         ),
       ),
       child: Scaffold(

@@ -1,3 +1,4 @@
+import 'package:app_tact/colors.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/widgets/privacy_security_screen.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +113,7 @@ class _SettingsContentState extends State<SettingsContent> {
       child: Text(
         title,
         style: TextStyle(
-          color: Color(0xFF7B68EE),
+          color: AppColors.accentPurple,
           fontSize: 14.sp,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -154,13 +155,13 @@ class _SettingsContentState extends State<SettingsContent> {
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
             color: isDestructive
-                ? Colors.red.withOpacity(0.2)
-                : Color(0xFF7B68EE).withOpacity(0.2),
+                ? AppColors.errorRed.withOpacity(0.2)
+                : AppColors.accentPurple.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Icon(
             icon,
-            color: isDestructive ? Colors.red[400] : Color(0xFF7B68EE),
+            color: isDestructive ? AppColors.errorRed : AppColors.accentPurple,
             size: 24.sp,
           ),
         ),

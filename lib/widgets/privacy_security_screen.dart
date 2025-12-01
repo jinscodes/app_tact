@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:app_tact/colors.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/privacy_policy_screen.dart';
 import 'package:app_tact/widgets/terms_of_service_screen.dart';
@@ -23,7 +26,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
+          colors: [AppColors.gradientDarkBlue, AppColors.gradientPurple],
         ),
       ),
       child: Scaffold(
@@ -155,7 +158,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
       child: Text(
         title,
         style: TextStyle(
-          color: Color(0xFF7B68EE),
+          color: AppColors.accentPurple,
           fontSize: 14.sp,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -197,20 +200,20 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
             color: isDestructive
-                ? Colors.red.withOpacity(0.2)
-                : Color(0xFF7B68EE).withOpacity(0.2),
+                ? AppColors.errorRed.withOpacity(0.2)
+                : AppColors.accentPurple.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Icon(
             icon,
-            color: isDestructive ? Colors.red[400] : Color(0xFF7B68EE),
+            color: isDestructive ? AppColors.errorRed : AppColors.accentPurple,
             size: 24.sp,
           ),
         ),
         title: Text(
           title,
           style: TextStyle(
-            color: isDestructive ? Colors.red[400] : Colors.white,
+            color: isDestructive ? AppColors.errorRed : Colors.white,
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -218,13 +221,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         subtitle: Text(
           subtitle,
           style: TextStyle(
-            color: Colors.grey[400],
+            color: AppColors.textMedium,
             fontSize: 13.sp,
           ),
         ),
         trailing: Icon(
           Icons.chevron_right,
-          color: Colors.grey[600],
+          color: AppColors.textDark,
           size: 24.sp,
         ),
         onTap: onTap,
@@ -264,12 +267,12 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         secondary: Container(
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
-            color: Color(0xFF7B68EE).withOpacity(0.2),
+            color: AppColors.accentPurple.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Icon(
             icon,
-            color: Color(0xFF7B68EE),
+            color: AppColors.accentPurple,
             size: 24.sp,
           ),
         ),
@@ -284,13 +287,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         subtitle: Text(
           subtitle,
           style: TextStyle(
-            color: Colors.grey[400],
+            color: AppColors.textMedium,
             fontSize: 13.sp,
           ),
         ),
         value: value,
         onChanged: onChanged,
-        activeColor: Color(0xFF7B68EE),
+        activeColor: AppColors.accentPurple,
       ),
     );
   }
@@ -320,12 +323,12 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Current Password',
-                labelStyle: TextStyle(color: Colors.grey[400]),
+                labelStyle: TextStyle(color: AppColors.textMedium),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey[600]!),
+                  borderSide: BorderSide(color: AppColors.textDark),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF7B68EE)),
+                  borderSide: BorderSide(color: AppColors.accentPurple),
                 ),
               ),
             ),
@@ -336,12 +339,12 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'New Password',
-                labelStyle: TextStyle(color: Colors.grey[400]),
+                labelStyle: TextStyle(color: AppColors.textMedium),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey[600]!),
+                  borderSide: BorderSide(color: AppColors.textDark),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF7B68EE)),
+                  borderSide: BorderSide(color: AppColors.accentPurple),
                 ),
               ),
             ),
@@ -352,12 +355,12 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Confirm New Password',
-                labelStyle: TextStyle(color: Colors.grey[400]),
+                labelStyle: TextStyle(color: AppColors.textMedium),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey[600]!),
+                  borderSide: BorderSide(color: AppColors.textDark),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF7B68EE)),
+                  borderSide: BorderSide(color: AppColors.accentPurple),
                 ),
               ),
             ),
@@ -422,7 +425,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
             },
             child: Text(
               'Change',
-              style: TextStyle(color: Color(0xFF7B68EE)),
+              style: TextStyle(color: AppColors.accentPurple),
             ),
           ),
         ],
@@ -434,13 +437,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF2E2939),
+        backgroundColor: AppColors.gradientPurple,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.r),
         ),
         title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.red[400]),
+            Icon(Icons.warning_amber_rounded, color: AppColors.errorRed),
             SizedBox(width: 8.w),
             Text(
               'Delete Account',
@@ -450,14 +453,14 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         ),
         content: Text(
           'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.',
-          style: TextStyle(color: Colors.grey[300]),
+          style: TextStyle(color: AppColors.textLight),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.grey[400]),
+              style: TextStyle(color: AppColors.textMedium),
             ),
           ),
           TextButton(
@@ -487,7 +490,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
             },
             child: Text(
               'Delete',
-              style: TextStyle(color: Colors.red[400]),
+              style: TextStyle(color: AppColors.errorRed),
             ),
           ),
         ],

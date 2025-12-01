@@ -1,3 +1,4 @@
+import 'package:app_tact/colors.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/widgets/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -50,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color.fromARGB(255, 23, 30, 63), Color(0xFF2E2939)],
+          colors: [AppColors.gradientDarkBlue2, AppColors.gradientPurple],
         ),
       ),
       child: Scaffold(

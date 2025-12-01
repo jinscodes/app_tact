@@ -1,3 +1,4 @@
+import 'package:app_tact/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -11,7 +12,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
+          colors: [AppColors.gradientDarkBlue, AppColors.gradientPurple],
         ),
       ),
       child: Scaffold(
@@ -42,7 +43,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 Text(
                   'Last Updated: November 30, 2025',
                   style: TextStyle(
-                    color: Colors.grey[400],
+                    color: AppColors.textMedium,
                     fontSize: 13.sp,
                     fontStyle: FontStyle.italic,
                   ),
@@ -138,7 +139,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: Color(0xFF7B68EE),
+              color: AppColors.accentPurple,
               fontSize: 18.sp,
               fontWeight: FontWeight.bold,
             ),
@@ -147,7 +148,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           Text(
             content,
             style: TextStyle(
-              color: Colors.grey[300],
+              color: AppColors.textLight,
               fontSize: 14.sp,
               height: 1.6,
             ),

@@ -22,7 +22,7 @@ class _LinksContentState extends State<LinksContent> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          backgroundColor: Color(0xFF2E2939),
+          backgroundColor: AppColors.gradientPurple,
           title: Text('Open Link', style: TextStyle(color: Colors.white)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -32,7 +32,7 @@ class _LinksContentState extends State<LinksContent> {
               SizedBox(height: 8.h),
               SelectableText(
                 url,
-                style: TextStyle(color: Color(0xFF7B68EE)),
+                style: TextStyle(color: AppColors.accentPurple),
               ),
             ],
           ),
