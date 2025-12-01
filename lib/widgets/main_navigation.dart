@@ -18,11 +18,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   late Animation<Offset> _outgoingSlideAnimation;
   late Animation<Offset> _incomingSlideAnimation;
 
-  final List<Widget> _screens = [
-    const LinksContent(),
-    const SettingsContent(),
-    const ProfileContent(),
-  ];
+  List<Widget> _buildScreens() {
+    return [
+      const LinksContent(),
+      SettingsContent(
+        onNavigateToProfile: () => _onItemTapped(2),
+      ),
+      const ProfileContent(),
+    ];
+  }
 
   @override
   void initState() {
@@ -86,13 +90,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         body: AnimatedBuilder(
           animation: _animationController,
           builder: (context, child) {
+            final screens = _buildScreens();
             return Stack(
               children: [
                 // Outgoing screen
                 if (_animationController.status != AnimationStatus.dismissed)
                   SlideTransition(
                     position: _outgoingSlideAnimation,
-                    child: _screens[_previousIndex],
+                    child: screens[_previousIndex],
                   ),
                 // Incoming screen
                 SlideTransition(
@@ -100,7 +105,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                       _animationController.status == AnimationStatus.dismissed
                           ? const AlwaysStoppedAnimation(Offset.zero)
                           : _incomingSlideAnimation,
-                  child: _screens[_selectedIndex],
+                  child: screens[_selectedIndex],
                 ),
               ],
             );

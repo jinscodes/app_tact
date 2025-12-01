@@ -1,9 +1,12 @@
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/widgets/privacy_security_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SettingsContent extends StatefulWidget {
-  const SettingsContent({super.key});
+  final VoidCallback? onNavigateToProfile;
+
+  const SettingsContent({super.key, this.onNavigateToProfile});
 
   @override
   State<SettingsContent> createState() => _SettingsContentState();
@@ -38,13 +41,22 @@ class _SettingsContentState extends State<SettingsContent> {
               icon: Icons.person_outline,
               title: 'Profile',
               subtitle: 'Manage your profile information',
-              onTap: () {},
+              onTap: () {
+                widget.onNavigateToProfile?.call();
+              },
             ),
             _buildSettingTile(
               icon: Icons.security,
               title: 'Privacy & Security',
               subtitle: 'Manage your privacy settings',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PrivacySecurityScreen(),
+                  ),
+                );
+              },
             ),
             SizedBox(height: 20.h),
             _buildSectionTitle('App'),
