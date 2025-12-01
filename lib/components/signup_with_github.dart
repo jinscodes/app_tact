@@ -2,6 +2,7 @@
 
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/utils/message_utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,6 +30,76 @@ class _SignupWithGithubState extends State<SignupWithGithub> {
 
       if (result != null && result.user != null) {
         print('GitHub Sign-Up successful! User: ${result.user!.email}');
+        print('🔵 GitHub user UID: ${result.user!.uid}');
+
+        try {
+          // Reload user to ensure latest data
+          await result.user!.reload();
+          User? user = FirebaseAuth.instance.currentUser;
+          print('🔵 User after reload: ${user?.email} (UID: ${user?.uid})');
+
+          if (user == null) {
+            print('❌ User is null after reload!');
+            if (mounted) {
+              MessageUtils.showErrorMessage(
+                  context, 'Failed to get user information');
+            }
+            return;
+          }
+
+          // Check if profile already exists
+          print(
+              '🔵 Checking if profile exists at: users/${user.uid}/profile/info');
+          final profileDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .collection('profile')
+              .doc('info')
+              .get();
+
+          print('🔵 Profile exists: ${profileDoc.exists}');
+
+          if (!profileDoc.exists) {
+            print('🔵 Creating profile for GitHub user...');
+            final profileData = {
+              'email': user.email,
+              'memberSince': FieldValue.serverTimestamp(),
+              'userId': user.uid,
+              'name': user.displayName ?? 'User',
+              'createdAt': FieldValue.serverTimestamp(),
+              'signupType': 'github',
+            };
+            print('🔵 Profile data to save: $profileData');
+
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .collection('profile')
+                .doc('info')
+                .set(profileData);
+            print('✅ GitHub profile created successfully!');
+
+            // Verify it was saved
+            final verifyDoc = await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .collection('profile')
+                .doc('info')
+                .get();
+            print(
+                '🔵 Verification - Profile exists: ${verifyDoc.exists}, Data: ${verifyDoc.data()}');
+          } else {
+            print('ℹ️ Profile already exists with data: ${profileDoc.data()}');
+          }
+        } catch (profileError, stackTrace) {
+          print('❌ Error creating GitHub profile: $profileError');
+          print('❌ Stack trace: $stackTrace');
+          if (mounted) {
+            MessageUtils.showErrorMessage(
+                context, 'Failed to save profile: $profileError');
+          }
+        }
+
         if (result.additionalUserInfo?.isNewUser == true) {
           print('New GitHub user created: ${result.user!.email}');
         } else {

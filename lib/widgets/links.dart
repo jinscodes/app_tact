@@ -25,17 +25,14 @@ class _LinksScreenState extends State<LinksScreen> {
 
     switch (index) {
       case 0:
-        // Already on Links
         break;
       case 1:
-        // Settings
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const SettingsScreen()),
         );
         break;
       case 2:
-        // Profile
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ProfileScreen()),

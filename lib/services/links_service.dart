@@ -22,18 +22,15 @@ class LinksService {
     return _auth.currentUser?.uid;
   }
 
-  CollectionReference get _linksCollection {
-    return _firestore.collection('users').doc(userId).collection('links');
-  }
-
   CollectionReference _getCategoryCollection() {
-    return _linksCollection.doc('categories').collection('items');
+    return _firestore.collection('users').doc(userId).collection('categories');
   }
 
   CollectionReference _getLinkItemsCollection(String categoryId) {
-    return _linksCollection
-        .doc('categories')
-        .collection('items')
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('categories')
         .doc(categoryId)
         .collection('linkItems');
   }
@@ -67,22 +64,6 @@ class LinksService {
 
       print('Creating batch operations...');
       final batch = _firestore.batch();
-
-      final linksDocRef = _linksCollection.doc('metadata');
-      batch.set(
-          linksDocRef,
-          {
-            'userId': userId,
-            'createdAt': DateTime.now().toIso8601String(),
-            'totalCategories': 1,
-          },
-          SetOptions(merge: true));
-
-      final categoriesDocRef = _linksCollection.doc('categories');
-      batch.set(categoriesDocRef, {
-        'userId': userId,
-        'createdAt': DateTime.now().toIso8601String(),
-      });
 
       batch.set(categoryRef, category.toMap());
 
