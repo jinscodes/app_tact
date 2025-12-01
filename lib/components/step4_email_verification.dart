@@ -52,6 +52,9 @@ class _Step4EmailVerificationState extends State<Step4EmailVerification> {
       _focusNodes[0].requestFocus();
     });
 
+    // Send verification email when screen loads
+    _sendInitialVerificationEmail();
+
     _startVerificationDetection();
 
     for (int i = 0; i < _controllers.length; i++) {
@@ -64,6 +67,15 @@ class _Step4EmailVerificationState extends State<Step4EmailVerification> {
           _errorMessage = '';
         });
       });
+    }
+  }
+
+  Future<void> _sendInitialVerificationEmail() async {
+    try {
+      await _authService.sendEmailVerification();
+      print('✅ Verification email sent to ${widget.email}');
+    } catch (e) {
+      print('⚠️ Error sending initial verification email: $e');
     }
   }
 

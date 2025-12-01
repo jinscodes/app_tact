@@ -7,6 +7,8 @@ import 'package:app_tact/components/signup_with_github.dart';
 import 'package:app_tact/components/signup_with_google.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/utils/message_utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -66,12 +68,97 @@ class _Step1EmailState extends State<Step1Email> {
   }
 
   Future<void> _handleGoogleSignUp() async {
+    setState(() {
+      _hasNameError = false;
+      _hasEmailError = false;
+    });
+
     try {
-      bool success = await _authService.signUpWithGoogle();
-      if (success && mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      print('🔵 Starting Google sign-up...');
+      UserCredential? result = await _authService.signInWithGoogle();
+
+      if (result != null && result.user != null) {
+        print('🔵 Google Sign-Up successful! User: ${result.user!.email}');
+        print('🔵 Google user UID: ${result.user!.uid}');
+
+        try {
+          // Reload user to ensure latest data
+          await result.user!.reload();
+          User? user = FirebaseAuth.instance.currentUser;
+          print('🔵 User after reload: ${user?.email} (UID: ${user?.uid})');
+
+          if (user == null) {
+            print('❌ User is null after reload!');
+            if (mounted) {
+              MessageUtils.showErrorMessage(
+                  context, 'Failed to get user information');
+            }
+            return;
+          }
+
+          // Check if profile already exists
+          print(
+              '🔵 Checking if profile exists at: users/${user.uid}/profile/info');
+          final profileDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .collection('profile')
+              .doc('info')
+              .get();
+
+          print('🔵 Profile exists: ${profileDoc.exists}');
+
+          if (!profileDoc.exists) {
+            print('🔵 Creating profile for Google user...');
+            final profileData = {
+              'email': user.email,
+              'memberSince': FieldValue.serverTimestamp(),
+              'userId': user.uid,
+              'name': user.displayName ?? 'User',
+              'createdAt': FieldValue.serverTimestamp(),
+              'signupType': 'google',
+            };
+            print('🔵 Profile data to save: $profileData');
+
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .collection('profile')
+                .doc('info')
+                .set(profileData);
+            print('✅ Google profile created successfully!');
+
+            // Verify it was saved
+            final verifyDoc = await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .collection('profile')
+                .doc('info')
+                .get();
+            print(
+                '🔵 Verification - Profile exists: ${verifyDoc.exists}, Data: ${verifyDoc.data()}');
+          } else {
+            print('ℹ️ Profile already exists with data: ${profileDoc.data()}');
+          }
+        } catch (profileError, stackTrace) {
+          print('❌ Error creating Google profile: $profileError');
+          print('❌ Stack trace: $stackTrace');
+          if (mounted) {
+            MessageUtils.showErrorMessage(
+                context, 'Failed to save profile: $profileError');
+          }
+        }
+
+        if (mounted) {
+          print('🔵 Navigating to home...');
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        }
+      } else {
+        print('🔵 Google sign-up was cancelled by user');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ Google authentication failed: $e');
+      print('❌ Stack trace: $stackTrace');
       if (mounted) {
         MessageUtils.showErrorMessage(
             context, 'Google authentication failed: $e');

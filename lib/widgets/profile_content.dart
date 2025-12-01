@@ -1,4 +1,5 @@
 import 'package:app_tact/services/auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,11 +14,30 @@ class ProfileContent extends StatefulWidget {
 class _ProfileContentState extends State<ProfileContent> {
   final AuthService _authService = AuthService();
   User? _user;
+  Map<String, dynamic>? _profileData;
 
   @override
   void initState() {
     super.initState();
     _user = FirebaseAuth.instance.currentUser;
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    if (_user != null) {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_user!.uid)
+          .collection('profile')
+          .doc('info')
+          .get();
+
+      if (doc.exists && mounted) {
+        setState(() {
+          _profileData = doc.data();
+        });
+      }
+    }
   }
 
   @override
@@ -69,7 +89,7 @@ class _ProfileContentState extends State<ProfileContent> {
               SizedBox(height: 20.h),
               // User Name
               Text(
-                _user?.displayName ?? 'User',
+                _profileData?['name'] ?? _user?.displayName ?? 'User',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24.sp,
@@ -79,7 +99,7 @@ class _ProfileContentState extends State<ProfileContent> {
               SizedBox(height: 8.h),
               // User Email
               Text(
-                _user?.email ?? '',
+                _profileData?['email'] ?? _user?.email ?? '',
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 15.sp,
@@ -90,18 +110,18 @@ class _ProfileContentState extends State<ProfileContent> {
               _buildInfoCard(
                 icon: Icons.email_outlined,
                 title: 'Email',
-                value: _user?.email ?? 'Not provided',
+                value: _profileData?['email'] ?? _user?.email ?? 'Not provided',
                 verified: _user?.emailVerified ?? false,
               ),
               _buildInfoCard(
                 icon: Icons.calendar_today,
                 title: 'Member Since',
-                value: _formatDate(_user?.metadata.creationTime),
+                value: _formatDate(_profileData?['memberSince']),
               ),
               _buildInfoCard(
                 icon: Icons.fingerprint,
                 title: 'User ID',
-                value: _user?.uid ?? 'N/A',
+                value: _profileData?['userId'] ?? _user?.uid ?? 'N/A',
               ),
               SizedBox(height: 30.h),
               // Action Buttons
@@ -250,8 +270,17 @@ class _ProfileContentState extends State<ProfileContent> {
     );
   }
 
-  String _formatDate(DateTime? date) {
+  String _formatDate(dynamic date) {
     if (date == null) return 'Unknown';
-    return '${date.day}/${date.month}/${date.year}';
+
+    DateTime? dateTime;
+    if (date is Timestamp) {
+      dateTime = date.toDate();
+    } else if (date is DateTime) {
+      dateTime = date;
+    }
+
+    if (dateTime == null) return 'Unknown';
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
   }
 }

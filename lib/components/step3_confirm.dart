@@ -2,6 +2,7 @@ import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/login_button.dart';
 import 'package:app_tact/components/logo_and_title.dart';
 import 'package:app_tact/utils/message_utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -51,19 +52,59 @@ class _Step3ConfirmState extends State<Step3Confirm> {
       await userCredential.user?.updateDisplayName(widget.name);
 
       if (userCredential.user != null) {
-        await userCredential.user!.sendEmailVerification(
-          ActionCodeSettings(
-            url: 'https://apptact-a4f0c.firebaseapp.com/',
-            handleCodeInApp: true,
-            iOSBundleId: 'com.jay.appTact',
-            androidPackageName: 'com.jay.app_tact',
-            androidInstallApp: true,
-            androidMinimumVersion: '1.0.0',
-          ),
-        );
+        // Create profile document in Firestore
+        try {
+          print('🔵 Creating profile for user: ${userCredential.user!.uid}');
+          print(
+              '🔵 Profile path: users/${userCredential.user!.uid}/profile/info');
 
-        if (mounted) {
-          MessageUtils.showSuccessMessage(context, 'Verification email sent!');
+          final profileData = {
+            'email': widget.email,
+            'memberSince': FieldValue.serverTimestamp(),
+            'userId': userCredential.user!.uid,
+            'name': widget.name,
+            'createdAt': FieldValue.serverTimestamp(),
+            'signupType': 'email',
+          };
+          print('🔵 Profile data to save: $profileData');
+
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .collection('profile')
+              .doc('info')
+              .set(profileData);
+          print('✅ Profile created successfully!');
+
+          // Verify it was saved
+          final verifyDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .collection('profile')
+              .doc('info')
+              .get();
+          print('🔵 Verification - Profile exists: ${verifyDoc.exists}');
+          if (verifyDoc.exists) {
+            print('🔵 Saved profile data: ${verifyDoc.data()}');
+          }
+        } catch (profileError, stackTrace) {
+          print('❌ Error creating profile: $profileError');
+          print('❌ Stack trace: $stackTrace');
+          // Continue even if profile creation fails
+        }
+
+        try {
+          await userCredential.user!.sendEmailVerification();
+
+          if (mounted) {
+            MessageUtils.showSuccessMessage(
+                context, 'Verification email sent to ${widget.email}!');
+          }
+        } catch (emailError) {
+          if (mounted) {
+            MessageUtils.showErrorMessage(context,
+                'Account created but failed to send verification email. Please check your email or try resending.');
+          }
         }
       } else {
         throw Exception('User creation failed - user is null');

@@ -199,17 +199,11 @@ class AuthService {
     return result;
   }
 
-  Future<bool> signUpWithGoogle() async {
+  Future<UserCredential?> signUpWithGoogle() async {
     try {
-      await _googleSignIn.signOut();
-
+      // Don't sign out first - just proceed with sign-in
       UserCredential? result = await signInWithGoogle();
-
-      if (result != null && result.user != null) {
-        return true;
-      } else {
-        return false;
-      }
+      return result;
     } catch (e) {
       print('Error during Google sign-up: $e');
       rethrow;

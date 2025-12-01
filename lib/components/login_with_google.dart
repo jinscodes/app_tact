@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:app_tact/services/auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -21,8 +23,55 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
     });
 
     try {
-      await _authService.signInWithGoogle();
+      print('🔵 Starting Google login...');
+      UserCredential? result = await _authService.signInWithGoogle();
+
+      if (result != null && result.user != null) {
+        print('🔵 Google login successful! User: ${result.user!.email}');
+
+        // Check if profile exists, if not create one
+        try {
+          print('🔵 Checking if profile exists...');
+          final profileDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(result.user!.uid)
+              .collection('profile')
+              .doc('info')
+              .get();
+
+          print('🔵 Profile exists: ${profileDoc.exists}');
+
+          if (!profileDoc.exists) {
+            print('🔵 Creating profile for Google login user...');
+            final profileData = {
+              'email': result.user!.email,
+              'memberSince': FieldValue.serverTimestamp(),
+              'userId': result.user!.uid,
+              'name': result.user!.displayName ?? 'User',
+              'createdAt': FieldValue.serverTimestamp(),
+              'signupType': 'google',
+            };
+
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(result.user!.uid)
+                .collection('profile')
+                .doc('info')
+                .set(profileData);
+            print('✅ Profile created successfully for Google login!');
+          } else {
+            print('ℹ️ Profile already exists');
+          }
+        } catch (profileError) {
+          print('❌ Error creating profile: $profileError');
+        }
+      }
+
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      }
     } catch (e) {
+      print('❌ Google authentication failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
