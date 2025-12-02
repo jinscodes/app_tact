@@ -1,9 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:app_tact/colors.dart';
+import 'package:app_tact/components/common/custom_list_tile.dart';
+import 'package:app_tact/components/common/section_title.dart';
 import 'package:app_tact/utils/message_utils.dart';
-import 'package:app_tact/widgets/common/custom_list_tile.dart';
-import 'package:app_tact/widgets/common/section_title.dart';
+import 'package:app_tact/widgets/password_change/verify_current_password_screen.dart';
 import 'package:app_tact/widgets/privacy_policy_screen.dart';
 import 'package:app_tact/widgets/terms_of_service_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -93,8 +94,87 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 icon: Icons.lock_outline,
                 title: 'Change Password',
                 subtitle: 'Update your account password',
-                onTap: () {
-                  _showChangePasswordDialog();
+                onTap: () async {
+                  User? user = FirebaseAuth.instance.currentUser;
+                  if (user != null) {
+                    // Check if user has password provider
+                    bool hasPasswordProvider = user.providerData.any(
+                      (info) => info.providerId == 'password',
+                    );
+
+                    if (!hasPasswordProvider) {
+                      // User signed in with OAuth (Google, GitHub, etc.)
+                      String provider = 'social login';
+                      if (user.providerData.isNotEmpty) {
+                        String providerId = user.providerData.first.providerId;
+                        if (providerId == 'google.com') {
+                          provider = 'Google';
+                        } else if (providerId == 'github.com') {
+                          provider = 'GitHub';
+                        }
+                      }
+
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: Color.fromARGB(255, 41, 41, 59),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          title: Row(
+                            children: [
+                              Icon(Icons.info_outline,
+                                  color: AppColors.accentPurple),
+                              SizedBox(width: 8.w),
+                              Text(
+                                'Password Not Available',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16.sp),
+                              ),
+                            ],
+                          ),
+                          content: Text(
+                            'You signed in with $provider. Password changes are not available for social login accounts.',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                          actions: [
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Color(0xFFB93CFF),
+                                    Color(0xFF4F46E5),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              child: TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                child: Text(
+                                  'OK',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      return;
+                    }
+                  }
+
+                  // User has password authentication, proceed to change password
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const VerifyCurrentPasswordScreen(),
+                    ),
+                  );
                 },
               ),
               SizedBox(height: 20.h),
@@ -213,389 +293,6 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         value: value,
         onChanged: onChanged,
         activeColor: AppColors.accentPurple,
-      ),
-    );
-  }
-
-  void _showChangePasswordDialog() {
-    final currentPasswordController = TextEditingController();
-    final newPasswordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
-    bool isInputEmpty = true;
-    bool isLoading = false;
-
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          void updateInputState() {
-            setState(() {
-              isInputEmpty = currentPasswordController.text.trim().isEmpty ||
-                  newPasswordController.text.trim().isEmpty ||
-                  confirmPasswordController.text.trim().isEmpty;
-            });
-          }
-
-          currentPasswordController.addListener(updateInputState);
-          newPasswordController.addListener(updateInputState);
-          confirmPasswordController.addListener(updateInputState);
-
-          return Dialog(
-            backgroundColor: Colors.transparent,
-            child: Container(
-              width: 360.w,
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 41, 41, 59),
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(
-                  color: Color(0xFF585967),
-                  width: 2,
-                ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(height: 10.h),
-                    Center(
-                      child: Text(
-                        'Change Password',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 30.h),
-                    Text(
-                      'Current Password',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    TextField(
-                      controller: currentPasswordController,
-                      obscureText: true,
-                      enabled: !isLoading,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                      ),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 2,
-                          ),
-                        ),
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.1),
-                            width: 1,
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 12.h,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      'New Password',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    TextField(
-                      controller: newPasswordController,
-                      obscureText: true,
-                      enabled: !isLoading,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                      ),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 2,
-                          ),
-                        ),
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.1),
-                            width: 1,
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 12.h,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      'Confirm New Password',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    TextField(
-                      controller: confirmPasswordController,
-                      obscureText: true,
-                      enabled: !isLoading,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                      ),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 2,
-                          ),
-                        ),
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.1),
-                            width: 1,
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 12.h,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: isLoading
-                                ? null
-                                : () {
-                                    Navigator.of(context).pop();
-                                  },
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: Color(0xFF353442),
-                              side: BorderSide(
-                                color: Colors.white.withOpacity(0.3),
-                                width: 1,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              minimumSize: Size(0, 42.h),
-                            ),
-                            child: Text(
-                              'Cancel',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: Container(
-                            height: 42.h,
-                            decoration: BoxDecoration(
-                              gradient: isInputEmpty || isLoading
-                                  ? LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [
-                                        Colors.grey.withOpacity(0.5),
-                                        Colors.grey.withOpacity(0.5),
-                                      ],
-                                    )
-                                  : LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [
-                                        Color(0xFFB93CFF),
-                                        Color(0xFF4F46E5),
-                                      ],
-                                    ),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(8.r),
-                                onTap: isInputEmpty || isLoading
-                                    ? null
-                                    : () async {
-                                        if (newPasswordController.text !=
-                                            confirmPasswordController.text) {
-                                          MessageUtils.showErrorMessage(
-                                            context,
-                                            'Passwords do not match',
-                                          );
-                                          return;
-                                        }
-
-                                        if (newPasswordController.text.length <
-                                            6) {
-                                          MessageUtils.showErrorMessage(
-                                            context,
-                                            'Password must be at least 6 characters',
-                                          );
-                                          return;
-                                        }
-
-                                        setState(() {
-                                          isLoading = true;
-                                        });
-
-                                        try {
-                                          User? user =
-                                              FirebaseAuth.instance.currentUser;
-                                          if (user != null &&
-                                              user.email != null) {
-                                            // Re-authenticate user
-                                            AuthCredential credential =
-                                                EmailAuthProvider.credential(
-                                              email: user.email!,
-                                              password:
-                                                  currentPasswordController
-                                                      .text,
-                                            );
-                                            await user
-                                                .reauthenticateWithCredential(
-                                                    credential);
-
-                                            // Update password
-                                            await user.updatePassword(
-                                                newPasswordController.text);
-
-                                            if (context.mounted) {
-                                              Navigator.pop(context);
-                                              MessageUtils.showSuccessMessage(
-                                                context,
-                                                'Password changed successfully',
-                                              );
-                                            }
-                                          }
-                                        } catch (e) {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                          if (context.mounted) {
-                                            MessageUtils.showErrorMessage(
-                                              context,
-                                              'Failed to change password: ${e.toString()}',
-                                            );
-                                          }
-                                        }
-                                      },
-                                child: Center(
-                                  child: isLoading
-                                      ? SizedBox(
-                                          width: 20.w,
-                                          height: 20.h,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                    Colors.white),
-                                          ),
-                                        )
-                                      : Text(
-                                          'Change',
-                                          style: TextStyle(
-                                            color: isInputEmpty
-                                                ? Colors.grey[600]
-                                                : Colors.white,
-                                            fontSize: 14.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 15.h),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
