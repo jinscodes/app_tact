@@ -98,28 +98,6 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 },
               ),
               SizedBox(height: 20.h),
-              SectionTitle('Data & Privacy'),
-              CustomSettingTile(
-                icon: Icons.download_outlined,
-                title: 'Download Your Data',
-                subtitle: 'Export your personal information',
-                onTap: () {
-                  MessageUtils.showSuccessMessage(
-                    context,
-                    'Data export will be sent to your email',
-                  );
-                },
-              ),
-              CustomSettingTile(
-                icon: Icons.delete_outline,
-                title: 'Delete Account',
-                subtitle: 'Permanently delete your account',
-                onTap: () {
-                  _showDeleteAccountDialog();
-                },
-                isDestructive: true,
-              ),
-              SizedBox(height: 20.h),
               SectionTitle('Privacy Policy'),
               CustomSettingTile(
                 icon: Icons.policy_outlined,
@@ -146,6 +124,28 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                     ),
                   );
                 },
+              ),
+              SizedBox(height: 20.h),
+              SectionTitle('Data & Privacy'),
+              CustomSettingTile(
+                icon: Icons.download_outlined,
+                title: 'Download Your Data',
+                subtitle: 'Export your personal information',
+                onTap: () {
+                  MessageUtils.showSuccessMessage(
+                    context,
+                    'Data export will be sent to your email',
+                  );
+                },
+              ),
+              CustomSettingTile(
+                icon: Icons.delete_outline,
+                title: 'Delete Account',
+                subtitle: 'Permanently delete your account',
+                onTap: () {
+                  _showDeleteAccountDialog();
+                },
+                isDestructive: true,
               ),
             ],
           ),
@@ -221,133 +221,381 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     final currentPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
+    bool isInputEmpty = true;
+    bool isLoading = false;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF2E2939),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        title: Text(
-          'Change Password',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: currentPasswordController,
-              obscureText: true,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Current Password',
-                labelStyle: TextStyle(color: AppColors.textMedium),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.textDark),
+      barrierDismissible: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          void updateInputState() {
+            setState(() {
+              isInputEmpty = currentPasswordController.text.trim().isEmpty ||
+                  newPasswordController.text.trim().isEmpty ||
+                  confirmPasswordController.text.trim().isEmpty;
+            });
+          }
+
+          currentPasswordController.addListener(updateInputState);
+          newPasswordController.addListener(updateInputState);
+          confirmPasswordController.addListener(updateInputState);
+
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              width: 360.w,
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 41, 41, 59),
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(
+                  color: Color(0xFF585967),
+                  width: 2,
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.accentPurple),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 10.h),
+                    Center(
+                      child: Text(
+                        'Change Password',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 30.h),
+                    Text(
+                      'Current Password',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    TextField(
+                      controller: currentPasswordController,
+                      obscureText: true,
+                      enabled: !isLoading,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                      ),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 2,
+                          ),
+                        ),
+                        disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.1),
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 12.h,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'New Password',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    TextField(
+                      controller: newPasswordController,
+                      obscureText: true,
+                      enabled: !isLoading,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                      ),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 2,
+                          ),
+                        ),
+                        disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.1),
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 12.h,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'Confirm New Password',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    TextField(
+                      controller: confirmPasswordController,
+                      obscureText: true,
+                      enabled: !isLoading,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                      ),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 2,
+                          ),
+                        ),
+                        disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.1),
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 12.h,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: isLoading
+                                ? null
+                                : () {
+                                    Navigator.of(context).pop();
+                                  },
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: Color(0xFF353442),
+                              side: BorderSide(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              minimumSize: Size(0, 42.h),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: Container(
+                            height: 42.h,
+                            decoration: BoxDecoration(
+                              gradient: isInputEmpty || isLoading
+                                  ? LinearGradient(
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                      colors: [
+                                        Colors.grey.withOpacity(0.5),
+                                        Colors.grey.withOpacity(0.5),
+                                      ],
+                                    )
+                                  : LinearGradient(
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                      colors: [
+                                        Color(0xFFB93CFF),
+                                        Color(0xFF4F46E5),
+                                      ],
+                                    ),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(8.r),
+                                onTap: isInputEmpty || isLoading
+                                    ? null
+                                    : () async {
+                                        if (newPasswordController.text !=
+                                            confirmPasswordController.text) {
+                                          MessageUtils.showErrorMessage(
+                                            context,
+                                            'Passwords do not match',
+                                          );
+                                          return;
+                                        }
+
+                                        if (newPasswordController.text.length <
+                                            6) {
+                                          MessageUtils.showErrorMessage(
+                                            context,
+                                            'Password must be at least 6 characters',
+                                          );
+                                          return;
+                                        }
+
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+
+                                        try {
+                                          User? user =
+                                              FirebaseAuth.instance.currentUser;
+                                          if (user != null &&
+                                              user.email != null) {
+                                            // Re-authenticate user
+                                            AuthCredential credential =
+                                                EmailAuthProvider.credential(
+                                              email: user.email!,
+                                              password:
+                                                  currentPasswordController
+                                                      .text,
+                                            );
+                                            await user
+                                                .reauthenticateWithCredential(
+                                                    credential);
+
+                                            // Update password
+                                            await user.updatePassword(
+                                                newPasswordController.text);
+
+                                            if (context.mounted) {
+                                              Navigator.pop(context);
+                                              MessageUtils.showSuccessMessage(
+                                                context,
+                                                'Password changed successfully',
+                                              );
+                                            }
+                                          }
+                                        } catch (e) {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          if (context.mounted) {
+                                            MessageUtils.showErrorMessage(
+                                              context,
+                                              'Failed to change password: ${e.toString()}',
+                                            );
+                                          }
+                                        }
+                                      },
+                                child: Center(
+                                  child: isLoading
+                                      ? SizedBox(
+                                          width: 20.w,
+                                          height: 20.h,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.white),
+                                          ),
+                                        )
+                                      : Text(
+                                          'Change',
+                                          style: TextStyle(
+                                            color: isInputEmpty
+                                                ? Colors.grey[600]
+                                                : Colors.white,
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15.h),
+                  ],
                 ),
               ),
             ),
-            SizedBox(height: 12.h),
-            TextField(
-              controller: newPasswordController,
-              obscureText: true,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'New Password',
-                labelStyle: TextStyle(color: AppColors.textMedium),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.textDark),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.accentPurple),
-                ),
-              ),
-            ),
-            SizedBox(height: 12.h),
-            TextField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Confirm New Password',
-                labelStyle: TextStyle(color: AppColors.textMedium),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.textDark),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.accentPurple),
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey[400]),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (newPasswordController.text !=
-                  confirmPasswordController.text) {
-                MessageUtils.showErrorMessage(
-                  context,
-                  'Passwords do not match',
-                );
-                return;
-              }
-
-              if (newPasswordController.text.length < 6) {
-                MessageUtils.showErrorMessage(
-                  context,
-                  'Password must be at least 6 characters',
-                );
-                return;
-              }
-
-              try {
-                User? user = FirebaseAuth.instance.currentUser;
-                if (user != null && user.email != null) {
-                  // Re-authenticate user
-                  AuthCredential credential = EmailAuthProvider.credential(
-                    email: user.email!,
-                    password: currentPasswordController.text,
-                  );
-                  await user.reauthenticateWithCredential(credential);
-
-                  // Update password
-                  await user.updatePassword(newPasswordController.text);
-
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    MessageUtils.showSuccessMessage(
-                      context,
-                      'Password changed successfully',
-                    );
-                  }
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  MessageUtils.showErrorMessage(
-                    context,
-                    'Failed to change password: ${e.toString()}',
-                  );
-                }
-              }
-            },
-            child: Text(
-              'Change',
-              style: TextStyle(color: AppColors.accentPurple),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
