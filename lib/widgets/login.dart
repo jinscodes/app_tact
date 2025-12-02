@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
+          colors: [AppColors.gradientDarkBlue, AppColors.gradientPurple],
         ),
       ),
       child: Scaffold(

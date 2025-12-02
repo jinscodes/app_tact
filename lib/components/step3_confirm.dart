@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, deprecated_member_use
+
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/login_button.dart';
 import 'package:app_tact/components/logo_and_title.dart';
@@ -33,7 +35,6 @@ class Step3Confirm extends StatefulWidget {
 
 class _Step3ConfirmState extends State<Step3Confirm> {
   bool _agreeToTerms = false;
-  final bool _subscribeToNewsletter = true;
 
   Future<void> _handleSignup() async {
     if (!_agreeToTerms) {
@@ -52,12 +53,7 @@ class _Step3ConfirmState extends State<Step3Confirm> {
       await userCredential.user?.updateDisplayName(widget.name);
 
       if (userCredential.user != null) {
-        // Create profile document in Firestore
         try {
-          print('🔵 Creating profile for user: ${userCredential.user!.uid}');
-          print(
-              '🔵 Profile path: users/${userCredential.user!.uid}/profile/info');
-
           final profileData = {
             'email': widget.email,
             'memberSince': FieldValue.serverTimestamp(),
@@ -66,7 +62,6 @@ class _Step3ConfirmState extends State<Step3Confirm> {
             'createdAt': FieldValue.serverTimestamp(),
             'signupType': 'email',
           };
-          print('🔵 Profile data to save: $profileData');
 
           await FirebaseFirestore.instance
               .collection('users')
@@ -74,23 +69,9 @@ class _Step3ConfirmState extends State<Step3Confirm> {
               .collection('profile')
               .doc('info')
               .set(profileData);
-          print('✅ Profile created successfully!');
-
-          // Verify it was saved
-          final verifyDoc = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(userCredential.user!.uid)
-              .collection('profile')
-              .doc('info')
-              .get();
-          print('🔵 Verification - Profile exists: ${verifyDoc.exists}');
-          if (verifyDoc.exists) {
-            print('🔵 Saved profile data: ${verifyDoc.data()}');
-          }
         } catch (profileError, stackTrace) {
           print('❌ Error creating profile: $profileError');
           print('❌ Stack trace: $stackTrace');
-          // Continue even if profile creation fails
         }
 
         try {
@@ -146,34 +127,44 @@ class _Step3ConfirmState extends State<Step3Confirm> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              errorMessage,
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 4),
-          ),
-        );
+        MessageUtils.showErrorMessage(context, errorMessage);
       }
     } catch (e) {
       print('❌ Unexpected error: $e');
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'An unexpected error occurred: ${e.toString()}',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        MessageUtils.showErrorMessage(
+            context, 'An unexpected error occurred: ${e.toString()}');
       }
     }
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 80.w,
+          child: Text(
+            '$label:',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 14.sp,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -257,7 +248,8 @@ class _Step3ConfirmState extends State<Step3Confirm> {
                                 activeColor: AppColors.fontPurple,
                                 checkColor: Colors.white,
                                 side: BorderSide(
-                                    color: Colors.white.withOpacity(0.5)),
+                                  color: Colors.white.withOpacity(0.5),
+                                ),
                               ),
                               Expanded(
                                 child: GestureDetector(
@@ -374,34 +366,6 @@ class _Step3ConfirmState extends State<Step3Confirm> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 80.w,
-          child: Text(
-            '$label:',
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 14.sp,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

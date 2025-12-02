@@ -46,24 +46,25 @@ class _LinksScreenState extends State<LinksScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          backgroundColor: Color(0xFF2E2939),
+          backgroundColor: AppColors.gradientPurple,
           title: Text('Open Link', style: TextStyle(color: Colors.white)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('URL:', style: TextStyle(color: Colors.grey[400])),
+              Text('URL:', style: TextStyle(color: AppColors.textMedium)),
               SizedBox(height: 8.h),
               SelectableText(
                 url,
-                style: TextStyle(color: Color(0xFF7B68EE)),
+                style: TextStyle(color: AppColors.accentPurple),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Close', style: TextStyle(color: Colors.grey[400])),
+              child:
+                  Text('Close', style: TextStyle(color: AppColors.textMedium)),
             ),
           ],
         ),
@@ -80,7 +81,7 @@ class _LinksScreenState extends State<LinksScreen> {
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color.fromARGB(255, 23, 30, 63), Color(0xFF2E2939)],
+          colors: [AppColors.gradientDarkBlue2, AppColors.gradientPurple],
         ),
       ),
       child: Scaffold(

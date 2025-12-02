@@ -1,3 +1,4 @@
+import 'package:app_tact/colors.dart';
 import 'package:app_tact/widgets/links_content.dart';
 import 'package:app_tact/widgets/profile_content.dart';
 import 'package:app_tact/widgets/settings_content.dart';
@@ -18,11 +19,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   late Animation<Offset> _outgoingSlideAnimation;
   late Animation<Offset> _incomingSlideAnimation;
 
-  final List<Widget> _screens = [
-    const LinksContent(),
-    const SettingsContent(),
-    const ProfileContent(),
-  ];
+  List<Widget> _buildScreens() {
+    return [
+      const LinksContent(),
+      SettingsContent(
+        onNavigateToProfile: () => _onItemTapped(2),
+      ),
+      const ProfileContent(),
+    ];
+  }
 
   @override
   void initState() {
@@ -78,7 +83,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color.fromARGB(255, 23, 30, 63), Color(0xFF2E2939)],
+          colors: [AppColors.gradientDarkBlue2, AppColors.gradientPurple],
         ),
       ),
       child: Scaffold(
@@ -86,13 +91,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         body: AnimatedBuilder(
           animation: _animationController,
           builder: (context, child) {
+            final screens = _buildScreens();
             return Stack(
               children: [
                 // Outgoing screen
                 if (_animationController.status != AnimationStatus.dismissed)
                   SlideTransition(
                     position: _outgoingSlideAnimation,
-                    child: _screens[_previousIndex],
+                    child: screens[_previousIndex],
                   ),
                 // Incoming screen
                 SlideTransition(
@@ -100,7 +106,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                       _animationController.status == AnimationStatus.dismissed
                           ? const AlwaysStoppedAnimation(Offset.zero)
                           : _incomingSlideAnimation,
-                  child: _screens[_selectedIndex],
+                  child: screens[_selectedIndex],
                 ),
               ],
             );

@@ -16,4 +16,24 @@ class AppColors {
   static const Color buttonGray = Color(0xFF101827);
   static const Color defaultGray = Color(0xFFECECF0);
   static const Color baseBlue = Color(0xFF2E4C7F);
+
+  // Gradient colors
+  static const Color gradientDarkBlue = Color(0xFF0B0E1D);
+  static const Color gradientDarkBlue2 =
+      Color.fromARGB(255, 23, 30, 63); // Alternative dark blue
+  static const Color gradientPurple = Color(0xFF2E2939);
+  static const Color gradientMagenta =
+      Color(0xFF9B59B6); // For profile avatar gradients
+
+  // Purple accent
+  static const Color accentPurple = Color(0xFF7B68EE);
+
+  // Text colors
+  static const Color textLight = Color(0xFFE0E0E0); // grey[300]
+  static const Color textMedium = Color(0xFFBDBDBD); // grey[400]
+  static const Color textDark = Color(0xFF757575); // grey[600]
+
+  // Red colors
+  static const Color errorRed = Color(0xFFEF5350); // red[400]
+  static const Color successGreen = Color(0xFF66BB6A); // green[400]
 }
