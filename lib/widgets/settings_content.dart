@@ -1,6 +1,8 @@
-import 'package:app_tact/colors.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/widgets/about_screen.dart';
+import 'package:app_tact/widgets/common/custom_list_tile.dart';
+import 'package:app_tact/widgets/common/section_title.dart';
+import 'package:app_tact/widgets/help_support_screen.dart';
 import 'package:app_tact/widgets/privacy_security_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -38,8 +40,8 @@ class _SettingsContentState extends State<SettingsContent> {
         child: ListView(
           padding: EdgeInsets.all(20.w),
           children: [
-            _buildSectionTitle('Account'),
-            _buildSettingTile(
+            SectionTitle('Account'),
+            CustomSettingTile(
               icon: Icons.person_outline,
               title: 'Profile',
               subtitle: 'Manage your profile information',
@@ -47,7 +49,7 @@ class _SettingsContentState extends State<SettingsContent> {
                 widget.onNavigateToProfile?.call();
               },
             ),
-            _buildSettingTile(
+            CustomSettingTile(
               icon: Icons.security,
               title: 'Privacy & Security',
               subtitle: 'Manage your privacy settings',
@@ -61,28 +63,35 @@ class _SettingsContentState extends State<SettingsContent> {
               },
             ),
             SizedBox(height: 20.h),
-            _buildSectionTitle('App'),
-            _buildSettingTile(
+            SectionTitle('App'),
+            CustomSettingTile(
               icon: Icons.notifications_outlined,
               title: 'Notifications',
               subtitle: 'Manage notification preferences',
               onTap: () {},
             ),
-            _buildSettingTile(
+            CustomSettingTile(
               icon: Icons.palette_outlined,
               title: 'Appearance',
               subtitle: 'Customize app theme',
               onTap: () {},
             ),
             SizedBox(height: 20.h),
-            _buildSectionTitle('Support'),
-            _buildSettingTile(
+            SectionTitle('Support'),
+            CustomSettingTile(
               icon: Icons.help_outline,
               title: 'Help & Support',
               subtitle: 'Get help or contact support',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HelpSupportScreen(),
+                  ),
+                );
+              },
             ),
-            _buildSettingTile(
+            CustomSettingTile(
               icon: Icons.info_outline,
               title: 'About',
               subtitle: 'Version 1.0.0',
@@ -96,8 +105,8 @@ class _SettingsContentState extends State<SettingsContent> {
               },
             ),
             SizedBox(height: 20.h),
-            _buildSectionTitle('Account Actions'),
-            _buildSettingTile(
+            SectionTitle('Account'),
+            CustomSettingTile(
               icon: Icons.logout,
               title: 'Logout',
               subtitle: 'Sign out of your account',
@@ -111,89 +120,6 @@ class _SettingsContentState extends State<SettingsContent> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h, top: 8.h),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: AppColors.accentPurple,
-          fontSize: 14.sp,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    bool isDestructive = false,
-  }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 8.h,
-        ),
-        leading: Container(
-          padding: EdgeInsets.all(10.w),
-          decoration: BoxDecoration(
-            color: isDestructive
-                ? AppColors.errorRed.withOpacity(0.2)
-                : AppColors.accentPurple.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Icon(
-            icon,
-            color: isDestructive ? AppColors.errorRed : AppColors.accentPurple,
-            size: 24.sp,
-          ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isDestructive ? Colors.red[400] : Colors.white,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: Colors.grey[400],
-            fontSize: 13.sp,
-          ),
-        ),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: Colors.grey[600],
-          size: 24.sp,
-        ),
-        onTap: onTap,
       ),
     );
   }

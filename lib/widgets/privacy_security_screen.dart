@@ -2,6 +2,8 @@
 
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/utils/message_utils.dart';
+import 'package:app_tact/widgets/common/custom_list_tile.dart';
+import 'package:app_tact/widgets/common/section_title.dart';
 import 'package:app_tact/widgets/privacy_policy_screen.dart';
 import 'package:app_tact/widgets/terms_of_service_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -52,7 +54,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           child: ListView(
             padding: EdgeInsets.all(20.w),
             children: [
-              _buildSectionTitle('Authentication'),
+              SectionTitle('Authentication'),
               _buildSwitchTile(
                 icon: Icons.fingerprint,
                 title: 'Biometric Login',
@@ -86,8 +88,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 },
               ),
               SizedBox(height: 20.h),
-              _buildSectionTitle('Password'),
-              _buildSettingTile(
+              SectionTitle('Password'),
+              CustomSettingTile(
                 icon: Icons.lock_outline,
                 title: 'Change Password',
                 subtitle: 'Update your account password',
@@ -96,8 +98,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 },
               ),
               SizedBox(height: 20.h),
-              _buildSectionTitle('Data & Privacy'),
-              _buildSettingTile(
+              SectionTitle('Data & Privacy'),
+              CustomSettingTile(
                 icon: Icons.download_outlined,
                 title: 'Download Your Data',
                 subtitle: 'Export your personal information',
@@ -108,7 +110,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                   );
                 },
               ),
-              _buildSettingTile(
+              CustomSettingTile(
                 icon: Icons.delete_outline,
                 title: 'Delete Account',
                 subtitle: 'Permanently delete your account',
@@ -118,8 +120,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 isDestructive: true,
               ),
               SizedBox(height: 20.h),
-              _buildSectionTitle('Privacy Policy'),
-              _buildSettingTile(
+              SectionTitle('Privacy Policy'),
+              CustomSettingTile(
                 icon: Icons.policy_outlined,
                 title: 'Privacy Policy',
                 subtitle: 'Read our privacy policy',
@@ -132,7 +134,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                   );
                 },
               ),
-              _buildSettingTile(
+              CustomSettingTile(
                 icon: Icons.description_outlined,
                 title: 'Terms of Service',
                 subtitle: 'Read our terms of service',
@@ -148,89 +150,6 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h, top: 8.h),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: AppColors.accentPurple,
-          fontSize: 14.sp,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    bool isDestructive = false,
-  }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 8.h,
-        ),
-        leading: Container(
-          padding: EdgeInsets.all(10.w),
-          decoration: BoxDecoration(
-            color: isDestructive
-                ? AppColors.errorRed.withOpacity(0.2)
-                : AppColors.accentPurple.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Icon(
-            icon,
-            color: isDestructive ? AppColors.errorRed : AppColors.accentPurple,
-            size: 24.sp,
-          ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isDestructive ? AppColors.errorRed : Colors.white,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: AppColors.textMedium,
-            fontSize: 13.sp,
-          ),
-        ),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: AppColors.textDark,
-          size: 24.sp,
-        ),
-        onTap: onTap,
       ),
     );
   }
