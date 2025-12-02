@@ -164,6 +164,12 @@
       "languageVersion": "3.5"
     },
     {
+      "name": "flutter_plugin_android_lifecycle",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.31",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
       "name": "flutter_screenutil",
       "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/flutter_screenutil-5.9.3",
       "packageUri": "lib/",
@@ -242,6 +248,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "intl",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/intl-0.20.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "json_annotation",
       "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/json_annotation-4.9.0",
       "packageUri": "lib/",
@@ -270,6 +282,36 @@
       "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/lints-5.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.6"
+    },
+    {
+      "name": "local_auth",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/local_auth-2.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "local_auth_android",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/local_auth_android-1.0.52",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
+      "name": "local_auth_darwin",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/local_auth_darwin-1.6.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "local_auth_platform_interface",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/local_auth_platform_interface-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
+      "name": "local_auth_windows",
+      "rootUri": "file:///Users/hanjinsung/.pub-cache/hosted/pub.dev/local_auth_windows-1.0.11",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
     },
     {
       "name": "matcher",

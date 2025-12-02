@@ -10,6 +10,7 @@ import 'package:app_tact/widgets/terms_of_service_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:local_auth/local_auth.dart';
 
 class PrivacySecurityScreen extends StatefulWidget {
   const PrivacySecurityScreen({super.key});
@@ -21,6 +22,72 @@ class PrivacySecurityScreen extends StatefulWidget {
 class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   bool _biometricEnabled = false;
   bool _twoFactorEnabled = false;
+  final LocalAuthentication _localAuth = LocalAuthentication();
+
+  Future<void> _handleBiometricToggle(bool value) async {
+    if (value) {
+      // Enabling biometric - authenticate first
+      try {
+        bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
+        bool isDeviceSupported = await _localAuth.isDeviceSupported();
+
+        if (!canCheckBiometrics || !isDeviceSupported) {
+          if (mounted) {
+            MessageUtils.showErrorMessage(
+              context,
+              'Biometric authentication is not available on this device',
+            );
+          }
+          return;
+        }
+
+        bool authenticated = await _localAuth.authenticate(
+          localizedReason: 'Authenticate to enable biometric login',
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            biometricOnly: true,
+          ),
+        );
+
+        if (authenticated && mounted) {
+          setState(() {
+            _biometricEnabled = true;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          MessageUtils.showErrorMessage(
+            context,
+            'Failed to authenticate: ${e.toString()}',
+          );
+        }
+      }
+    } else {
+      // Disabling biometric - authenticate to confirm
+      try {
+        bool authenticated = await _localAuth.authenticate(
+          localizedReason: 'Authenticate to disable biometric login',
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            biometricOnly: true,
+          ),
+        );
+
+        if (authenticated && mounted) {
+          setState(() {
+            _biometricEnabled = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          MessageUtils.showErrorMessage(
+            context,
+            'Failed to authenticate: ${e.toString()}',
+          );
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,17 +128,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 title: 'Biometric Login',
                 subtitle: 'Use fingerprint or face ID',
                 value: _biometricEnabled,
-                onChanged: (value) {
-                  setState(() {
-                    _biometricEnabled = value;
-                  });
-                  MessageUtils.showSuccessMessage(
-                    context,
-                    value
-                        ? 'Biometric login enabled'
-                        : 'Biometric login disabled',
-                  );
-                },
+                onChanged: _handleBiometricToggle,
               ),
               _buildSwitchTile(
                 icon: Icons.security,
@@ -97,13 +154,11 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 onTap: () async {
                   User? user = FirebaseAuth.instance.currentUser;
                   if (user != null) {
-                    // Check if user has password provider
                     bool hasPasswordProvider = user.providerData.any(
                       (info) => info.providerId == 'password',
                     );
 
                     if (!hasPasswordProvider) {
-                      // User signed in with OAuth (Google, GitHub, etc.)
                       String provider = 'social login';
                       if (user.providerData.isNotEmpty) {
                         String providerId = user.providerData.first.providerId;
@@ -168,7 +223,6 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                     }
                   }
 
-                  // User has password authentication, proceed to change password
                   Navigator.push(
                     context,
                     MaterialPageRoute(
