@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, avoid_print
 
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/common/custom_list_tile.dart';
@@ -7,6 +7,8 @@ import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/password_change/verify_current_password_screen.dart';
 import 'package:app_tact/widgets/privacy_policy_screen.dart';
 import 'package:app_tact/widgets/terms_of_service_screen.dart';
+import 'package:app_tact/widgets/two_factor_setup_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,7 +28,6 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
   Future<void> _handleBiometricToggle(bool value) async {
     if (value) {
-      // Enabling biometric - authenticate first
       try {
         bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
         bool isDeviceSupported = await _localAuth.isDeviceSupported();
@@ -63,7 +64,6 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         }
       }
     } else {
-      // Disabling biometric - authenticate to confirm
       try {
         bool authenticated = await _localAuth.authenticate(
           localizedReason: 'Authenticate to disable biometric login',
@@ -76,6 +76,69 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         if (authenticated && mounted) {
           setState(() {
             _biometricEnabled = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          MessageUtils.showErrorMessage(
+            context,
+            'Failed to authenticate: ${e.toString()}',
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _handleTwoFactorToggle(bool value) async {
+    if (value) {
+      try {
+        bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
+        bool isDeviceSupported = await _localAuth.isDeviceSupported();
+
+        if (!canCheckBiometrics || !isDeviceSupported) {
+          if (mounted) {
+            MessageUtils.showErrorMessage(
+              context,
+              'Biometric authentication is not available on this device',
+            );
+          }
+          return;
+        }
+
+        bool authenticated = await _localAuth.authenticate(
+          localizedReason: 'Authenticate to enable two-factor authentication',
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            biometricOnly: true,
+          ),
+        );
+
+        if (authenticated && mounted) {
+          setState(() {
+            _twoFactorEnabled = true;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          MessageUtils.showErrorMessage(
+            context,
+            'Failed to authenticate: ${e.toString()}',
+          );
+        }
+      }
+    } else {
+      try {
+        bool authenticated = await _localAuth.authenticate(
+          localizedReason: 'Authenticate to disable two-factor authentication',
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            biometricOnly: true,
+          ),
+        );
+
+        if (authenticated && mounted) {
+          setState(() {
+            _twoFactorEnabled = false;
           });
         }
       } catch (e) {
@@ -135,13 +198,18 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 title: 'Two-Factor Authentication',
                 subtitle: 'Add an extra layer of security',
                 value: _twoFactorEnabled,
-                onChanged: (value) {
-                  setState(() {
-                    _twoFactorEnabled = value;
-                  });
-                  MessageUtils.showSuccessMessage(
+                onChanged: _handleTwoFactorToggle,
+              ),
+              CustomSettingTile(
+                icon: Icons.pin_outlined,
+                title: 'Set Two-Factor Authentication',
+                subtitle: 'Configure 2FA with verification code',
+                onTap: () {
+                  Navigator.push(
                     context,
-                    value ? '2FA enabled' : '2FA disabled',
+                    MaterialPageRoute(
+                      builder: (context) => const TwoFactorSetupScreen(),
+                    ),
                   );
                 },
               ),
@@ -383,22 +451,30 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           ),
           TextButton(
             onPressed: () async {
+              Navigator.pop(context);
+
               try {
                 User? user = FirebaseAuth.instance.currentUser;
                 if (user != null) {
-                  await user.delete();
+                  await _performAccountDeletion(user);
+                }
+              } on FirebaseAuthException catch (e) {
+                print('FirebaseAuthException: ${e.code}');
+                if (e.code == 'requires-recent-login') {
                   if (context.mounted) {
-                    Navigator.pop(context);
-                    Navigator.pushReplacementNamed(context, '/login');
-                    MessageUtils.showSuccessMessage(
+                    _showReauthenticationDialog();
+                  }
+                } else {
+                  if (context.mounted) {
+                    MessageUtils.showErrorMessage(
                       context,
-                      'Account deleted successfully',
+                      'Failed to delete account: ${e.message}',
                     );
                   }
                 }
               } catch (e) {
+                print('Error during deletion: $e');
                 if (context.mounted) {
-                  Navigator.pop(context);
                   MessageUtils.showErrorMessage(
                     context,
                     'Failed to delete account: ${e.toString()}',
@@ -408,6 +484,210 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
             },
             child: Text(
               'Delete',
+              style: TextStyle(color: AppColors.errorRed),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _performAccountDeletion(User user) async {
+    String uid = user.uid;
+
+    final profileDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('profile')
+        .doc('info')
+        .get();
+
+    Map<String, dynamic> profileData =
+        profileDoc.exists && profileDoc.data() != null
+            ? profileDoc.data()!
+            : {};
+
+    await FirebaseFirestore.instance
+        .collection('deletedUsers')
+        .doc(uid)
+        .collection('profile')
+        .doc('info')
+        .set({
+      'deletedAt': FieldValue.serverTimestamp(),
+      ...profileData,
+    });
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('profile')
+        .doc('status')
+        .set({
+      'isDeleted': true,
+      'deletedAt': FieldValue.serverTimestamp(),
+    });
+
+    await user.delete();
+
+    if (context.mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+        (route) => false,
+      );
+    }
+  }
+
+  void _showReauthenticationDialog() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    bool hasPasswordProvider = user.providerData.any(
+      (info) => info.providerId == 'password',
+    );
+
+    if (!hasPasswordProvider) {
+      MessageUtils.showErrorMessage(
+        context,
+        'Please sign out and sign in again to delete your account',
+      );
+      return;
+    }
+
+    final TextEditingController passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.gradientPurple,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Text(
+          'Confirm Your Identity',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Please enter your password to continue with account deletion.',
+              style: TextStyle(color: AppColors.textLight),
+            ),
+            SizedBox(height: 20.h),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              autofocus: true,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Password',
+                labelStyle: TextStyle(color: AppColors.textMedium),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: BorderSide(
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: BorderSide(
+                    color: AppColors.accentPurple,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              passwordController.dispose();
+              Navigator.pop(context);
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textMedium),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              String password = passwordController.text.trim();
+
+              if (password.isEmpty) {
+                MessageUtils.showErrorMessage(
+                  context,
+                  'Please enter your password',
+                );
+                return;
+              }
+
+              try {
+                User? currentUser = FirebaseAuth.instance.currentUser;
+                if (currentUser != null && currentUser.email != null) {
+                  AuthCredential credential = EmailAuthProvider.credential(
+                    email: currentUser.email!,
+                    password: password,
+                  );
+
+                  await currentUser.reauthenticateWithCredential(credential);
+                  print('Reauthentication successful');
+
+                  passwordController.dispose();
+
+                  if (context.mounted) {
+                    Navigator.pop(context);
+
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.accentPurple,
+                        ),
+                      ),
+                    );
+
+                    await _performAccountDeletion(currentUser);
+                  }
+                }
+              } on FirebaseAuthException catch (e) {
+                print('Reauthentication error: ${e.code}');
+                passwordController.dispose();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  if (e.code == 'wrong-password') {
+                    MessageUtils.showErrorMessage(
+                      context,
+                      'Incorrect password. Please try again.',
+                    );
+                  } else if (e.code == 'too-many-requests') {
+                    MessageUtils.showErrorMessage(
+                      context,
+                      'Too many attempts. Please try again later.',
+                    );
+                  } else {
+                    MessageUtils.showErrorMessage(
+                      context,
+                      'Authentication failed: ${e.message}',
+                    );
+                  }
+                }
+              } catch (e) {
+                print('Error: $e');
+                passwordController.dispose();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  MessageUtils.showErrorMessage(
+                    context,
+                    'Failed to authenticate: ${e.toString()}',
+                  );
+                }
+              }
+            },
+            child: Text(
+              'Confirm',
               style: TextStyle(color: AppColors.errorRed),
             ),
           ),
