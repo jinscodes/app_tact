@@ -454,6 +454,31 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               Navigator.pop(context);
 
               try {
+                bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
+                bool isDeviceSupported = await _localAuth.isDeviceSupported();
+
+                if (!canCheckBiometrics || !isDeviceSupported) {
+                  if (mounted) {
+                    MessageUtils.showErrorMessage(
+                      context,
+                      'Biometric authentication is required to delete account',
+                    );
+                  }
+                  return;
+                }
+
+                bool authenticated = await _localAuth.authenticate(
+                  localizedReason: 'Authenticate to delete your account',
+                  options: const AuthenticationOptions(
+                    stickyAuth: true,
+                    biometricOnly: true,
+                  ),
+                );
+
+                if (!authenticated) {
+                  return;
+                }
+
                 User? user = FirebaseAuth.instance.currentUser;
                 if (user != null) {
                   await _performAccountDeletion(user);
@@ -461,8 +486,11 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               } on FirebaseAuthException catch (e) {
                 print('FirebaseAuthException: ${e.code}');
                 if (e.code == 'requires-recent-login') {
+                  print('Reauthentication required, showing dialog...');
                   if (context.mounted) {
                     _showReauthenticationDialog();
+                  } else {
+                    print('Context not mounted, cannot show dialog');
                   }
                 } else {
                   if (context.mounted) {
