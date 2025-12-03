@@ -1,7 +1,7 @@
+import 'package:app_tact/components/common/custom_list_tile.dart';
+import 'package:app_tact/components/common/section_title.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/widgets/about_screen.dart';
-import 'package:app_tact/widgets/common/custom_list_tile.dart';
-import 'package:app_tact/widgets/common/section_title.dart';
 import 'package:app_tact/widgets/help_support_screen.dart';
 import 'package:app_tact/widgets/privacy_security_screen.dart';
 import 'package:flutter/material.dart';

@@ -1,5 +1,5 @@
 // import 'package:app_tact/colors.dart';
-// import 'package:app_tact/models/navigate.dart';
+// import 'package:app_tact/utils/navigate.dart';
 // import 'package:app_tact/services/auth_service.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:flutter/material.dart';

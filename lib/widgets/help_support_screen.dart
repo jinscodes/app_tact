@@ -1,10 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:app_tact/colors.dart';
+import 'package:app_tact/components/common/custom_list_tile.dart';
+import 'package:app_tact/components/common/faq_item.dart';
+import 'package:app_tact/components/common/section_title.dart';
 import 'package:app_tact/utils/message_utils.dart';
-import 'package:app_tact/widgets/common/custom_list_tile.dart';
-import 'package:app_tact/widgets/common/faq_item.dart';
-import 'package:app_tact/widgets/common/section_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
