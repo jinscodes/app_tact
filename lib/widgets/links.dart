@@ -29,7 +29,7 @@ class _LinksScreenState extends State<LinksScreen> {
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+          MaterialPageRoute(builder: (context) => const Settings()),
         );
         break;
       case 2:
