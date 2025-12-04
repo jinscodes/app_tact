@@ -84,7 +84,6 @@ class CustomTile extends StatelessWidget {
   }
 }
 
-// Backward compatibility alias
 class CustomSettingTile extends CustomTile {
   const CustomSettingTile({
     super.key,

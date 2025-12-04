@@ -16,6 +16,10 @@ service cloud.firestore {
       match /profile/{document=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+      
+      match /notification/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
     
     // Allow users to save their data to deletedUsers before account deletion

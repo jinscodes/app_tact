@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/widgets/settings.dart';
@@ -28,18 +30,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     switch (index) {
       case 0:
-        // Links
         Navigator.pop(context);
         break;
       case 1:
-        // Settings
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+          MaterialPageRoute(builder: (context) => const Settings()),
         );
         break;
       case 2:
-        // Already on Profile
         break;
     }
   }
@@ -75,7 +74,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               children: [
                 SizedBox(height: 20.h),
-                // Profile Avatar
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
@@ -99,7 +97,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 SizedBox(height: 20.h),
-                // User Name
                 Text(
                   _user?.displayName ?? 'User',
                   style: TextStyle(
@@ -109,7 +106,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 SizedBox(height: 8.h),
-                // User Email
                 Text(
                   _user?.email ?? '',
                   style: TextStyle(
@@ -118,7 +114,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 SizedBox(height: 40.h),
-                // Profile Info Cards
                 _buildInfoCard(
                   icon: Icons.email_outlined,
                   title: 'Email',
@@ -136,13 +131,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   value: _user?.uid ?? 'N/A',
                 ),
                 SizedBox(height: 30.h),
-                // Action Buttons
                 _buildActionButton(
                   icon: Icons.edit,
                   label: 'Edit Profile',
-                  onPressed: () {
-                    // TODO: Implement edit profile
-                  },
+                  onPressed: () {},
                 ),
                 SizedBox(height: 12.h),
                 _buildActionButton(
