@@ -40,6 +40,165 @@ class _ProfileContentState extends State<ProfileContent> {
     }
   }
 
+  void _showEditNameDialog() {
+    final nameController = TextEditingController(
+      text: _profileData?['name'] ?? _user?.displayName ?? '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: EdgeInsets.all(24.w),
+          decoration: BoxDecoration(
+            color: Color(0xFF2E2939),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Edit Name',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              TextField(
+                controller: nameController,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                ),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.1),
+                  hintText: 'Enter your name',
+                  hintStyle: TextStyle(
+                    color: Colors.grey[500],
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: Color(0xFF7B68EE),
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.05),
+                        side: BorderSide(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        minimumSize: Size(0, 48.h),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Container(
+                      height: 48.h,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            Color(0xFFB93CFF),
+                            Color(0xFF4F46E5),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
+                          onTap: () async {
+                            final newName = nameController.text.trim();
+                            if (newName.isNotEmpty && _user != null) {
+                              try {
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(_user!.uid)
+                                    .collection('profile')
+                                    .doc('info')
+                                    .update({'name': newName});
+
+                                await _user!.updateDisplayName(newName);
+                                await _loadProfileData();
+
+                                if (mounted) {
+                                  Navigator.pop(context);
+                                }
+                              } catch (e) {
+                                print('Error updating name: $e');
+                              }
+                            }
+                          },
+                          child: Center(
+                            child: Text(
+                              'Save',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,37 +222,88 @@ class _ProfileContentState extends State<ProfileContent> {
           child: Column(
             children: [
               SizedBox(height: 20.h),
-              // Profile Avatar
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF7B68EE),
-                      Color(0xFF9B59B6),
-                    ],
+              // Profile Avatar with edit icon
+              Stack(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      // TODO: Implement image picker
+                    },
+                    borderRadius: BorderRadius.circular(60.r),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF7B68EE),
+                            Color(0xFF9B59B6),
+                          ],
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        radius: 60.r,
+                        backgroundColor: Colors.transparent,
+                        child: Icon(
+                          Icons.person,
+                          size: 60.sp,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                child: CircleAvatar(
-                  radius: 60.r,
-                  backgroundColor: Colors.transparent,
-                  child: Icon(
-                    Icons.person,
-                    size: 60.sp,
-                    color: Colors.white,
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF7B68EE),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Color(0xFF2E2939),
+                          width: 3,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 16.sp,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
               SizedBox(height: 20.h),
-              // User Name
-              Text(
-                _profileData?['name'] ?? _user?.displayName ?? 'User',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
+              // User Name with edit icon
+              InkWell(
+                onTap: () {
+                  _showEditNameDialog();
+                },
+                borderRadius: BorderRadius.circular(8.r),
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _profileData?['name'] ?? _user?.displayName ?? 'User',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Icon(
+                        Icons.edit,
+                        color: Color(0xFF7B68EE),
+                        size: 18.sp,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               SizedBox(height: 8.h),
@@ -124,15 +334,7 @@ class _ProfileContentState extends State<ProfileContent> {
                 value: _profileData?['userId'] ?? _user?.uid ?? 'N/A',
               ),
               SizedBox(height: 30.h),
-              // Action Buttons
-              _buildActionButton(
-                icon: Icons.edit,
-                label: 'Edit Profile',
-                onPressed: () {
-                  // TODO: Implement edit profile
-                },
-              ),
-              SizedBox(height: 12.h),
+              // Logout Button
               _buildActionButton(
                 icon: Icons.logout,
                 label: 'Logout',
