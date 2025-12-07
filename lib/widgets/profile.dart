@@ -2,6 +2,7 @@
 
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
 import 'package:app_tact/widgets/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -123,7 +124,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildInfoCard(
                   icon: Icons.calendar_today,
                   title: 'Member Since',
-                  value: _formatDate(_user?.metadata.creationTime),
+                  value: AppDateUtils.DateUtils.formatSimpleDate(
+                      _user?.metadata.creationTime),
                 ),
                 _buildInfoCard(
                   icon: Icons.fingerprint,
@@ -306,10 +308,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Unknown';
-    return '${date.day}/${date.month}/${date.year}';
   }
 }

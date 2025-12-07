@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class DateUtils {
   static String formatDate(DateTime date) {
     final now = DateTime.now();
@@ -31,5 +33,21 @@ class DateUtils {
     } else {
       return 'just now';
     }
+  }
+
+  /// Formats a date from either DateTime or Firestore Timestamp
+  /// Returns a simple date format: dd/mm/yyyy
+  static String formatSimpleDate(dynamic date) {
+    if (date == null) return 'Unknown';
+
+    DateTime? dateTime;
+    if (date is Timestamp) {
+      dateTime = date.toDate();
+    } else if (date is DateTime) {
+      dateTime = date;
+    }
+
+    if (dateTime == null) return 'Unknown';
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
   }
 }

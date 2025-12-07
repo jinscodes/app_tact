@@ -1,8 +1,16 @@
+// ignore_for_file: deprecated_member_use
+
+import 'dart:io';
+
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileContent extends StatefulWidget {
   const ProfileContent({super.key});
@@ -36,6 +44,129 @@ class _ProfileContentState extends State<ProfileContent> {
         setState(() {
           _profileData = doc.data();
         });
+      }
+    }
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    try {
+      // Show loading indicator while opening gallery
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: Color(0xFF7B68EE),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'Opening gallery...',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      // Close opening gallery loading
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      if (image == null || _user == null) return;
+
+      // Show uploading indicator
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: Color(0xFF7B68EE),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'Uploading image...',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // Upload to Firebase Storage
+      final String fileExtension = image.path.split('.').last.toLowerCase();
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_images')
+          .child('${_user!.uid}.$fileExtension');
+
+      await storageRef.putFile(File(image.path));
+      final downloadUrl = await storageRef.getDownloadURL();
+
+      // Update Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_user!.uid)
+          .collection('profile')
+          .doc('info')
+          .update({'profileImageUrl': downloadUrl});
+
+      // Update local state
+      await _loadProfileData();
+
+      if (mounted) {
+        Navigator.pop(context); // Close uploading dialog
+        MessageUtils.showSuccessMessage(
+          context,
+          'Profile image updated successfully',
+        );
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+      if (mounted) {
+        // Try to close any open dialogs
+        try {
+          Navigator.of(context, rootNavigator: true).pop();
+        } catch (_) {}
+
+        String errorMessage = 'Failed to upload image';
+        if (e.toString().contains('storage')) {
+          errorMessage =
+              'Storage error. Please ensure Firebase Storage is enabled.';
+        } else if (e.toString().contains('permission')) {
+          errorMessage = 'Permission denied. Please check storage rules.';
+        } else if (e.toString().contains('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+
+        MessageUtils.showErrorMessage(
+          context,
+          errorMessage,
+        );
       }
     }
   }
@@ -222,13 +353,10 @@ class _ProfileContentState extends State<ProfileContent> {
           child: Column(
             children: [
               SizedBox(height: 20.h),
-              // Profile Avatar with edit icon
               Stack(
                 children: [
                   InkWell(
-                    onTap: () {
-                      // TODO: Implement image picker
-                    },
+                    onTap: _pickAndUploadImage,
                     borderRadius: BorderRadius.circular(60.r),
                     child: Container(
                       decoration: BoxDecoration(
@@ -245,38 +373,47 @@ class _ProfileContentState extends State<ProfileContent> {
                       child: CircleAvatar(
                         radius: 60.r,
                         backgroundColor: Colors.transparent,
-                        child: Icon(
-                          Icons.person,
-                          size: 60.sp,
-                          color: Colors.white,
-                        ),
+                        backgroundImage:
+                            _profileData?['profileImageUrl'] != null
+                                ? NetworkImage(_profileData!['profileImageUrl'])
+                                : null,
+                        child: _profileData?['profileImageUrl'] == null
+                            ? Icon(
+                                Icons.person,
+                                size: 60.sp,
+                                color: Colors.white,
+                              )
+                            : null,
                       ),
                     ),
                   ),
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: Container(
-                      padding: EdgeInsets.all(8.w),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF7B68EE),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Color(0xFF2E2939),
-                          width: 3,
+                    child: InkWell(
+                      onTap: _pickAndUploadImage,
+                      borderRadius: BorderRadius.circular(20.r),
+                      child: Container(
+                        padding: EdgeInsets.all(8.w),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF7B68EE),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Color(0xFF2E2939),
+                            width: 3,
+                          ),
                         ),
-                      ),
-                      child: Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 16.sp,
+                        child: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 16.sp,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 20.h),
-              // User Name with edit icon
               InkWell(
                 onTap: () {
                   _showEditNameDialog();
@@ -307,7 +444,6 @@ class _ProfileContentState extends State<ProfileContent> {
                 ),
               ),
               SizedBox(height: 8.h),
-              // User Email
               Text(
                 _profileData?['email'] ?? _user?.email ?? '',
                 style: TextStyle(
@@ -316,7 +452,6 @@ class _ProfileContentState extends State<ProfileContent> {
                 ),
               ),
               SizedBox(height: 40.h),
-              // Profile Info Cards
               _buildInfoCard(
                 icon: Icons.email_outlined,
                 title: 'Email',
@@ -326,7 +461,8 @@ class _ProfileContentState extends State<ProfileContent> {
               _buildInfoCard(
                 icon: Icons.calendar_today,
                 title: 'Member Since',
-                value: _formatDate(_profileData?['memberSince']),
+                value: AppDateUtils.DateUtils.formatSimpleDate(
+                    _profileData?['memberSince']),
               ),
               _buildInfoCard(
                 icon: Icons.fingerprint,
@@ -334,7 +470,6 @@ class _ProfileContentState extends State<ProfileContent> {
                 value: _profileData?['userId'] ?? _user?.uid ?? 'N/A',
               ),
               SizedBox(height: 30.h),
-              // Logout Button
               _buildActionButton(
                 icon: Icons.logout,
                 label: 'Logout',
@@ -470,19 +605,5 @@ class _ProfileContentState extends State<ProfileContent> {
         ),
       ),
     );
-  }
-
-  String _formatDate(dynamic date) {
-    if (date == null) return 'Unknown';
-
-    DateTime? dateTime;
-    if (date is Timestamp) {
-      dateTime = date.toDate();
-    } else if (date is DateTime) {
-      dateTime = date;
-    }
-
-    if (dateTime == null) return 'Unknown';
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
   }
 }
