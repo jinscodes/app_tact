@@ -1,8 +1,16 @@
+// ignore_for_file: deprecated_member_use
+
+import 'dart:io';
+
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileContent extends StatefulWidget {
   const ProfileContent({super.key});
@@ -40,6 +48,288 @@ class _ProfileContentState extends State<ProfileContent> {
     }
   }
 
+  Future<void> _pickAndUploadImage() async {
+    try {
+      // Show loading indicator while opening gallery
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: Color(0xFF7B68EE),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'Opening gallery...',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      // Close opening gallery loading
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      if (image == null || _user == null) return;
+
+      // Show uploading indicator
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: Color(0xFF7B68EE),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'Uploading image...',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // Upload to Firebase Storage
+      final String fileExtension = image.path.split('.').last.toLowerCase();
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_images')
+          .child('${_user!.uid}.$fileExtension');
+
+      await storageRef.putFile(File(image.path));
+      final downloadUrl = await storageRef.getDownloadURL();
+
+      // Update Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_user!.uid)
+          .collection('profile')
+          .doc('info')
+          .update({'profileImageUrl': downloadUrl});
+
+      // Update local state
+      await _loadProfileData();
+
+      if (mounted) {
+        Navigator.pop(context); // Close uploading dialog
+        MessageUtils.showSuccessMessage(
+          context,
+          'Profile image updated successfully',
+        );
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+      if (mounted) {
+        // Try to close any open dialogs
+        try {
+          Navigator.of(context, rootNavigator: true).pop();
+        } catch (_) {}
+
+        String errorMessage = 'Failed to upload image';
+        if (e.toString().contains('storage')) {
+          errorMessage =
+              'Storage error. Please ensure Firebase Storage is enabled.';
+        } else if (e.toString().contains('permission')) {
+          errorMessage = 'Permission denied. Please check storage rules.';
+        } else if (e.toString().contains('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+
+        MessageUtils.showErrorMessage(
+          context,
+          errorMessage,
+        );
+      }
+    }
+  }
+
+  void _showEditNameDialog() {
+    final nameController = TextEditingController(
+      text: _profileData?['name'] ?? _user?.displayName ?? '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: EdgeInsets.all(24.w),
+          decoration: BoxDecoration(
+            color: Color(0xFF2E2939),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Edit Name',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              TextField(
+                controller: nameController,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                ),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.1),
+                  hintText: 'Enter your name',
+                  hintStyle: TextStyle(
+                    color: Colors.grey[500],
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: Color(0xFF7B68EE),
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.05),
+                        side: BorderSide(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        minimumSize: Size(0, 48.h),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Container(
+                      height: 48.h,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            Color(0xFFB93CFF),
+                            Color(0xFF4F46E5),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
+                          onTap: () async {
+                            final newName = nameController.text.trim();
+                            if (newName.isNotEmpty && _user != null) {
+                              try {
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(_user!.uid)
+                                    .collection('profile')
+                                    .doc('info')
+                                    .update({'name': newName});
+
+                                await _user!.updateDisplayName(newName);
+                                await _loadProfileData();
+
+                                if (mounted) {
+                                  Navigator.pop(context);
+                                }
+                              } catch (e) {
+                                print('Error updating name: $e');
+                              }
+                            }
+                          },
+                          child: Center(
+                            child: Text(
+                              'Save',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,41 +353,97 @@ class _ProfileContentState extends State<ProfileContent> {
           child: Column(
             children: [
               SizedBox(height: 20.h),
-              // Profile Avatar
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF7B68EE),
-                      Color(0xFF9B59B6),
+              Stack(
+                children: [
+                  InkWell(
+                    onTap: _pickAndUploadImage,
+                    borderRadius: BorderRadius.circular(60.r),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF7B68EE),
+                            Color(0xFF9B59B6),
+                          ],
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        radius: 60.r,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage:
+                            _profileData?['profileImageUrl'] != null
+                                ? NetworkImage(_profileData!['profileImageUrl'])
+                                : null,
+                        child: _profileData?['profileImageUrl'] == null
+                            ? Icon(
+                                Icons.person,
+                                size: 60.sp,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: InkWell(
+                      onTap: _pickAndUploadImage,
+                      borderRadius: BorderRadius.circular(20.r),
+                      child: Container(
+                        padding: EdgeInsets.all(8.w),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF7B68EE),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Color(0xFF2E2939),
+                            width: 3,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 16.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.h),
+              InkWell(
+                onTap: () {
+                  _showEditNameDialog();
+                },
+                borderRadius: BorderRadius.circular(8.r),
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _profileData?['name'] ?? _user?.displayName ?? 'User',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Icon(
+                        Icons.edit,
+                        color: Color(0xFF7B68EE),
+                        size: 18.sp,
+                      ),
                     ],
                   ),
                 ),
-                child: CircleAvatar(
-                  radius: 60.r,
-                  backgroundColor: Colors.transparent,
-                  child: Icon(
-                    Icons.person,
-                    size: 60.sp,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              SizedBox(height: 20.h),
-              // User Name
-              Text(
-                _profileData?['name'] ?? _user?.displayName ?? 'User',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
               SizedBox(height: 8.h),
-              // User Email
               Text(
                 _profileData?['email'] ?? _user?.email ?? '',
                 style: TextStyle(
@@ -106,7 +452,6 @@ class _ProfileContentState extends State<ProfileContent> {
                 ),
               ),
               SizedBox(height: 40.h),
-              // Profile Info Cards
               _buildInfoCard(
                 icon: Icons.email_outlined,
                 title: 'Email',
@@ -116,7 +461,8 @@ class _ProfileContentState extends State<ProfileContent> {
               _buildInfoCard(
                 icon: Icons.calendar_today,
                 title: 'Member Since',
-                value: _formatDate(_profileData?['memberSince']),
+                value: AppDateUtils.DateUtils.formatSimpleDate(
+                    _profileData?['memberSince']),
               ),
               _buildInfoCard(
                 icon: Icons.fingerprint,
@@ -124,15 +470,6 @@ class _ProfileContentState extends State<ProfileContent> {
                 value: _profileData?['userId'] ?? _user?.uid ?? 'N/A',
               ),
               SizedBox(height: 30.h),
-              // Action Buttons
-              _buildActionButton(
-                icon: Icons.edit,
-                label: 'Edit Profile',
-                onPressed: () {
-                  // TODO: Implement edit profile
-                },
-              ),
-              SizedBox(height: 12.h),
               _buildActionButton(
                 icon: Icons.logout,
                 label: 'Logout',
@@ -268,19 +605,5 @@ class _ProfileContentState extends State<ProfileContent> {
         ),
       ),
     );
-  }
-
-  String _formatDate(dynamic date) {
-    if (date == null) return 'Unknown';
-
-    DateTime? dateTime;
-    if (date is Timestamp) {
-      dateTime = date.toDate();
-    } else if (date is DateTime) {
-      dateTime = date;
-    }
-
-    if (dateTime == null) return 'Unknown';
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
   }
 }

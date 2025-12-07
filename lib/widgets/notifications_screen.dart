@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'package:app_tact/colors.dart';
+import 'package:app_tact/components/common/custom_switch_tile.dart';
 import 'package:app_tact/components/common/section_title.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -154,7 +155,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   padding: EdgeInsets.all(20.w),
                   children: [
                     SectionTitle('General'),
-                    _buildSwitchTile(
+                    CustomSwitchTile(
                       icon: Icons.notifications_active,
                       title: 'Push Notifications',
                       subtitle: 'Receive push notifications',
@@ -166,7 +167,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         _saveNotificationSettings();
                       },
                     ),
-                    _buildSwitchTile(
+                    CustomSwitchTile(
                       icon: Icons.email_outlined,
                       title: 'Email Notifications',
                       subtitle: 'Receive notifications via email',
@@ -180,7 +181,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     SizedBox(height: 20.h),
                     SectionTitle('Activity'),
-                    _buildSwitchTile(
+                    CustomSwitchTile(
                       icon: Icons.link,
                       title: 'Link Reminders',
                       subtitle: 'Get reminded about saved links',
@@ -192,7 +193,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         _saveNotificationSettings();
                       },
                     ),
-                    _buildSwitchTile(
+                    CustomSwitchTile(
                       icon: Icons.calendar_today,
                       title: 'Weekly Digest',
                       subtitle: 'Weekly summary of your activity',
@@ -206,7 +207,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     SizedBox(height: 20.h),
                     SectionTitle('Updates'),
-                    _buildSwitchTile(
+                    CustomSwitchTile(
                       icon: Icons.new_releases_outlined,
                       title: 'New Features',
                       subtitle: 'Updates about new features',
@@ -218,7 +219,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         _saveNotificationSettings();
                       },
                     ),
-                    _buildSwitchTile(
+                    CustomSwitchTile(
                       icon: Icons.local_offer_outlined,
                       title: 'Promotions',
                       subtitle: 'Special offers and promotions',
@@ -233,69 +234,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ],
                 ),
               ),
-      ),
-    );
-  }
-
-  Widget _buildSwitchTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required Function(bool) onChanged,
-  }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: SwitchListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 8.h,
-        ),
-        secondary: Container(
-          padding: EdgeInsets.all(10.w),
-          decoration: BoxDecoration(
-            color: AppColors.accentPurple.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Icon(
-            icon,
-            color: AppColors.accentPurple,
-            size: 24.sp,
-          ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: AppColors.textMedium,
-            fontSize: 13.sp,
-          ),
-        ),
-        value: value,
-        onChanged: onChanged,
-        activeColor: AppColors.accentPurple,
       ),
     );
   }

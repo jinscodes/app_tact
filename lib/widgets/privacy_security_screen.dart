@@ -2,6 +2,7 @@
 
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/common/custom_list_tile.dart';
+import 'package:app_tact/components/common/custom_switch_tile.dart';
 import 'package:app_tact/components/common/section_title.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/password_change/verify_current_password_screen.dart';
@@ -186,14 +187,14 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
             padding: EdgeInsets.all(20.w),
             children: [
               SectionTitle('Authentication'),
-              _buildSwitchTile(
+              CustomSwitchTile(
                 icon: Icons.fingerprint,
                 title: 'Biometric Login',
                 subtitle: 'Use fingerprint or face ID',
                 value: _biometricEnabled,
                 onChanged: _handleBiometricToggle,
               ),
-              _buildSwitchTile(
+              CustomSwitchTile(
                 icon: Icons.security,
                 title: 'Two-Factor Authentication',
                 subtitle: 'Add an extra layer of security',
@@ -352,69 +353,6 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSwitchTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required Function(bool) onChanged,
-  }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: SwitchListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 8.h,
-        ),
-        secondary: Container(
-          padding: EdgeInsets.all(10.w),
-          decoration: BoxDecoration(
-            color: AppColors.accentPurple.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Icon(
-            icon,
-            color: AppColors.accentPurple,
-            size: 24.sp,
-          ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: AppColors.textMedium,
-            fontSize: 13.sp,
-          ),
-        ),
-        value: value,
-        onChanged: onChanged,
-        activeColor: AppColors.accentPurple,
       ),
     );
   }
