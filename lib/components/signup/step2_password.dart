@@ -1,7 +1,7 @@
 import 'package:app_tact/colors.dart';
-import 'package:app_tact/components/login_button.dart';
-import 'package:app_tact/components/login_input.dart';
-import 'package:app_tact/components/logo_and_title.dart';
+import 'package:app_tact/components/login/login_button.dart';
+import 'package:app_tact/components/login/login_input.dart';
+import 'package:app_tact/components/login/logo_and_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

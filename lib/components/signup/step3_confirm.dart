@@ -1,8 +1,8 @@
 // ignore_for_file: avoid_print, deprecated_member_use
 
 import 'package:app_tact/colors.dart';
-import 'package:app_tact/components/login_button.dart';
-import 'package:app_tact/components/logo_and_title.dart';
+import 'package:app_tact/components/login/login_button.dart';
+import 'package:app_tact/components/login/logo_and_title.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

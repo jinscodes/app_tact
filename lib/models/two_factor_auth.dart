@@ -32,14 +32,12 @@ class TwoFactorAuth {
           .collection('profile')
           .doc('2FAPassword');
 
-      // Get existing password before updating
       final doc = await docRef.get();
       String? lastPassword;
       if (doc.exists && doc.data()?['password'] != null) {
         lastPassword = doc.data()!['password'];
       }
 
-      // Save new password, lastPassword, and changedDate
       await docRef.set({
         'password': password,
         'lastPassword': lastPassword,

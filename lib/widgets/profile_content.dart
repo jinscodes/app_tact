@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print
 
 import 'dart:io';
 
@@ -50,7 +50,6 @@ class _ProfileContentState extends State<ProfileContent> {
 
   Future<void> _pickAndUploadImage() async {
     try {
-      // Show loading indicator while opening gallery
       if (mounted) {
         showDialog(
           context: context,
@@ -84,14 +83,12 @@ class _ProfileContentState extends State<ProfileContent> {
         imageQuality: 85,
       );
 
-      // Close opening gallery loading
       if (mounted) {
         Navigator.pop(context);
       }
 
       if (image == null || _user == null) return;
 
-      // Show uploading indicator
       if (mounted) {
         showDialog(
           context: context,
@@ -117,7 +114,6 @@ class _ProfileContentState extends State<ProfileContent> {
         );
       }
 
-      // Upload to Firebase Storage
       final String fileExtension = image.path.split('.').last.toLowerCase();
       final storageRef = FirebaseStorage.instance
           .ref()
@@ -127,7 +123,6 @@ class _ProfileContentState extends State<ProfileContent> {
       await storageRef.putFile(File(image.path));
       final downloadUrl = await storageRef.getDownloadURL();
 
-      // Update Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(_user!.uid)
@@ -135,20 +130,17 @@ class _ProfileContentState extends State<ProfileContent> {
           .doc('info')
           .update({'profileImageUrl': downloadUrl});
 
-      // Update local state
       await _loadProfileData();
 
       if (mounted) {
-        Navigator.pop(context); // Close uploading dialog
+        Navigator.pop(context);
         MessageUtils.showSuccessMessage(
           context,
           'Profile image updated successfully',
         );
       }
     } catch (e) {
-      print('Error uploading image: $e');
       if (mounted) {
-        // Try to close any open dialogs
         try {
           Navigator.of(context, rootNavigator: true).pop();
         } catch (_) {}

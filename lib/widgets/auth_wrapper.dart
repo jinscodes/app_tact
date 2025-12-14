@@ -1,4 +1,4 @@
-import 'package:app_tact/components/step4_email_verification.dart';
+import 'package:app_tact/components/signup/step4_email_verification.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/widgets/home.dart';
 import 'package:app_tact/widgets/login.dart';

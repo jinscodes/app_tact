@@ -1,9 +1,9 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
-import 'package:app_tact/components/step1_email.dart';
-import 'package:app_tact/components/step2_password.dart';
-import 'package:app_tact/components/step3_confirm.dart';
-import 'package:app_tact/components/step4_email_verification.dart';
+import 'package:app_tact/components/signup/step1_email.dart';
+import 'package:app_tact/components/signup/step2_password.dart';
+import 'package:app_tact/components/signup/step3_confirm.dart';
+import 'package:app_tact/components/signup/step4_email_verification.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/login.dart';

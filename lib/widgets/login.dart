@@ -2,11 +2,11 @@
 
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/divider_with_text.dart';
-import 'package:app_tact/components/login_button.dart';
-import 'package:app_tact/components/login_input.dart';
-import 'package:app_tact/components/login_with_github.dart';
-import 'package:app_tact/components/login_with_google.dart';
-import 'package:app_tact/components/logo_and_title.dart';
+import 'package:app_tact/components/login/login_button.dart';
+import 'package:app_tact/components/login/login_input.dart';
+import 'package:app_tact/components/login/login_with_github.dart';
+import 'package:app_tact/components/login/login_with_google.dart';
+import 'package:app_tact/components/login/logo_and_title.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/signup.dart';
