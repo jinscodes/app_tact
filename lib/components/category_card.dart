@@ -8,6 +8,7 @@ import 'package:app_tact/components/link_item_card.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
 import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
+import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -32,7 +33,8 @@ class CategoryCard extends StatelessWidget {
       context,
       categoryId: categoryId,
       linksService: linksService,
-      onSuccess: () => onSuccess('Link added successfully!'),
+      onSuccess: () =>
+          MessageUtils.showSuccessAnimation(context, message: 'Link Added!'),
       onError: onError,
     );
   }
