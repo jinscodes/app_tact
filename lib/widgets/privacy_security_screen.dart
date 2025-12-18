@@ -31,6 +31,24 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   bool _twoFactorEnabled = false;
   final LocalAuthentication _localAuth = LocalAuthentication();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final biometric = await TwoFactorAuth.getBiometricSetting();
+    final twoFactor = await TwoFactorAuth.getTwoFactorSetting();
+
+    if (mounted) {
+      setState(() {
+        _biometricEnabled = biometric;
+        _twoFactorEnabled = twoFactor;
+      });
+    }
+  }
+
   Future<void> _handleBiometricToggle(bool value) async {
     if (value) {
       // Check if 2FA password exists
@@ -65,6 +83,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         );
 
         if (authenticated && mounted) {
+          await TwoFactorAuth.updateBiometricSetting(true);
           setState(() {
             _biometricEnabled = true;
           });
@@ -88,6 +107,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         );
 
         if (authenticated && mounted) {
+          await TwoFactorAuth.updateBiometricSetting(false);
           setState(() {
             _biometricEnabled = false;
           });
@@ -137,6 +157,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         );
 
         if (authenticated && mounted) {
+          await TwoFactorAuth.updateTwoFactorSetting(true);
           setState(() {
             _twoFactorEnabled = true;
           });
@@ -160,6 +181,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         );
 
         if (authenticated && mounted) {
+          await TwoFactorAuth.updateTwoFactorSetting(false);
           setState(() {
             _twoFactorEnabled = false;
           });
