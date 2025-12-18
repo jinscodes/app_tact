@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:ui';
+
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/add_link_dialog.dart';
 import 'package:app_tact/components/delete_category_dialog.dart';
@@ -11,8 +13,9 @@ import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:local_auth/local_auth.dart';
 
-class CategoryCard extends StatelessWidget {
+class CategoryCard extends StatefulWidget {
   final Category category;
   final LinksService linksService;
   final Function(String) onLinkTap;
@@ -28,14 +31,82 @@ class CategoryCard extends StatelessWidget {
     required this.onError,
   });
 
+  @override
+  State<CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<CategoryCard> {
+  final LocalAuthentication _localAuth = LocalAuthentication();
+  late bool _isLocked;
+
+  @override
+  void initState() {
+    super.initState();
+    _isLocked = widget.category.isLocked;
+  }
+
+  Future<void> _handleLockToggle() async {
+    try {
+      bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
+      bool isDeviceSupported = await _localAuth.isDeviceSupported();
+
+      if (!canCheckBiometrics || !isDeviceSupported) {
+        if (mounted) {
+          MessageUtils.showErrorMessage(
+            context,
+            'Biometric authentication is not available on this device',
+          );
+        }
+        return;
+      }
+
+      bool authenticated = await _localAuth.authenticate(
+        localizedReason: _isLocked
+            ? 'Authenticate to unlock category'
+            : 'Authenticate to lock category',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+
+      if (authenticated && mounted) {
+        final newLockState = !_isLocked;
+
+        await Future.delayed(const Duration(milliseconds: 1200));
+
+        if (!mounted) return;
+
+        MessageUtils.showSuccessAnimation(context,
+            message: newLockState ? 'Category Locked!' : 'Category Unlocked!');
+
+        await widget.linksService.updateCategoryLockStatus(
+          widget.category.id,
+          newLockState,
+        );
+
+        setState(() {
+          _isLocked = newLockState;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        MessageUtils.showErrorMessage(
+          context,
+          'Failed to authenticate: ${e.toString()}',
+        );
+      }
+    }
+  }
+
   void _showAddLinkDialog(BuildContext context, String categoryId) {
     AddLinkDialog.show(
       context,
       categoryId: categoryId,
-      linksService: linksService,
+      linksService: widget.linksService,
       onSuccess: () =>
           MessageUtils.showSuccessAnimation(context, message: 'Link Added!'),
-      onError: onError,
+      onError: widget.onError,
     );
   }
 
@@ -43,9 +114,9 @@ class CategoryCard extends StatelessWidget {
     DeleteCategoryDialog.show(
       context,
       category: category,
-      linksService: linksService,
+      linksService: widget.linksService,
       onSuccess: () {},
-      onError: onError,
+      onError: widget.onError,
     );
   }
 
@@ -79,6 +150,18 @@ class CategoryCard extends StatelessWidget {
           collapsedBackgroundColor: Colors.transparent,
           iconColor: Colors.white,
           collapsedIconColor: Colors.white,
+          trailing: InkWell(
+            onTap: _handleLockToggle,
+            borderRadius: BorderRadius.circular(20.r),
+            child: Padding(
+              padding: EdgeInsets.all(4.w),
+              child: Icon(
+                _isLocked ? Icons.lock : Icons.lock_outline,
+                color: _isLocked ? Colors.red : Colors.grey[400],
+                size: 20.sp,
+              ),
+            ),
+          ),
           leading: Container(
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
@@ -92,7 +175,7 @@ class CategoryCard extends StatelessWidget {
             ),
           ),
           title: Text(
-            category.name,
+            widget.category.name,
             style: TextStyle(
               color: Colors.white,
               fontSize: 16.sp,
@@ -100,7 +183,7 @@ class CategoryCard extends StatelessWidget {
             ),
           ),
           subtitle: Text(
-            '${category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(category.createdAt)}',
+            '${widget.category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(widget.category.createdAt)}',
             style: TextStyle(
               color: Colors.grey[400],
               fontSize: 12.sp,
@@ -108,7 +191,8 @@ class CategoryCard extends StatelessWidget {
           ),
           children: [
             StreamBuilder<List<LinkItem>>(
-              stream: linksService.getLinksByCategoryStream(category.id),
+              stream: widget.linksService
+                  .getLinksByCategoryStream(widget.category.id),
               builder: (context, linkSnapshot) {
                 if (linkSnapshot.connectionState == ConnectionState.waiting) {
                   return Padding(
@@ -163,11 +247,11 @@ class CategoryCard extends StatelessWidget {
   }
 
   Widget _buildLinksState(BuildContext context, List<LinkItem> links) {
-    return Column(
+    Widget content = Column(
       children: [
         ...links.map((link) => LinkItemCard(
               link: link,
-              onTap: onLinkTap,
+              onTap: widget.onLinkTap,
               onEdit: () => _showEditLinkDialog(context, link),
               onDelete: () => _showDeleteLinkDialog(context, link),
             )),
@@ -176,15 +260,24 @@ class CategoryCard extends StatelessWidget {
         SizedBox(height: 16.h),
       ],
     );
+
+    if (_isLocked) {
+      return ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: content,
+      );
+    }
+
+    return content;
   }
 
   void _showEditLinkDialog(BuildContext context, LinkItem link) {
     EditLinkDialog.show(
       context,
       link: link,
-      linksService: linksService,
+      linksService: widget.linksService,
       onSuccess: () {},
-      onError: onError,
+      onError: widget.onError,
     );
   }
 
@@ -213,9 +306,10 @@ class CategoryCard extends StatelessWidget {
             onPressed: () async {
               Navigator.pop(context);
               try {
-                await linksService.deleteLinkItem(link.categoryId, link.id);
+                await widget.linksService
+                    .deleteLinkItem(link.categoryId, link.id);
               } catch (e) {
-                onError('Error deleting link: $e');
+                widget.onError('Error deleting link: $e');
               }
             },
             child: Text(
@@ -233,7 +327,7 @@ class CategoryCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
-          onPressed: () => _showAddLinkDialog(context, category.id),
+          onPressed: () => _showAddLinkDialog(context, widget.category.id),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.softPurple,
             foregroundColor: Colors.white,
@@ -246,7 +340,7 @@ class CategoryCard extends StatelessWidget {
         ),
         SizedBox(width: 12.w),
         ElevatedButton(
-          onPressed: () => _showDeleteCategoryDialog(context, category),
+          onPressed: () => _showDeleteCategoryDialog(context, widget.category),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.softRed,
             foregroundColor: Colors.white,

@@ -72,6 +72,7 @@ class Category {
   final String userId;
   final DateTime createdAt;
   final int linkCount;
+  final bool isLocked;
 
   Category({
     required this.id,
@@ -79,6 +80,7 @@ class Category {
     required this.userId,
     required this.createdAt,
     this.linkCount = 0,
+    this.isLocked = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -88,6 +90,7 @@ class Category {
       'userId': userId,
       'createdAt': createdAt.toIso8601String(),
       'linkCount': linkCount,
+      'isLocked': isLocked,
     };
   }
 
@@ -98,6 +101,7 @@ class Category {
       userId: map['userId'] ?? '',
       createdAt: DateTime.parse(map['createdAt']),
       linkCount: map['linkCount'] ?? 0,
+      isLocked: map['isLocked'] ?? false,
     );
   }
 
@@ -108,6 +112,7 @@ class Category {
       userId: data['userId'] ?? '',
       createdAt: DateTime.parse(data['createdAt']),
       linkCount: data['linkCount'] ?? 0,
+      isLocked: data['isLocked'] ?? false,
     );
   }
 }
