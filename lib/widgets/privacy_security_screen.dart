@@ -1,15 +1,19 @@
-// ignore_for_file: deprecated_member_use, avoid_print
+// ignore_for_file: deprecated_member_use, avoid_print, use_build_context_synchronously
 
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/common/custom_list_tile.dart';
 import 'package:app_tact/components/common/custom_switch_tile.dart';
 import 'package:app_tact/components/common/section_title.dart';
+import 'package:app_tact/components/dialogs/delete_account_dialog.dart';
+import 'package:app_tact/components/dialogs/password_not_available_dialog.dart';
+import 'package:app_tact/components/dialogs/reauthentication_dialog.dart';
+import 'package:app_tact/components/dialogs/two_factor_required_dialog.dart';
+import 'package:app_tact/models/two_factor_auth.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/password_change/verify_current_password_screen.dart';
 import 'package:app_tact/widgets/privacy_policy_screen.dart';
 import 'package:app_tact/widgets/terms_of_service_screen.dart';
 import 'package:app_tact/widgets/two_factor_setup_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,8 +31,35 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   bool _twoFactorEnabled = false;
   final LocalAuthentication _localAuth = LocalAuthentication();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final biometric = await TwoFactorAuth.getBiometricSetting();
+    final twoFactor = await TwoFactorAuth.getTwoFactorSetting();
+
+    if (mounted) {
+      setState(() {
+        _biometricEnabled = biometric;
+        _twoFactorEnabled = twoFactor;
+      });
+    }
+  }
+
   Future<void> _handleBiometricToggle(bool value) async {
     if (value) {
+      // Check if 2FA password exists
+      String? password = await TwoFactorAuth.check2fa();
+      if (password == null) {
+        if (mounted) {
+          await TwoFactorRequiredDialog.show(context);
+        }
+        return;
+      }
+
       try {
         bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
         bool isDeviceSupported = await _localAuth.isDeviceSupported();
@@ -52,6 +83,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         );
 
         if (authenticated && mounted) {
+          await TwoFactorAuth.updateBiometricSetting(true);
           setState(() {
             _biometricEnabled = true;
           });
@@ -75,6 +107,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         );
 
         if (authenticated && mounted) {
+          await TwoFactorAuth.updateBiometricSetting(false);
           setState(() {
             _biometricEnabled = false;
           });
@@ -92,6 +125,15 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
   Future<void> _handleTwoFactorToggle(bool value) async {
     if (value) {
+      // Check if 2FA password exists
+      String? password = await TwoFactorAuth.check2fa();
+      if (password == null) {
+        if (mounted) {
+          await TwoFactorRequiredDialog.show(context);
+        }
+        return;
+      }
+
       try {
         bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
         bool isDeviceSupported = await _localAuth.isDeviceSupported();
@@ -115,6 +157,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         );
 
         if (authenticated && mounted) {
+          await TwoFactorAuth.updateTwoFactorSetting(true);
           setState(() {
             _twoFactorEnabled = true;
           });
@@ -138,6 +181,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         );
 
         if (authenticated && mounted) {
+          await TwoFactorAuth.updateTwoFactorSetting(false);
           setState(() {
             _twoFactorEnabled = false;
           });
@@ -151,6 +195,25 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         }
       }
     }
+  }
+
+  void _showReauthenticationDialog() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    bool hasPasswordProvider = user.providerData.any(
+      (info) => info.providerId == 'password',
+    );
+
+    if (!hasPasswordProvider) {
+      MessageUtils.showErrorMessage(
+        context,
+        'Please sign out and sign in again to delete your account',
+      );
+      return;
+    }
+
+    ReauthenticationDialog.show(context);
   }
 
   @override
@@ -238,56 +301,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                         }
                       }
 
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: Color.fromARGB(255, 41, 41, 59),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          title: Row(
-                            children: [
-                              Icon(Icons.info_outline,
-                                  color: AppColors.accentPurple),
-                              SizedBox(width: 8.w),
-                              Text(
-                                'Password Not Available',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16.sp),
-                              ),
-                            ],
-                          ),
-                          content: Text(
-                            'You signed in with $provider. Password changes are not available for social login accounts.',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                          actions: [
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [
-                                    Color(0xFFB93CFF),
-                                    Color(0xFF4F46E5),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              child: TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: TextButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                ),
-                                child: Text(
-                                  'OK',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
+                      PasswordNotAvailableDialog.show(context, provider);
                       return;
                     }
                   }
@@ -358,307 +372,10 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   }
 
   void _showDeleteAccountDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.gradientPurple,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: AppColors.errorRed),
-            SizedBox(width: 8.w),
-            Text(
-              'Delete Account',
-              style: TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-        content: Text(
-          'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.',
-          style: TextStyle(color: AppColors.textLight),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.textMedium),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-
-              try {
-                bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
-                bool isDeviceSupported = await _localAuth.isDeviceSupported();
-
-                if (!canCheckBiometrics || !isDeviceSupported) {
-                  if (mounted) {
-                    MessageUtils.showErrorMessage(
-                      context,
-                      'Biometric authentication is required to delete account',
-                    );
-                  }
-                  return;
-                }
-
-                bool authenticated = await _localAuth.authenticate(
-                  localizedReason: 'Authenticate to delete your account',
-                  options: const AuthenticationOptions(
-                    stickyAuth: true,
-                    biometricOnly: true,
-                  ),
-                );
-
-                if (!authenticated) {
-                  return;
-                }
-
-                User? user = FirebaseAuth.instance.currentUser;
-                if (user != null) {
-                  await _performAccountDeletion(user);
-                }
-              } on FirebaseAuthException catch (e) {
-                print('FirebaseAuthException: ${e.code}');
-                if (e.code == 'requires-recent-login') {
-                  print('Reauthentication required, showing dialog...');
-                  if (context.mounted) {
-                    _showReauthenticationDialog();
-                  } else {
-                    print('Context not mounted, cannot show dialog');
-                  }
-                } else {
-                  if (context.mounted) {
-                    MessageUtils.showErrorMessage(
-                      context,
-                      'Failed to delete account: ${e.message}',
-                    );
-                  }
-                }
-              } catch (e) {
-                print('Error during deletion: $e');
-                if (context.mounted) {
-                  MessageUtils.showErrorMessage(
-                    context,
-                    'Failed to delete account: ${e.toString()}',
-                  );
-                }
-              }
-            },
-            child: Text(
-              'Delete',
-              style: TextStyle(color: AppColors.errorRed),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _performAccountDeletion(User user) async {
-    String uid = user.uid;
-
-    final profileDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('profile')
-        .doc('info')
-        .get();
-
-    Map<String, dynamic> profileData =
-        profileDoc.exists && profileDoc.data() != null
-            ? profileDoc.data()!
-            : {};
-
-    await FirebaseFirestore.instance
-        .collection('deletedUsers')
-        .doc(uid)
-        .collection('profile')
-        .doc('info')
-        .set({
-      'deletedAt': FieldValue.serverTimestamp(),
-      ...profileData,
-    });
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('profile')
-        .doc('status')
-        .set({
-      'isDeleted': true,
-      'deletedAt': FieldValue.serverTimestamp(),
-    });
-
-    await user.delete();
-
-    if (context.mounted) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/login',
-        (route) => false,
-      );
-    }
-  }
-
-  void _showReauthenticationDialog() {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    bool hasPasswordProvider = user.providerData.any(
-      (info) => info.providerId == 'password',
-    );
-
-    if (!hasPasswordProvider) {
-      MessageUtils.showErrorMessage(
-        context,
-        'Please sign out and sign in again to delete your account',
-      );
-      return;
-    }
-
-    final TextEditingController passwordController = TextEditingController();
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.gradientPurple,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        title: Text(
-          'Confirm Your Identity',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Please enter your password to continue with account deletion.',
-              style: TextStyle(color: AppColors.textLight),
-            ),
-            SizedBox(height: 20.h),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              autofocus: true,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Password',
-                labelStyle: TextStyle(color: AppColors.textMedium),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: BorderSide(
-                    color: Colors.white.withOpacity(0.3),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: BorderSide(
-                    color: AppColors.accentPurple,
-                    width: 2,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              passwordController.dispose();
-              Navigator.pop(context);
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.textMedium),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              String password = passwordController.text.trim();
-
-              if (password.isEmpty) {
-                MessageUtils.showErrorMessage(
-                  context,
-                  'Please enter your password',
-                );
-                return;
-              }
-
-              try {
-                User? currentUser = FirebaseAuth.instance.currentUser;
-                if (currentUser != null && currentUser.email != null) {
-                  AuthCredential credential = EmailAuthProvider.credential(
-                    email: currentUser.email!,
-                    password: password,
-                  );
-
-                  await currentUser.reauthenticateWithCredential(credential);
-                  print('Reauthentication successful');
-
-                  passwordController.dispose();
-
-                  if (context.mounted) {
-                    Navigator.pop(context);
-
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.accentPurple,
-                        ),
-                      ),
-                    );
-
-                    await _performAccountDeletion(currentUser);
-                  }
-                }
-              } on FirebaseAuthException catch (e) {
-                print('Reauthentication error: ${e.code}');
-                passwordController.dispose();
-                if (context.mounted) {
-                  Navigator.pop(context);
-                  if (e.code == 'wrong-password') {
-                    MessageUtils.showErrorMessage(
-                      context,
-                      'Incorrect password. Please try again.',
-                    );
-                  } else if (e.code == 'too-many-requests') {
-                    MessageUtils.showErrorMessage(
-                      context,
-                      'Too many attempts. Please try again later.',
-                    );
-                  } else {
-                    MessageUtils.showErrorMessage(
-                      context,
-                      'Authentication failed: ${e.message}',
-                    );
-                  }
-                }
-              } catch (e) {
-                print('Error: $e');
-                passwordController.dispose();
-                if (context.mounted) {
-                  Navigator.pop(context);
-                  MessageUtils.showErrorMessage(
-                    context,
-                    'Failed to authenticate: ${e.toString()}',
-                  );
-                }
-              }
-            },
-            child: Text(
-              'Confirm',
-              style: TextStyle(color: AppColors.errorRed),
-            ),
-          ),
-        ],
-      ),
+    DeleteAccountDialog.show(
+      context,
+      localAuth: _localAuth,
+      onReauthenticationRequired: _showReauthenticationDialog,
     );
   }
 }

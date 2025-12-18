@@ -243,4 +243,15 @@ class LinksService {
       rethrow;
     }
   }
+
+  Future<void> updateCategoryLockStatus(
+      String categoryId, bool isLocked) async {
+    try {
+      await _getCategoryCollection().doc(categoryId).update({
+        'isLocked': isLocked,
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

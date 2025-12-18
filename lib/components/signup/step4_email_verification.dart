@@ -3,8 +3,8 @@
 import 'dart:async';
 
 import 'package:app_tact/colors.dart';
-import 'package:app_tact/components/login_button.dart';
-import 'package:app_tact/components/logo_and_title.dart';
+import 'package:app_tact/components/login/login_button.dart';
+import 'package:app_tact/components/login/logo_and_title.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
