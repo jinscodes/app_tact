@@ -1,9 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:ui';
-
-import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/add_link_dialog.dart';
+import 'package:app_tact/components/category_card/category_action_buttons.dart';
+import 'package:app_tact/components/category_card/category_empty_state.dart';
+import 'package:app_tact/components/category_card/category_lock_handler.dart';
+import 'package:app_tact/components/category_card/category_locked_overlay.dart';
+import 'package:app_tact/components/category_card/delete_link_dialog.dart';
 import 'package:app_tact/components/delete_category_dialog.dart';
 import 'package:app_tact/components/edit_link_dialog.dart';
 import 'package:app_tact/components/link_item_card.dart';
@@ -13,7 +15,6 @@ import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:local_auth/local_auth.dart';
 
 class CategoryCard extends StatefulWidget {
   final Category category;
@@ -36,7 +37,7 @@ class CategoryCard extends StatefulWidget {
 }
 
 class _CategoryCardState extends State<CategoryCard> {
-  final LocalAuthentication _localAuth = LocalAuthentication();
+  final CategoryLockHandler _lockHandler = CategoryLockHandler();
   late bool _isLocked;
 
   @override
@@ -46,56 +47,21 @@ class _CategoryCardState extends State<CategoryCard> {
   }
 
   Future<void> _handleLockToggle() async {
-    try {
-      bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
-      bool isDeviceSupported = await _localAuth.isDeviceSupported();
-
-      if (!canCheckBiometrics || !isDeviceSupported) {
-        if (mounted) {
-          MessageUtils.showErrorMessage(
-            context,
-            'Biometric authentication is not available on this device',
-          );
-        }
-        return;
-      }
-
-      bool authenticated = await _localAuth.authenticate(
-        localizedReason: _isLocked
-            ? 'Authenticate to unlock category'
-            : 'Authenticate to lock category',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
-      );
-
-      if (authenticated && mounted) {
-        final newLockState = !_isLocked;
-
-        await Future.delayed(const Duration(milliseconds: 1200));
-
-        if (!mounted) return;
-
-        MessageUtils.showSuccessAnimation(context,
-            message: newLockState ? 'Category Locked!' : 'Category Unlocked!');
-
+    final success = await _lockHandler.toggleLock(
+      context: context,
+      currentLockState: _isLocked,
+      onLockChanged: (newState) async {
         await widget.linksService.updateCategoryLockStatus(
           widget.category.id,
-          newLockState,
+          newState,
         );
+      },
+    );
 
-        setState(() {
-          _isLocked = newLockState;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        MessageUtils.showErrorMessage(
-          context,
-          'Failed to authenticate: ${e.toString()}',
-        );
-      }
+    if (success && mounted) {
+      setState(() {
+        _isLocked = !_isLocked;
+      });
     }
   }
 
@@ -118,6 +84,62 @@ class _CategoryCardState extends State<CategoryCard> {
       onSuccess: () {},
       onError: widget.onError,
     );
+  }
+
+  void _showEditLinkDialog(BuildContext context, LinkItem link) {
+    EditLinkDialog.show(
+      context,
+      link: link,
+      linksService: widget.linksService,
+      onSuccess: () {},
+      onError: widget.onError,
+    );
+  }
+
+  void _showDeleteLinkDialog(BuildContext context, LinkItem link) {
+    DeleteLinkDialog.show(
+      context,
+      linkTitle: link.title,
+      onConfirm: () async {
+        try {
+          await widget.linksService.deleteLinkItem(link.categoryId, link.id);
+        } catch (e) {
+          widget.onError('Error deleting link: $e');
+        }
+      },
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return CategoryEmptyState(
+      onAddLink: () => _showAddLinkDialog(context, widget.category.id),
+      onDelete: () => _showDeleteCategoryDialog(context, widget.category),
+    );
+  }
+
+  Widget _buildLinksState(BuildContext context, List<LinkItem> links) {
+    Widget content = Column(
+      children: [
+        ...links.map((link) => LinkItemCard(
+              link: link,
+              onTap: widget.onLinkTap,
+              onEdit: () => _showEditLinkDialog(context, link),
+              onDelete: () => _showDeleteLinkDialog(context, link),
+            )),
+        SizedBox(height: 8.h),
+        CategoryActionButtons(
+          onAddLink: () => _showAddLinkDialog(context, widget.category.id),
+          onDelete: () => _showDeleteCategoryDialog(context, widget.category),
+        ),
+        SizedBox(height: 16.h),
+      ],
+    );
+
+    if (_isLocked) {
+      return CategoryLockedOverlay(child: content);
+    }
+
+    return content;
   }
 
   @override
@@ -218,140 +240,6 @@ class _CategoryCardState extends State<CategoryCard> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(20.h),
-      child: Column(
-        children: [
-          Icon(
-            Icons.link_off,
-            color: Colors.grey[500],
-            size: 40.sp,
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'No links in this category yet',
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontSize: 14.sp,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          _buildActionButtons(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLinksState(BuildContext context, List<LinkItem> links) {
-    Widget content = Column(
-      children: [
-        ...links.map((link) => LinkItemCard(
-              link: link,
-              onTap: widget.onLinkTap,
-              onEdit: () => _showEditLinkDialog(context, link),
-              onDelete: () => _showDeleteLinkDialog(context, link),
-            )),
-        SizedBox(height: 8.h),
-        _buildActionButtons(context),
-        SizedBox(height: 16.h),
-      ],
-    );
-
-    if (_isLocked) {
-      return ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: content,
-      );
-    }
-
-    return content;
-  }
-
-  void _showEditLinkDialog(BuildContext context, LinkItem link) {
-    EditLinkDialog.show(
-      context,
-      link: link,
-      linksService: widget.linksService,
-      onSuccess: () {},
-      onError: widget.onError,
-    );
-  }
-
-  void _showDeleteLinkDialog(BuildContext context, LinkItem link) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF2E2939),
-        title: Text(
-          'Delete Link',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Are you sure you want to delete "${link.title}"?',
-          style: TextStyle(color: Colors.grey[400]),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey[400]),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await widget.linksService
-                    .deleteLinkItem(link.categoryId, link.id);
-              } catch (e) {
-                widget.onError('Error deleting link: $e');
-              }
-            },
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Colors.red[400]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: () => _showAddLinkDialog(context, widget.category.id),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.softPurple,
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 8.h,
-            ),
-          ),
-          child: Text('Add Link'),
-        ),
-        SizedBox(width: 12.w),
-        ElevatedButton(
-          onPressed: () => _showDeleteCategoryDialog(context, widget.category),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.softRed,
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 8.h,
-            ),
-          ),
-          child: Text('Delete'),
-        ),
-      ],
     );
   }
 }
