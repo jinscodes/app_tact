@@ -10,6 +10,7 @@ import 'package:app_tact/components/delete_category_dialog.dart';
 import 'package:app_tact/components/edit_link_dialog.dart';
 import 'package:app_tact/components/link_item_card.dart';
 import 'package:app_tact/models/make_category.dart';
+import 'package:app_tact/services/category_session_service.dart';
 import 'package:app_tact/services/links_service.dart';
 import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
 import 'package:app_tact/utils/message_utils.dart';
@@ -38,12 +39,20 @@ class CategoryCard extends StatefulWidget {
 
 class _CategoryCardState extends State<CategoryCard> {
   final CategoryLockHandler _lockHandler = CategoryLockHandler();
+  final CategorySessionService _sessionService = CategorySessionService();
   late bool _isLocked;
 
   @override
   void initState() {
     super.initState();
     _isLocked = widget.category.isLocked;
+  }
+
+  /// Check if category should be shown as locked
+  /// (locked in DB but not unlocked in current session)
+  bool get _shouldShowLocked {
+    return _isLocked &&
+        !_sessionService.isUnlockedInSession(widget.category.id);
   }
 
   Future<void> _handleLockToggle() async {
@@ -117,6 +126,24 @@ class _CategoryCardState extends State<CategoryCard> {
     );
   }
 
+  Future<void> _handleLockedCategoryTap() async {
+    if (!_shouldShowLocked) return;
+
+    // Authenticate to unlock for this session
+    final authenticated = await _lockHandler.authenticateForUnlock(context);
+
+    if (authenticated && mounted) {
+      setState(() {
+        _sessionService.unlockCategory(widget.category.id);
+      });
+
+      MessageUtils.showSuccessAnimation(
+        context,
+        message: 'Category unlocked for this session!',
+      );
+    }
+  }
+
   Widget _buildLinksState(BuildContext context, List<LinkItem> links) {
     Widget content = Column(
       children: [
@@ -135,8 +162,13 @@ class _CategoryCardState extends State<CategoryCard> {
       ],
     );
 
-    if (_isLocked) {
-      return CategoryLockedOverlay(child: content);
+    if (_shouldShowLocked) {
+      return GestureDetector(
+        onTap: _handleLockedCategoryTap,
+        child: AbsorbPointer(
+          child: CategoryLockedOverlay(child: content),
+        ),
+      );
     }
 
     return content;
@@ -178,8 +210,12 @@ class _CategoryCardState extends State<CategoryCard> {
             child: Padding(
               padding: EdgeInsets.all(4.w),
               child: Icon(
-                _isLocked ? Icons.lock : Icons.lock_outline,
-                color: _isLocked ? Colors.red : Colors.grey[400],
+                _isLocked
+                    ? (_shouldShowLocked ? Icons.lock : Icons.lock_open)
+                    : Icons.lock_outline,
+                color: _isLocked
+                    ? (_shouldShowLocked ? Colors.red : Colors.orange)
+                    : Colors.grey[400],
                 size: 20.sp,
               ),
             ),

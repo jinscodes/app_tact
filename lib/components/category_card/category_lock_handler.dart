@@ -5,6 +5,42 @@ import 'package:local_auth/local_auth.dart';
 class CategoryLockHandler {
   final LocalAuthentication _localAuth = LocalAuthentication();
 
+  /// Authenticate user for unlocking (without changing DB lock state)
+  Future<bool> authenticateForUnlock(BuildContext context) async {
+    try {
+      bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
+      bool isDeviceSupported = await _localAuth.isDeviceSupported();
+
+      if (!canCheckBiometrics || !isDeviceSupported) {
+        if (context.mounted) {
+          MessageUtils.showErrorMessage(
+            context,
+            'Biometric authentication is not available on this device',
+          );
+        }
+        return false;
+      }
+
+      bool authenticated = await _localAuth.authenticate(
+        localizedReason: 'Authenticate to unlock category',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+
+      return authenticated;
+    } catch (e) {
+      if (context.mounted) {
+        MessageUtils.showErrorMessage(
+          context,
+          'Failed to authenticate: ${e.toString()}',
+        );
+      }
+      return false;
+    }
+  }
+
   Future<bool> toggleLock({
     required BuildContext context,
     required bool currentLockState,
