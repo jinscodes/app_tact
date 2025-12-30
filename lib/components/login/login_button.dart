@@ -1,3 +1,4 @@
+import 'package:app_tact/components/loading_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -41,9 +42,7 @@ class LoginButton extends StatelessWidget {
         ),
         child: Center(
           child: isLoading
-              ? const CircularProgressIndicator(
-                  color: Colors.white,
-                )
+              ? const LoginLoadingSpinner()
               : Text(
                   text,
                   style: TextStyle(

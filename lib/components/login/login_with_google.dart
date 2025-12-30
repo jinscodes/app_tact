@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/components/loading_spinner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -65,24 +66,37 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
         } catch (profileError) {
           print('❌ Error creating profile: $profileError');
         }
-      }
-
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        // Navigate only on successful sign-in
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        }
+      } else {
+        // User cancelled Google sign-in; do nothing.
+        print('ℹ️ Google sign-in cancelled by user');
+        if (mounted) {
+          setState(() {
+            _isGoogleLoading = false;
+          });
+        }
       }
     } catch (e) {
       print('❌ Google authentication failed: $e');
+      final msg = e.toString().toLowerCase();
+      final isCancelled = msg.contains('popup_closed_by_user') ||
+          msg.contains('canceled') ||
+          msg.contains('cancelled') ||
+          msg.contains('sign_in_canceled') ||
+          msg.contains('aborted');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Google authentication failed: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
+        if (!isCancelled) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Google authentication failed. Please try again.'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
         setState(() {
           _isGoogleLoading = false;
         });
@@ -105,16 +119,7 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
           onTap: _isGoogleLoading ? null : () => _signInWithGoogle(),
           borderRadius: BorderRadius.circular(10.r),
           child: _isGoogleLoading
-              ? Center(
-                  child: SizedBox(
-                    width: 20.w,
-                    height: 20.w,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  ),
-                )
+              ? const Center(child: LoginLoadingSpinner())
               : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -27,6 +27,7 @@ class _SettingsState extends State<Settings> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(
           'Settings',
           style: TextStyle(

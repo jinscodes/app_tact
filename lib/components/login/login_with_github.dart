@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/components/loading_spinner.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,11 +38,38 @@ class _LoginWithGitHubState extends State<LoginWithGitHub> {
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       } else {
         print('GitHub sign-in was cancelled by user');
+        if (mounted) {
+          setState(() {
+            _isGitHubLoading = false;
+          });
+        }
       }
     } on FirebaseAuthException catch (e) {
       print(
           'Firebase Auth error during GitHub sign-in: ${e.code} - ${e.message}');
       if (mounted) {
+        // Suppress UI for user-cancelled flows
+        final code = (e.code).toLowerCase();
+        final msg = (e.message ?? '').toLowerCase();
+        final isCancelled = code == 'canceled' ||
+            code == 'cancelled' ||
+            code == 'popup-closed-by-user' ||
+            code == 'web-context-canceled' ||
+            code == 'user-cancelled' ||
+            code == 'sign_in_canceled' ||
+            msg.contains('closed by user') ||
+            msg.contains('cancel');
+
+        if (isCancelled) {
+          print('ℹ️ GitHub sign-in cancelled by user');
+          if (mounted) {
+            setState(() {
+              _isGitHubLoading = false;
+            });
+          }
+          return;
+        }
+
         String errorMessage;
         switch (e.code) {
           case 'account-exists-with-different-credential':
@@ -63,15 +91,23 @@ class _LoginWithGitHubState extends State<LoginWithGitHub> {
         }
 
         MessageUtils.showErrorMessage(context, errorMessage);
+        setState(() {
+          _isGitHubLoading = false;
+        });
       }
     } on Exception catch (e) {
       print('General error during GitHub sign-in: $e');
+      final msg = e.toString().toLowerCase();
+      final isCancelled = msg.contains('popup_closed_by_user') ||
+          msg.contains('canceled') ||
+          msg.contains('cancelled') ||
+          msg.contains('web-context-canceled') ||
+          msg.contains('sign_in_canceled');
       if (mounted) {
-        MessageUtils.showErrorMessage(
-            context, 'Failed to sign in with GitHub. Please try again.');
-      }
-    } finally {
-      if (mounted) {
+        if (!isCancelled) {
+          MessageUtils.showErrorMessage(
+              context, 'Failed to sign in with GitHub. Please try again.');
+        }
         setState(() {
           _isGitHubLoading = false;
         });
@@ -96,16 +132,7 @@ class _LoginWithGitHubState extends State<LoginWithGitHub> {
           onTap: _isGitHubLoading ? null : () => _signInWithGitHub(),
           borderRadius: BorderRadius.circular(10.r),
           child: _isGitHubLoading
-              ? Center(
-                  child: SizedBox(
-                    width: 20.w,
-                    height: 20.w,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  ),
-                )
+              ? const Center(child: LoginLoadingSpinner())
               : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

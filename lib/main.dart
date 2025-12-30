@@ -193,7 +193,7 @@ class MyApp extends StatelessWidget {
         page = const AuthWrapper();
         break;
       case '/links':
-        page = const LinksScreen();
+        page = const Links();
         break;
       default:
         return null;

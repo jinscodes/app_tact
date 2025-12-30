@@ -65,6 +65,11 @@ class _LoginScreenState extends State<LoginScreen> {
               'Please verify your email before logging in',
             );
           }
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
           return;
         }
 
@@ -75,13 +80,10 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _hasEmailError = true;
         _hasPasswordError = true;
+        _isLoading = false;
       });
       MessageUtils.showErrorMessage(
           context, 'Failed to sign in. Please try again.');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
@@ -108,16 +110,26 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
-          child: LayoutBuilder(
+          child: MediaQuery.removeViewInsets(
+            removeBottom: true,
+            context: context,
+            child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
+                  padding: EdgeInsets.fromLTRB(
+                    20.w,
+                    40.h,
+                    20.w,
+                    40.h + MediaQuery.of(context).viewInsets.bottom,
+                  ),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -212,6 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ));
             },
+            ),
           ),
         ),
       ),

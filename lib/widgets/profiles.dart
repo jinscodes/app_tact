@@ -12,14 +12,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ProfileContent extends StatefulWidget {
-  const ProfileContent({super.key});
+class Profiles extends StatefulWidget {
+  const Profiles({super.key});
 
   @override
-  State<ProfileContent> createState() => _ProfileContentState();
+  State<Profiles> createState() => _ProfilesState();
 }
 
-class _ProfileContentState extends State<ProfileContent> {
+class _ProfilesState extends State<Profiles> {
   final AuthService _authService = AuthService();
   User? _user;
   Map<String, dynamic>? _profileData;
@@ -329,6 +329,7 @@ class _ProfileContentState extends State<ProfileContent> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(
           'Profile',
           style: TextStyle(

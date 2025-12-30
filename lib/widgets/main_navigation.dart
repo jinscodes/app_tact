@@ -1,7 +1,7 @@
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/services/notification_service.dart';
-import 'package:app_tact/widgets/links_content.dart';
-import 'package:app_tact/widgets/profile_content.dart';
+import 'package:app_tact/widgets/links.dart';
+import 'package:app_tact/widgets/profiles.dart';
 import 'package:app_tact/widgets/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,11 +23,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   List<Widget> _buildScreens() {
     return [
-      const LinksContent(),
+      const Links(),
       Settings(
         onNavigateToProfile: () => _onItemTapped(2),
       ),
-      const ProfileContent(),
+      const Profiles(),
     ];
   }
 
