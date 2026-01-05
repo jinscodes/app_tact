@@ -51,7 +51,6 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
   Future<void> _handleBiometricToggle(bool value) async {
     if (value) {
-      // Check if 2FA password exists
       String? password = await TwoFactorAuth.check2fa();
       if (password == null) {
         if (mounted) {
@@ -231,6 +230,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          scrolledUnderElevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.pop(context),

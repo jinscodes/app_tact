@@ -1,6 +1,8 @@
 import 'package:app_tact/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:app_tact/components/common/about_feature_item.dart';
+import 'package:app_tact/components/common/info_row.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -20,6 +22,7 @@ class AboutScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          scrolledUnderElevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.pop(context),
@@ -41,29 +44,26 @@ class AboutScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 20.h),
-                // App Logo
                 Container(
                   width: 100.w,
                   height: 100.h,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.accentPurple,
-                        AppColors.gradientMagenta,
-                      ],
-                    ),
                     borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: AppColors.gradientPurple,
+                      width: 2,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.link,
-                    size: 50.sp,
-                    color: Colors.white,
+                  child: Center(
+                    child: Image.asset(
+                      'assets/tact_logo.png',
+                      width: 50.w,
+                      height: 50.w,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
                 SizedBox(height: 24.h),
-                // App Name
                 Text(
                   'Tact',
                   style: TextStyle(
@@ -73,7 +73,6 @@ class AboutScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 8.h),
-                // Version
                 Text(
                   'Version 1.0.0',
                   style: TextStyle(
@@ -82,7 +81,6 @@ class AboutScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 40.h),
-                // Description
                 Container(
                   padding: EdgeInsets.all(20.w),
                   decoration: BoxDecoration(
@@ -124,24 +122,23 @@ class AboutScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 24.h),
-                // Features
-                _buildFeatureItem(
+                buildFeatureItem(
                   icon: Icons.folder_outlined,
                   title: 'Organize with Categories',
                   description:
                       'Create custom categories to organize your links',
                 ),
-                _buildFeatureItem(
+                buildFeatureItem(
                   icon: Icons.cloud_sync,
                   title: 'Cloud Sync',
                   description: 'Access your links across all your devices',
                 ),
-                _buildFeatureItem(
+                buildFeatureItem(
                   icon: Icons.lock_outline,
                   title: 'Secure & Private',
                   description: 'Your data is encrypted and protected',
                 ),
-                _buildFeatureItem(
+                buildFeatureItem(
                   icon: Icons.note_outlined,
                   title: 'Notes & Annotations',
                   description: 'Add notes and context to your links',
@@ -160,18 +157,17 @@ class AboutScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _buildInfoRow('Developer', 'Tact Team'),
+                      buildInfoRow('Developer', 'Tact Team'),
                       SizedBox(height: 12.h),
-                      _buildInfoRow('Platform', 'Flutter'),
+                      buildInfoRow('Platform', 'Flutter'),
                       SizedBox(height: 12.h),
-                      _buildInfoRow('Release Date', 'November 2025'),
+                      buildInfoRow('Release Date', 'November 2025'),
                       SizedBox(height: 12.h),
-                      _buildInfoRow('Contact', 'support@tactapp.com'),
+                      buildInfoRow('Contact', 'support@appstact.com'),
                     ],
                   ),
                 ),
                 SizedBox(height: 32.h),
-                // Copyright
                 Text(
                   '© 2025 Tact. All rights reserved.',
                   style: TextStyle(
@@ -186,95 +182,6 @@ class AboutScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildFeatureItem({
-    required IconData icon,
-    required String title,
-    required String description,
-  }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.08),
-            Colors.white.withOpacity(0.03),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.15),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: AppColors.accentPurple.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
-            child: Icon(
-              icon,
-              color: AppColors.accentPurple,
-              size: 24.sp,
-            ),
-          ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  description,
-                  style: TextStyle(
-                    color: AppColors.textMedium,
-                    fontSize: 13.sp,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: AppColors.textMedium,
-            fontSize: 14.sp,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }
