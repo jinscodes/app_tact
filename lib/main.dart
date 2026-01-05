@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app_tact/services/subscription_service.dart';
 
 import 'firebase_options.dart';
 
@@ -17,6 +19,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    final iosKey = dotenv.env['REVENUECAT_IOS_API_KEY'];
+    final androidKey = dotenv.env['REVENUECAT_ANDROID_API_KEY'];
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    await SubscriptionService.instance.init(
+      iosApiKey: iosKey,
+      androidApiKey: androidKey,
+      appUserId: uid,
+      enableDebugLogs: false,
+    );
+  } catch (_) {}
   runApp(const MyApp());
 }
 
