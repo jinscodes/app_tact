@@ -7,6 +7,7 @@ import 'package:app_tact/widgets/notifications_screen.dart';
 import 'package:app_tact/widgets/privacy_security_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:app_tact/widgets/subscription_screen.dart';
 
 class Settings extends StatefulWidget {
   final VoidCallback? onNavigateToProfile;
@@ -60,6 +61,19 @@ class _SettingsState extends State<Settings> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const PrivacySecurityScreen(),
+                  ),
+                );
+              },
+            ),
+            CustomSettingTile(
+              icon: Icons.subscriptions_outlined,
+              title: 'Subscription',
+              subtitle: 'View your plan and status',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SubscriptionScreen(),
                   ),
                 );
               },

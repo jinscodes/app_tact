@@ -11,6 +11,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:app_tact/widgets/profile_info_card.dart';
+import 'package:app_tact/widgets/profile_action_button.dart';
+import 'package:app_tact/widgets/profile_subscription_section.dart';
 
 class Profiles extends StatefulWidget {
   const Profiles({super.key});
@@ -445,25 +448,26 @@ class _ProfilesState extends State<Profiles> {
                 ),
               ),
               SizedBox(height: 40.h),
-              _buildInfoCard(
+              buildInfoCard(
                 icon: Icons.email_outlined,
                 title: 'Email',
                 value: _profileData?['email'] ?? _user?.email ?? 'Not provided',
                 verified: _user?.emailVerified ?? false,
               ),
-              _buildInfoCard(
+              buildInfoCard(
                 icon: Icons.calendar_today,
                 title: 'Member Since',
                 value: AppDateUtils.DateUtils.formatSimpleDate(
                     _profileData?['memberSince']),
               ),
-              _buildInfoCard(
+              buildInfoCard(
                 icon: Icons.fingerprint,
                 title: 'User ID',
                 value: _profileData?['userId'] ?? _user?.uid ?? 'N/A',
               ),
+              buildSubscriptionSection(_profileData),
               SizedBox(height: 30.h),
-              _buildActionButton(
+              buildActionButton(
                 icon: Icons.logout,
                 label: 'Logout',
                 isDestructive: true,
@@ -475,125 +479,6 @@ class _ProfilesState extends State<Profiles> {
                 },
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoCard({
-    required IconData icon,
-    required String title,
-    required String value,
-    bool verified = false,
-  }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: Color(0xFF7B68EE).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: Icon(
-              icon,
-              color: Color(0xFF7B68EE),
-              size: 24.sp,
-            ),
-          ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                    if (verified) ...[
-                      SizedBox(width: 8.w),
-                      Icon(
-                        Icons.verified,
-                        color: Colors.green[400],
-                        size: 16.sp,
-                      ),
-                    ],
-                  ],
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-    bool isDestructive = false,
-  }) {
-    return SizedBox(
-      width: double.infinity,
-      height: 50.h,
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isDestructive
-              ? Colors.red.withOpacity(0.2)
-              : Color(0xFF7B68EE).withOpacity(0.2),
-          foregroundColor: isDestructive ? Colors.red[400] : Color(0xFF7B68EE),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-            side: BorderSide(
-              color: isDestructive
-                  ? Colors.red.withOpacity(0.3)
-                  : Color(0xFF7B68EE).withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-        ),
-        icon: Icon(icon, size: 20.sp),
-        label: Text(
-          label,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
           ),
         ),
       ),
