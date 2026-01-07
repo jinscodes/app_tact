@@ -672,6 +672,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.10.3"
+  purchases_ui_flutter:
+    dependency: "direct main"
+    description:
+      name: purchases_ui_flutter
+      sha256: "56be1865b87a358b74bce78143a97cd42be69470627d4bc07ee2fdfa9ac54d84"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.10.3"
   sky_engine:
     dependency: transitive
     description: flutter

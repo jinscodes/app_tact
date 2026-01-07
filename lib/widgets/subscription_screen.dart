@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:app_tact/colors.dart';
@@ -6,6 +8,7 @@ import 'package:app_tact/widgets/profile_subscription_section.dart';
 import 'package:app_tact/services/subscription_service.dart';
 import 'package:app_tact/widgets/profile_action_button.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:app_tact/widgets/tact_paywall_page.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -30,7 +33,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   Future<void> _loadProfileData() async {
     try {
-      // Fetch RevenueCat customer info
       final CustomerInfo? info =
           await SubscriptionService.instance.getCustomerInfo();
       String status = 'inactive';
@@ -86,7 +88,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       setState(() => _purchasing = false);
     }
     if (info != null) {
-      // Refresh profile section with latest entitlement
       await _loadProfileData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -113,6 +114,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         const SnackBar(content: Text('Purchases restored')),
       );
     }
+  }
+
+  void _openTactPaywallPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const TactPaywallPage()),
+    );
   }
 
   @override
@@ -148,8 +155,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         body: SafeArea(
           child: _loading
               ? Center(
-                  child:
-                      const CircularProgressIndicator(color: Color(0xFF7B68EE)),
+                  child: const CircularProgressIndicator(
+                    color: Color(0xFF7B68EE),
+                  ),
                 )
               : ListView(
                   padding: EdgeInsets.all(20.w),
@@ -157,92 +165,17 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     SectionTitle('Subscription'),
                     buildSubscriptionSection(_profileData),
                     SizedBox(height: 20.h),
-                    if (_offerings?.current != null &&
-                        _offerings!.current!.availablePackages.isNotEmpty) ...[
-                      SectionTitle('Available Plans'),
-                      ..._offerings!.current!.availablePackages.map((pkg) {
-                        final product = pkg.storeProduct;
-                        return Container(
-                          margin: EdgeInsets.symmetric(vertical: 8.h),
-                          padding: EdgeInsets.all(16.w),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Colors.white.withOpacity(0.1),
-                                Colors.white.withOpacity(0.05),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
-                              width: 1,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                product.title,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(height: 6.h),
-                              Text(
-                                product.priceString,
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 14.sp,
-                                ),
-                              ),
-                              SizedBox(height: 12.h),
-                              buildActionButton(
-                                icon: Icons.shopping_cart,
-                                label: _purchasing ? 'Purchasing…' : 'Choose',
-                                onPressed:
-                                    _purchasing ? () {} : () => _purchase(pkg),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ] else ...[
-                      SectionTitle('Available Plans'),
-                      Container(
-                        padding: EdgeInsets.all(16.w),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white.withOpacity(0.1),
-                              Colors.white.withOpacity(0.05),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          'No plans available right now.',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                      ),
-                    ],
                     SizedBox(height: 20.h),
                     buildActionButton(
                       icon: Icons.replay,
                       label: _restoring ? 'Restoring…' : 'Restore Purchases',
                       onPressed: _restoring ? () {} : _restore,
+                    ),
+                    SizedBox(height: 12.h),
+                    buildActionButton(
+                      icon: Icons.credit_card,
+                      label: 'Open Tact Paywall',
+                      onPressed: _openTactPaywallPage,
                     ),
                   ],
                 ),

@@ -20,7 +20,8 @@
         "google_sign_in",
         "image_picker",
         "local_auth",
-        "purchases_flutter"
+        "purchases_flutter",
+        "purchases_ui_flutter"
       ],
       "devDependencies": [
         "flutter_lints",
@@ -50,6 +51,15 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "purchases_ui_flutter",
+      "version": "9.10.3",
+      "dependencies": [
+        "flutter",
+        "plugin_platform_interface",
+        "purchases_flutter"
       ]
     },
     {
@@ -285,6 +295,13 @@
         "stream_channel",
         "string_scanner",
         "term_glyph"
+      ]
+    },
+    {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
       ]
     },
     {
@@ -714,13 +731,6 @@
         "flutter",
         "http",
         "plugin_platform_interface"
-      ]
-    },
-    {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
-      "dependencies": [
-        "meta"
       ]
     },
     {

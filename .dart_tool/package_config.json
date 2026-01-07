@@ -512,6 +512,12 @@
       "languageVersion": "3.6"
     },
     {
+      "name": "purchases_ui_flutter",
+      "rootUri": "file:///Users/jayhan/.pub-cache/hosted/pub.dev/purchases_ui_flutter-9.10.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
       "name": "sky_engine",
       "rootUri": "file:///opt/homebrew/share/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
