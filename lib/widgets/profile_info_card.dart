@@ -1,3 +1,4 @@
+import 'package:app_tact/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -11,19 +12,19 @@ Widget buildInfoCard({
     margin: EdgeInsets.only(bottom: 16.h),
     padding: EdgeInsets.all(16.w),
     decoration: BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.white.withOpacity(0.1),
-          Colors.white.withOpacity(0.05),
-        ],
-      ),
+      color: AppColors.cardSurface,
       borderRadius: BorderRadius.circular(12.r),
       border: Border.all(
-        color: Colors.white.withOpacity(0.2),
+        color: AppColors.cardBorder,
         width: 1,
       ),
+      boxShadow: const [
+        BoxShadow(
+          color: AppColors.cardShadow,
+          blurRadius: 20,
+          offset: Offset(0, 4),
+        ),
+      ],
     ),
     child: Row(
       children: [

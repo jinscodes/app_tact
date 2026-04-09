@@ -164,17 +164,37 @@ class _LinksState extends State<Links> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          AddCategoryDialog.show(
-            context,
-            onCategoryAdded: (categoryName) {},
-          );
-        },
-        backgroundColor: AppColors.softPurple,
-        foregroundColor: Colors.white,
-        icon: Icon(Icons.add),
-        label: Text('Add Category'),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.primaryGradient,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.gradientStart.withOpacity(0.45),
+              blurRadius: 18,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            AddCategoryDialog.show(
+              context,
+              onCategoryAdded: (categoryName) {},
+            );
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          focusElevation: 0,
+          hoverElevation: 0,
+          highlightElevation: 0,
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.add),
+          label: const Text(
+            'Add Category',
+            style: TextStyle(fontWeight: FontWeight.w600, letterSpacing: -0.3),
+          ),
+        ),
       ),
     );
   }

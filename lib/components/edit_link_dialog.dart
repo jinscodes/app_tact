@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:app_tact/colors.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
 import 'package:flutter/material.dart';
@@ -346,15 +347,15 @@ class _EditLinkDialogState extends State<EditLinkDialog> {
                       child: Container(
                         height: 42.h,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              Color(0xFF7B68EE),
-                              Color(0xFF9B59B6),
-                            ],
-                          ),
+                          gradient: AppColors.primaryGradient,
                           borderRadius: BorderRadius.circular(8.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.gradientStart.withOpacity(0.4),
+                              blurRadius: 14,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _handleEditLink,

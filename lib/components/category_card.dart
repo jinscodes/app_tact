@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/add_link_dialog.dart';
 import 'package:app_tact/components/category_card/category_action_buttons.dart';
 import 'package:app_tact/components/category_card/category_empty_state.dart';
@@ -147,19 +148,19 @@ class _CategoryCardState extends State<CategoryCard> {
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
-        ),
+        color: AppColors.cardSurface,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: AppColors.cardBorder,
           width: 1,
         ),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.cardShadow,
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Theme(
         data: Theme.of(context).copyWith(

@@ -126,11 +126,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
     if (_isCheckingExisting) {
       return Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [AppColors.gradientDarkBlue, AppColors.gradientPurple],
-          ),
+          gradient: AppColors.backgroundGradient,
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,
@@ -166,11 +162,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
 
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [AppColors.gradientDarkBlue, AppColors.gradientPurple],
-        ),
+        gradient: AppColors.backgroundGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
