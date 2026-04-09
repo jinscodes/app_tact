@@ -26,30 +26,30 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get web => FirebaseOptions(
-        apiKey: dotenv.env['FIREBASE_WEB_API_KEY']!,
-        appId: dotenv.env['FIREBASE_WEB_APP_ID']!,
-        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
-        projectId: 'apptact-a4f0c',
-        authDomain: 'apptact-a4f0c.firebaseapp.com',
-        storageBucket: 'apptact-a4f0c.firebasestorage.app',
-        measurementId: dotenv.env['FIREBASE_WEB_MEASUREMENT_ID']!,
-      );
+    apiKey: dotenv.env['FIREBASE_WEB_API_KEY']!,
+    appId: dotenv.env['FIREBASE_WEB_APP_ID']!,
+    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+    projectId: 'apptact-a4f0c',
+    authDomain: 'apptact-a4f0c.firebaseapp.com',
+    storageBucket: 'apptact-a4f0c.firebasestorage.app',
+    measurementId: dotenv.env['FIREBASE_WEB_MEASUREMENT_ID']!,
+  );
 
   static FirebaseOptions get android => FirebaseOptions(
-        apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY']!,
-        appId: dotenv.env['FIREBASE_ANDROID_APP_ID']!,
-        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
-        projectId: 'apptact-a4f0c',
-        storageBucket: 'apptact-a4f0c.firebasestorage.app',
-      );
+    apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY']!,
+    appId: dotenv.env['FIREBASE_ANDROID_APP_ID']!,
+    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+    projectId: 'apptact-a4f0c',
+    storageBucket: 'apptact-a4f0c.firebasestorage.app',
+  );
 
   static FirebaseOptions get ios => FirebaseOptions(
-        apiKey: dotenv.env['FIREBASE_IOS_API_KEY']!,
-        appId: dotenv.env['FIREBASE_IOS_APP_ID']!,
-        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
-        projectId: 'apptact-a4f0c',
-        storageBucket: 'apptact-a4f0c.firebasestorage.app',
-        iosClientId: dotenv.env['FIREBASE_IOS_CLIENT_ID']!,
-        iosBundleId: 'com.jay.appTact',
-      );
+    apiKey: dotenv.env['FIREBASE_IOS_API_KEY']!,
+    appId: dotenv.env['FIREBASE_IOS_APP_ID']!,
+    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+    projectId: 'apptact-a4f0c',
+    storageBucket: 'apptact-a4f0c.firebasestorage.app',
+    iosClientId: dotenv.env['FIREBASE_IOS_CLIENT_ID']!,
+    iosBundleId: 'com.jay.appTact',
+  );
 }

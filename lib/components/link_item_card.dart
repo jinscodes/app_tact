@@ -34,12 +34,19 @@ class LinkItemCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
-        color: Color(0xFF3A3A4F),
+        color: AppColors.cardSurface,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: AppColors.cardBorder,
           width: 1,
         ),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.cardShadow,
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,

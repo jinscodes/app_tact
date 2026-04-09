@@ -73,11 +73,7 @@ class _TactPaywallPageState extends State<TactPaywallPage> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [AppColors.gradientDarkBlue, AppColors.gradientPurple],
-        ),
+        gradient: AppColors.backgroundGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,

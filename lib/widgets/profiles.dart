@@ -5,15 +5,16 @@ import 'dart:io';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
 import 'package:app_tact/utils/message_utils.dart';
+import 'package:app_tact/widgets/profile_action_button.dart';
+import 'package:app_tact/widgets/profile_info_card.dart';
+import 'package:app_tact/widgets/profile_subscription_section.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:app_tact/widgets/profile_info_card.dart';
-import 'package:app_tact/widgets/profile_action_button.dart';
-import 'package:app_tact/widgets/profile_subscription_section.dart';
 
 class Profiles extends StatefulWidget {
   const Profiles({super.key});
@@ -91,6 +92,19 @@ class _ProfilesState extends State<Profiles> {
       }
 
       if (image == null || _user == null) return;
+
+      // Check file size — limit to 2 MB
+      final int fileSize = await File(image.path).length();
+      const int maxBytes = 2 * 1024 * 1024; // 2 MB
+      if (fileSize > maxBytes) {
+        if (mounted) {
+          MessageUtils.showErrorMessage(
+            context,
+            'Image is too large. Please choose a photo under 2 MB.',
+          );
+        }
+        return;
+      }
 
       if (mounted) {
         showDialog(
@@ -369,17 +383,30 @@ class _ProfilesState extends State<Profiles> {
                       child: CircleAvatar(
                         radius: 60.r,
                         backgroundColor: Colors.transparent,
-                        backgroundImage:
-                            _profileData?['profileImageUrl'] != null
-                                ? NetworkImage(_profileData!['profileImageUrl'])
-                                : null,
-                        child: _profileData?['profileImageUrl'] == null
-                            ? Icon(
+                        child: _profileData?['profileImageUrl'] != null
+                            ? ClipOval(
+                                child: CachedNetworkImage(
+                                  imageUrl: _profileData!['profileImageUrl'],
+                                  width: 120.r,
+                                  height: 120.r,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Icon(
+                                    Icons.person,
+                                    size: 60.sp,
+                                    color: Colors.white,
+                                  ),
+                                  errorWidget: (context, url, error) => Icon(
+                                    Icons.person,
+                                    size: 60.sp,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Icon(
                                 Icons.person,
                                 size: 60.sp,
                                 color: Colors.white,
-                              )
-                            : null,
+                              ),
                       ),
                     ),
                   ),

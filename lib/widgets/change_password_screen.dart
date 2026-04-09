@@ -76,11 +76,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     if (_isLoading) {
       return Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [AppColors.gradientDarkBlue, AppColors.gradientPurple],
-          ),
+          gradient: AppColors.backgroundGradient,
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,
@@ -96,11 +92,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     if (_lastPasswordChangeDate != null) {
       return Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [AppColors.gradientDarkBlue, AppColors.gradientPurple],
-          ),
+          gradient: AppColors.backgroundGradient,
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,

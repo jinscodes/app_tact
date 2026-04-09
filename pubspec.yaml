@@ -21,6 +21,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   local_auth: ^2.3.0
   image_picker: ^1.1.2
+  cached_network_image: ^3.4.1
   purchases_flutter: ^9.10.3
   purchases_ui_flutter: any
 
