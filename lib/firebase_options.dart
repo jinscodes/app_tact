@@ -33,6 +33,7 @@ class DefaultFirebaseOptions {
     authDomain: 'apptact-a4f0c.firebaseapp.com',
     storageBucket: 'apptact-a4f0c.firebasestorage.app',
     measurementId: dotenv.env['FIREBASE_WEB_MEASUREMENT_ID']!,
+  );
 
   static FirebaseOptions get android => FirebaseOptions(
     apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY']!,
