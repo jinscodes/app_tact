@@ -230,18 +230,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // ── Layer 1: deep base linear gradient ─────────────────────────
+        // ── Layer 1: shared base gradient (unified across all screens) ──
         Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFF07041A), // near-black indigo (top)
-                Color(0xFF0D0921), // dark navy-purple (mid)
-                Color(0xFF1C0E3A), // deep rich violet (bottom)
+                Color(0xFF1A1333), // soft purple-black (top)
+                Color(0xFF130E24), // deep violet (mid)
+                Color(0xFF0F0B1F), // near-black (bottom)
               ],
-              stops: [0.0, 0.42, 1.0],
+              stops: [0.0, 0.45, 1.0],
             ),
           ),
         ),
