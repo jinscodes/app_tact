@@ -1,10 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:app_tact/colors.dart';
+import 'package:app_tact/components/sheet_theme.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EditLinkDialog extends StatefulWidget {
   final LinkItem link;
@@ -30,11 +29,9 @@ class EditLinkDialog extends StatefulWidget {
     required VoidCallback onSuccess,
     required Function(String) onError,
   }) {
-    showDialog(
+    showAppSheet(
       context: context,
-      barrierDismissible: true,
-      useSafeArea: true,
-      builder: (context) => EditLinkDialog(
+      child: EditLinkDialog(
         link: link,
         linksService: linksService,
         onSuccess: onSuccess,
@@ -104,295 +101,109 @@ class _EditLinkDialogState extends State<EditLinkDialog> {
     super.dispose();
   }
 
+  // Shared field decoration
+  InputDecoration _field(String label) =>
+      sheetInputDecoration(placeholder: label);
+
   @override
   Widget build(BuildContext context) {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final availableHeight = screenHeight - keyboardHeight - 100.h;
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: 20.w,
-        vertical: 50.h,
-      ),
-      child: Container(
-        width: 360.w,
-        constraints: BoxConstraints(
-          maxHeight: availableHeight > 200.h ? availableHeight : 200.h,
+    return AppSheetScaffold(
+      title: 'Edit Link',
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(
+          kSheetHPad,
+          kSheetSectionSpacing,
+          kSheetHPad,
+          kSheetSectionSpacing,
         ),
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 41, 41, 59),
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(
-            color: Color(0xFF585967),
-            width: 2,
-          ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: 10.h),
-                Center(
-                  child: Text(
-                    "Edit Link",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Title ─────────────────────────────────────────────────
+            const SheetSectionLabel('TITLE'),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: kSheetFieldHeight,
+              child: TextField(
+                controller: titleController,
+                enabled: !_isLoading,
+                style: const TextStyle(
+                  color: kTextPrimary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
                 ),
-                SizedBox(height: 30.h),
-                Text(
-                  "Title",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                TextField(
-                  controller: titleController,
-                  enabled: !_isLoading,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                  ),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 2,
-                      ),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.1),
-                        width: 1,
-                      ),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  "URL",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                TextField(
-                  controller: urlController,
-                  enabled: !_isLoading,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                  ),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 2,
-                      ),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.1),
-                        width: 1,
-                      ),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  "Description (optional)",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                TextField(
-                  controller: descriptionController,
-                  enabled: !_isLoading,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                  ),
-                  maxLines: 2,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 2,
-                      ),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.1),
-                        width: 1,
-                      ),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () {
-                                Navigator.of(context).pop();
-                              },
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: Color(0xFF353442),
-                          side: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 1,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          minimumSize: Size(0, 42.h),
-                        ),
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: Container(
-                        height: 42.h,
-                        decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                          borderRadius: BorderRadius.circular(8.r),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.gradientStart.withOpacity(0.4),
-                              blurRadius: 14,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleEditLink,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                          ),
-                          child: _isLoading
-                              ? SizedBox(
-                                  width: 20.w,
-                                  height: 20.h,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
-                                  ),
-                                )
-                              : Text(
-                                  "Save Changes",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20.h),
-              ],
+                textInputAction: TextInputAction.next,
+                decoration: _field('Title'),
+              ),
             ),
-          ),
+
+            const SizedBox(height: kSheetSectionSpacing),
+
+            // ── URL ────────────────────────────────────────────────────
+            const SheetSectionLabel('URL'),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: kSheetFieldHeight,
+              child: TextField(
+                controller: urlController,
+                enabled: !_isLoading,
+                style: const TextStyle(
+                  color: kTextPrimary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),
+                keyboardType: TextInputType.url,
+                autocorrect: false,
+                textInputAction: TextInputAction.next,
+                decoration: _field('URL'),
+              ),
+            ),
+
+            const SizedBox(height: kSheetSectionSpacing),
+
+            // ── Description ───────────────────────────────────────────
+            const SheetSectionLabel('DESCRIPTION'),
+            const SizedBox(height: 8),
+            TextField(
+              controller: descriptionController,
+              enabled: !_isLoading,
+              style: const TextStyle(
+                color: kTextPrimary,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+                height: 1.45,
+              ),
+              maxLines: 3,
+              textInputAction: TextInputAction.done,
+              decoration: _field('Description (optional)').copyWith(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: kSheetSectionSpacing),
+          ],
+        ),
+      ),
+      footer: SheetFooter(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SheetPrimaryButton(
+              label: 'Save Changes',
+              onTap: _handleEditLink,
+              isLoading: _isLoading,
+            ),
+            const SizedBox(height: 10),
+            SheetSecondaryButton(
+              label: 'Cancel',
+              onTap: () => Navigator.of(context).pop(),
+            ),
+          ],
         ),
       ),
     );

@@ -220,6 +220,23 @@ class LinksService {
     }
   }
 
+  Future<void> restoreLinkItem(LinkItem link) async {
+    try {
+      final batch = _firestore.batch();
+
+      final linkRef = _getLinkItemsCollection(link.categoryId).doc(link.id);
+      batch.set(linkRef, link.toMap());
+
+      batch.update(_getCategoryCollection().doc(link.categoryId), {
+        'linkCount': FieldValue.increment(1),
+      });
+
+      await batch.commit();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> updateLinkItem(
     String categoryId,
     String linkId, {
