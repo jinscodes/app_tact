@@ -43,7 +43,7 @@ class LinkItemCard extends StatelessWidget {
         boxShadow: const [
           BoxShadow(
             color: AppColors.cardShadow,
-            blurRadius: 20,
+            blurRadius: 16,
             offset: Offset(0, 4),
           ),
         ],

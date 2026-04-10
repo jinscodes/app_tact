@@ -41,12 +41,14 @@ class AppColors {
   static const Color purpleBorder = Color(0x4D6C5CE7); // 30 % opacity
 
   // ── Card surface tokens ───────────────────────────────────────────────────
-  /// Card background — rgba(255,255,255, ~7 %) frosted glass
-  static const Color cardSurface = Color(0x12FFFFFF);
+  /// Card background — rgba(255,255,255, ~11 %) increased contrast
+  static const Color cardSurface = Color(0x1CFFFFFF);
+
   /// Card border — rgba(162,155,254, 15 %) soft lavender stroke
   static const Color cardBorder = Color(0x26A29BFE);
-  /// Card outer glow colour for BoxShadow — rgba(108,92,231, 15 %)
-  static const Color cardShadow = Color(0x266C5CE7);
+
+  /// Card shadow — rgba(0,0,0, 30 %) neutral depth
+  static const Color cardShadow = Color(0x4D000000);
 
   // Background / gradient base colors
   static const Color gradientDarkBlue =

@@ -1,14 +1,14 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unused_field, unused_element
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/common/section_title.dart';
-import 'package:app_tact/widgets/profile_subscription_section.dart';
 import 'package:app_tact/services/subscription_service.dart';
 import 'package:app_tact/widgets/profile_action_button.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:app_tact/widgets/profile_subscription_section.dart';
 import 'package:app_tact/widgets/tact_paywall_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});

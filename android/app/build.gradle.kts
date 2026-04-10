@@ -6,8 +6,6 @@ val keystorePropertiesFile = file("key.properties")
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) {
         load(FileInputStream(keystorePropertiesFile))
-    } else {
-        throw GradleException("key.properties file not found: $keystorePropertiesFile")
     }
 }
 
@@ -33,17 +31,22 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = requireNotNull(keystoreProperties["keyAlias"]?.toString()) { "keyAlias is missing in key.properties" }
-            keyPassword = requireNotNull(keystoreProperties["keyPassword"]?.toString()) { "keyPassword is missing in key.properties" }
-            storePassword = requireNotNull(keystoreProperties["storePassword"]?.toString()) { "storePassword is missing in key.properties" }
-            storeFile = file(requireNotNull(keystoreProperties["storeFile"]?.toString()) { "storeFile is missing in key.properties" })
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = requireNotNull(keystoreProperties["keyAlias"]?.toString()) { "keyAlias is missing in key.properties" }
+                keyPassword = requireNotNull(keystoreProperties["keyPassword"]?.toString()) { "keyPassword is missing in key.properties" }
+                storePassword = requireNotNull(keystoreProperties["storePassword"]?.toString()) { "storePassword is missing in key.properties" }
+                storeFile = file(requireNotNull(keystoreProperties["storeFile"]?.toString()) { "storeFile is missing in key.properties" })
+            }
         }
     }
 
     buildTypes {
         getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (keystorePropertiesFile.exists())
+                signingConfigs.getByName("release")
+            else
+                signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
