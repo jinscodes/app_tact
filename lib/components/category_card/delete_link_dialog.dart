@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:app_tact/components/sheet_theme.dart';
 import 'package:flutter/material.dart';
 
 class DeleteLinkDialog {
@@ -6,37 +9,68 @@ class DeleteLinkDialog {
     required String linkTitle,
     required VoidCallback onConfirm,
   }) {
-    showDialog(
+    showAppSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF2E2939),
-        title: Text(
-          'Delete Link',
-          style: TextStyle(color: Colors.white),
+      child: _DeleteLinkSheet(
+        linkTitle: linkTitle,
+        onConfirm: onConfirm,
+      ),
+    );
+  }
+}
+
+class _DeleteLinkSheet extends StatelessWidget {
+  const _DeleteLinkSheet({
+    required this.linkTitle,
+    required this.onConfirm,
+  });
+
+  final String linkTitle;
+  final VoidCallback onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSheetScaffold(
+      title: 'Delete Link',
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          kSheetHPad,
+          kSheetSectionSpacing,
+          kSheetHPad,
+          kSheetSectionSpacing,
         ),
-        content: Text(
-          'Are you sure you want to delete "$linkTitle"?',
-          style: TextStyle(color: Colors.grey[400]),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey[400]),
+        child: Center(
+          child: Text(
+            'Delete "$linkTitle"?',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: kTextPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              height: 1.4,
             ),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              onConfirm();
-            },
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Colors.red[400]),
+        ),
+      ),
+      footer: SheetFooter(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SheetSecondaryButton(
+              label: 'Delete',
+              isDestructive: true,
+              onTap: () {
+                Navigator.pop(context);
+                onConfirm();
+              },
             ),
-          ),
-        ],
+            const SizedBox(height: 10),
+            SheetSecondaryButton(
+              label: 'Cancel',
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       ),
     );
   }

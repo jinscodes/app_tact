@@ -1,9 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:app_tact/components/sheet_theme.dart';
 import 'package:app_tact/services/links_service.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddCategoryDialog extends StatefulWidget {
   final Function(String categoryName) onCategoryAdded;
@@ -20,14 +20,11 @@ class AddCategoryDialog extends StatefulWidget {
     BuildContext context, {
     required Function(String categoryName) onCategoryAdded,
   }) {
-    return showDialog(
+    return showAppSheet(
       context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AddCategoryDialog(
-          onCategoryAdded: onCategoryAdded,
-        );
-      },
+      child: AddCategoryDialog(
+        onCategoryAdded: onCategoryAdded,
+      ),
     );
   }
 }
@@ -59,174 +56,56 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: 360.w,
-        height: 250.h,
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 41, 41, 59),
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(
-            color: Color(0xFF585967),
-            width: 2,
-          ),
+    return AppSheetScaffold(
+      title: 'New Category',
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(
+          kSheetHPad,
+          kSheetSectionSpacing,
+          kSheetHPad,
+          kSheetSectionSpacing,
         ),
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 10.h),
-              Center(
-                child: Text(
-                  "Add New Category",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SizedBox(height: 30.h),
-              Text(
-                "Category Name",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              TextField(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SheetSectionLabel('CATEGORY NAME'),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: kSheetFieldHeight,
+              child: TextField(
                 controller: _categoryController,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.sp,
+                autofocus: true,
+                style: const TextStyle(
+                  color: kTextPrimary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
                 ),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white.withOpacity(0.1),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                    borderSide: BorderSide(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                    borderSide: BorderSide(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                    borderSide: BorderSide(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 2,
-                    ),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 12.h,
-                  ),
-                ),
+                decoration:
+                    sheetInputDecoration(placeholder: 'e.g. Work, Personal…'),
               ),
-              SizedBox(height: 16.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Color(0xFF353442),
-                        side: BorderSide(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        minimumSize: Size(0, 42.h),
-                      ),
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Container(
-                      height: 42.h,
-                      decoration: BoxDecoration(
-                        gradient: _isInputEmpty || _isLoading
-                            ? LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [
-                                  Colors.grey.withOpacity(0.5),
-                                  Colors.grey.withOpacity(0.5),
-                                ],
-                              )
-                            : LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [
-                                  Color(0xFFB93CFF),
-                                  Color(0xFF4F46E5),
-                                ],
-                              ),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(8.r),
-                          onTap: _isInputEmpty || _isLoading
-                              ? null
-                              : () async {
-                                  await _handleAddCategory();
-                                },
-                          child: Center(
-                            child: _isLoading
-                                ? SizedBox(
-                                    width: 20.w,
-                                    height: 20.h,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                : Text(
-                                    "Add",
-                                    style: TextStyle(
-                                      color: _isInputEmpty
-                                          ? Colors.grey[600]
-                                          : Colors.white,
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: kSheetSectionSpacing),
+          ],
+        ),
+      ),
+      footer: SheetFooter(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SheetPrimaryButton(
+              label: 'Add Category',
+              onTap: _handleAddCategory,
+              isLoading: _isLoading,
+              enabled: !_isInputEmpty,
+            ),
+            const SizedBox(height: 10),
+            SheetSecondaryButton(
+              label: 'Cancel',
+              onTap: () => Navigator.of(context).pop(),
+            ),
+          ],
         ),
       ),
     );

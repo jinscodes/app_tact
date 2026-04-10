@@ -1,7 +1,7 @@
+import 'package:app_tact/components/sheet_theme.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DeleteCategoryDialog extends StatefulWidget {
   final Category category;
@@ -27,9 +27,9 @@ class DeleteCategoryDialog extends StatefulWidget {
     required VoidCallback onSuccess,
     required Function(String) onError,
   }) {
-    showDialog(
+    showAppSheet(
       context: context,
-      builder: (context) => DeleteCategoryDialog(
+      child: DeleteCategoryDialog(
         category: category,
         linksService: linksService,
         onSuccess: onSuccess,
@@ -44,54 +44,106 @@ class _DeleteCategoryDialogState extends State<DeleteCategoryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Color(0xFF2E2939),
-      title: Text(
-        'Delete Category',
-        style: TextStyle(color: Colors.white),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Are you sure you want to delete "${widget.category.name}"?',
-            style: TextStyle(color: Colors.white),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'This will also delete all ${widget.category.linkCount} links in this category.',
-            style: TextStyle(color: Colors.red[300], fontSize: 12.sp),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'This action cannot be undone.',
-            style: TextStyle(color: Colors.grey[400], fontSize: 12.sp),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: _isLoading ? null : () => Navigator.pop(context),
-          child: Text('Cancel', style: TextStyle(color: Colors.grey[400])),
+    return AppSheetScaffold(
+      title: 'Delete Category',
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(
+          kSheetHPad,
+          kSheetSectionSpacing,
+          kSheetHPad,
+          kSheetSectionSpacing,
         ),
-        ElevatedButton(
-          onPressed: _isLoading ? null : _handleDelete,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red[600],
-          ),
-          child: _isLoading
-              ? SizedBox(
-                  width: 20.w,
-                  height: 20.h,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Warning icon
+            Center(
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF7A3030).withOpacity(0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFF7A3030),
+                    width: 1,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Color(0xFFFF6B6B),
+                  size: 26,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Primary message
+            Center(
+              child: Text(
+                'Delete \"${widget.category.name}\"?',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: kTextPrimary,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Body text
+            Center(
+              child: Text(
+                'This will permanently delete all ${widget.category.linkCount} '
+                'link${widget.category.linkCount == 1 ? '' : 's'} in this '
+                'category. This action cannot be undone.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: kTextSecondary,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: kSheetSectionSpacing),
+          ],
+        ),
+      ),
+      footer: SheetFooter(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SheetSecondaryButton(
+              label: 'Delete Category',
+              isDestructive: true,
+              onTap: _isLoading ? null : _handleDelete,
+            ),
+            if (_isLoading) ...[
+              const SizedBox(height: 12),
+              const Center(
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFFFF6B6B)),
                   ),
-                )
-              : Text('Delete'),
+                ),
+              ),
+            ],
+            const SizedBox(height: 10),
+            SheetSecondaryButton(
+              label: 'Cancel',
+              onTap: _isLoading ? null : () => Navigator.pop(context),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
