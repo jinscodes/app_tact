@@ -187,7 +187,7 @@ class _CategoryCardState extends State<CategoryCard> {
         boxShadow: const [
           BoxShadow(
             color: AppColors.cardShadow,
-            blurRadius: 20,
+            blurRadius: 16,
             offset: Offset(0, 4),
           ),
         ],

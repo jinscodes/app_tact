@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print
 
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
@@ -359,151 +360,201 @@ class _ProfilesState extends State<Profiles> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(20.w),
           child: Column(
             children: [
-              SizedBox(height: 20.h),
-              Stack(
-                children: [
-                  InkWell(
-                    onTap: _pickAndUploadImage,
-                    borderRadius: BorderRadius.circular(60.r),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF7B68EE),
-                            Color(0xFF9B59B6),
+              // ─── Header section ────────────────────────────────────
+              Padding(
+                padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 20.h),
+                child: Column(
+                  children: [
+                    SizedBox(height: 20.h),
+                    Stack(
+                      children: [
+                        InkWell(
+                          onTap: _pickAndUploadImage,
+                          borderRadius: BorderRadius.circular(60.r),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF7B68EE),
+                                  Color(0xFF9B59B6),
+                                ],
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 60.r,
+                              backgroundColor: Colors.transparent,
+                              child: _profileData?['profileImageUrl'] != null
+                                  ? ClipOval(
+                                      child: Stack(
+                                        fit: StackFit.passthrough,
+                                        children: [
+                                          ImageFiltered(
+                                            imageFilter: ImageFilter.blur(
+                                                sigmaX: 2.5, sigmaY: 2.5),
+                                            child: CachedNetworkImage(
+                                              imageUrl: _profileData![
+                                                  'profileImageUrl'],
+                                              width: 120.r,
+                                              height: 120.r,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  Icon(
+                                                Icons.person,
+                                                size: 60.sp,
+                                                color: Colors.white,
+                                              ),
+                                              errorWidget:
+                                                  (context, url, error) => Icon(
+                                                Icons.person,
+                                                size: 60.sp,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          const Positioned.fill(
+                                            child: ColoredBox(
+                                                color: Color(0x80000000)),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.person,
+                                      size: 60.sp,
+                                      color: Colors.white,
+                                    ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: InkWell(
+                            onTap: _pickAndUploadImage,
+                            borderRadius: BorderRadius.circular(20.r),
+                            child: Container(
+                              padding: EdgeInsets.all(8.w),
+                              decoration: BoxDecoration(
+                                color: Color(0xFF7B68EE),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Color(0xFF2E2939),
+                                  width: 3,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 16.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+                    InkWell(
+                      onTap: () {
+                        _showEditNameDialog();
+                      },
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.w, vertical: 8.h),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _profileData?['name'] ??
+                                  _user?.displayName ??
+                                  'User',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 8.w),
+                            Icon(
+                              Icons.edit,
+                              color: Color(0xFF7B68EE),
+                              size: 18.sp,
+                            ),
                           ],
                         ),
                       ),
-                      child: CircleAvatar(
-                        radius: 60.r,
-                        backgroundColor: Colors.transparent,
-                        child: _profileData?['profileImageUrl'] != null
-                            ? ClipOval(
-                                child: CachedNetworkImage(
-                                  imageUrl: _profileData!['profileImageUrl'],
-                                  width: 120.r,
-                                  height: 120.r,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Icon(
-                                    Icons.person,
-                                    size: 60.sp,
-                                    color: Colors.white,
-                                  ),
-                                  errorWidget: (context, url, error) => Icon(
-                                    Icons.person,
-                                    size: 60.sp,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
-                            : Icon(
-                                Icons.person,
-                                size: 60.sp,
-                                color: Colors.white,
-                              ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      _profileData?['email'] ?? _user?.email ?? '',
+                      style: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 15.sp,
                       ),
                     ),
+                  ],
+                ),
+              ),
+
+              // ─── Content card ─────────────────────────────────────
+              Container(
+                  width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF17192B),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(24.r)),
+                  border: Border(
+                    top: BorderSide(
+                        color: const Color(0xFF3A3F66), width: 1),
+                    left: BorderSide(
+                        color: const Color(0xFF3A3F66), width: 1),
+                    right: BorderSide(
+                        color: const Color(0xFF3A3F66), width: 1),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: InkWell(
-                      onTap: _pickAndUploadImage,
-                      borderRadius: BorderRadius.circular(20.r),
-                      child: Container(
-                        padding: EdgeInsets.all(8.w),
-                        decoration: BoxDecoration(
-                          color: Color(0xFF7B68EE),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Color(0xFF2E2939),
-                            width: 3,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 16.sp,
-                        ),
-                      ),
+                ),
+                padding: EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 40.h),
+                child: Column(
+                  children: [
+                    buildInfoCard(
+                      icon: Icons.email_outlined,
+                      title: 'Email',
+                      value: _profileData?['email'] ??
+                          _user?.email ??
+                          'Not provided',
+                      verified: _user?.emailVerified ?? false,
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20.h),
-              InkWell(
-                onTap: () {
-                  _showEditNameDialog();
-                },
-                borderRadius: BorderRadius.circular(8.r),
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _profileData?['name'] ?? _user?.displayName ?? 'User',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Icon(
-                        Icons.edit,
-                        color: Color(0xFF7B68EE),
-                        size: 18.sp,
-                      ),
-                    ],
-                  ),
+                    buildInfoCard(
+                      icon: Icons.calendar_today,
+                      title: 'Member Since',
+                      value: AppDateUtils.DateUtils.formatSimpleDate(
+                          _profileData?['memberSince']),
+                    ),
+                    buildInfoCard(
+                      icon: Icons.fingerprint,
+                      title: 'User ID',
+                      value:
+                          _profileData?['userId'] ?? _user?.uid ?? 'N/A',
+                    ),
+                    buildSubscriptionSection(_profileData),
+                    SizedBox(height: 30.h),
+                    buildActionButton(
+                      icon: Icons.logout,
+                      label: 'Logout',
+                      isDestructive: true,
+                      onPressed: () async {
+                        await _authService.signOut();
+                        if (mounted) {
+                          Navigator.pushReplacementNamed(context, '/login');
+                        }
+                      },
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                _profileData?['email'] ?? _user?.email ?? '',
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 15.sp,
-                ),
-              ),
-              SizedBox(height: 40.h),
-              buildInfoCard(
-                icon: Icons.email_outlined,
-                title: 'Email',
-                value: _profileData?['email'] ?? _user?.email ?? 'Not provided',
-                verified: _user?.emailVerified ?? false,
-              ),
-              buildInfoCard(
-                icon: Icons.calendar_today,
-                title: 'Member Since',
-                value: AppDateUtils.DateUtils.formatSimpleDate(
-                    _profileData?['memberSince']),
-              ),
-              buildInfoCard(
-                icon: Icons.fingerprint,
-                title: 'User ID',
-                value: _profileData?['userId'] ?? _user?.uid ?? 'N/A',
-              ),
-              buildSubscriptionSection(_profileData),
-              SizedBox(height: 30.h),
-              buildActionButton(
-                icon: Icons.logout,
-                label: 'Logout',
-                isDestructive: true,
-                onPressed: () async {
-                  await _authService.signOut();
-                  if (mounted) {
-                    Navigator.pushReplacementNamed(context, '/login');
-                  }
-                },
               ),
             ],
           ),

@@ -271,16 +271,16 @@ class _AddFabState extends State<_AddFab> with SingleTickerProviderStateMixin {
             height: 52,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE)],
+                colors: [Color(0xFF7B6CF7), Color(0xFFA89EFF)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Color(0x407C6BFF),
-                  blurRadius: 12,
-                  offset: Offset(0, 4),
+                  color: Color(0x597C6BFF),
+                  blurRadius: 16,
+                  offset: Offset(0, 6),
                 ),
               ],
             ),

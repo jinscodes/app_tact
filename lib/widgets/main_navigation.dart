@@ -321,8 +321,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             selectedIndex: _selectedIndex,
             onTap: _onItemTapped,
           ),
-      ),
-      ],  // Stack children
+        ),
+      ], // Stack children
     );
   }
 }
@@ -345,9 +345,8 @@ class _GlassTabBar extends StatelessWidget {
   ];
 
   static const _activeColor = Color(0xFF7C6BFF);
-  static const _inactiveColor = Color(0xFF888888);
-  static const _activeBg = Color(0x266C5CE7);   // ~15 % violet pill
-  static const _activeGlow = Color(0x556C5CE7); // glow shadow
+  static const _inactiveColor = Color(0xFFA0A0A0);
+  static const _activeBg = Color(0x1F7C6BFF); // ~12 % violet pill
 
   @override
   Widget build(BuildContext context) {
@@ -356,21 +355,21 @@ class _GlassTabBar extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           decoration: const BoxDecoration(
-            // dark translucent purple — rgba(16,6,38, 0.88)
-            color: Color(0xE01C0E3A),
+            // neutral dark translucent — rgba(39,39,39, 0.58)
+            color: Color(0x94272727),
             border: Border(
               top: BorderSide(
-                color: Color(0x26A29BFE), // rgba(162,155,254, 0.15)
+                color: Color(0x1AA29BFE), // rgba(162,155,254, 0.10)
                 width: 1,
               ),
             ),
           ),
           padding: EdgeInsets.only(
             top: 10,
-            bottom: bottomPadding > 0 ? bottomPadding : 14,
+            bottom: bottomPadding > 0 ? bottomPadding + 2 : 16,
           ),
           child: Row(
             children: [
@@ -383,7 +382,6 @@ class _GlassTabBar extends StatelessWidget {
                   activeColor: _activeColor,
                   inactiveColor: _inactiveColor,
                   activeBg: _activeBg,
-                  activeGlow: _activeGlow,
                 ),
             ],
           ),
@@ -401,7 +399,6 @@ class _TabItem extends StatelessWidget {
   final Color activeColor;
   final Color inactiveColor;
   final Color activeBg;
-  final Color activeGlow;
 
   const _TabItem({
     required this.icon,
@@ -411,7 +408,6 @@ class _TabItem extends StatelessWidget {
     required this.activeColor,
     required this.inactiveColor,
     required this.activeBg,
-    required this.activeGlow,
   });
 
   @override
@@ -425,35 +421,32 @@ class _TabItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon with optional glow pill
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-              decoration: BoxDecoration(
-                color: selected ? activeBg : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: selected
-                    ? [
-                        BoxShadow(
-                          color: activeGlow,
-                          blurRadius: 12,
-                          spreadRadius: 0,
-                        ),
-                      ]
-                    : null,
+            AnimatedScale(
+              scale: selected ? 1.1 : 1.0,
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutBack,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                decoration: BoxDecoration(
+                  color: selected ? activeBg : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(icon, color: color, size: 22),
               ),
-              child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(height: 4),
             // Label
-            Text(
-              label,
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
               style: TextStyle(
                 color: color,
                 fontSize: 11,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                 letterSpacing: 0.2,
               ),
+              child: Text(label),
             ),
           ],
         ),
