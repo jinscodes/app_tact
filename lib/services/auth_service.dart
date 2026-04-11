@@ -158,6 +158,25 @@ class AuthService {
     }
   }
 
+  /// Returns the list of sign-in provider IDs already registered for [email].
+  /// Possible values: 'password', 'google.com', 'apple.com', 'github.com'.
+  /// Returns an empty list if the email is not registered at all.
+  // ignore: deprecated_member_use
+  Future<List<String>> fetchProvidersForEmail(String email) async {
+    try {
+      // ignore: deprecated_member_use
+      final methods = await _auth.fetchSignInMethodsForEmail(email);
+      print('auth_service: providers for $email → $methods');
+      return methods;
+    } on FirebaseAuthException catch (e) {
+      print('auth_service: fetchProvidersForEmail error: ${e.code}');
+      return [];
+    } catch (e) {
+      print('auth_service: fetchProvidersForEmail unexpected error: $e');
+      return [];
+    }
+  }
+
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
@@ -170,12 +189,33 @@ class AuthService {
   Future<void> sendEmailVerification() async {
     try {
       User? user = _auth.currentUser;
-      if (user != null && !user.emailVerified) {
-        await user.sendEmailVerification();
-        print('auth_service: email verification sent to ${user.email}');
+      if (user == null) {
+        print('auth_service: sendEmailVerification — no current user');
+        return;
       }
+      if (user.emailVerified) {
+        print('auth_service: sendEmailVerification skipped — already verified');
+        return;
+      }
+
+      // ActionCodeSettings improves deliverability:
+      //   • continueUrl  → the "Continue" button destination after verification
+      //   • handleCodeInApp: false → link opens in browser (simpler & more reliable
+      //     than deep linking; no extra Universal Links / App Links setup needed)
+      //   • bundle / package IDs → Firebase can attach app-open hints in the email
+      final settings = ActionCodeSettings(
+        url: 'https://apptact-a4f0c.firebaseapp.com',
+        handleCodeInApp: false,
+        iOSBundleId: 'com.jay.app_tact',
+        androidPackageName: 'com.jay.app_tact',
+        androidInstallApp: false,
+      );
+
+      await user.sendEmailVerification(settings);
+      print('auth_service: ✅ Verification email sent to ${user.email}');
     } on FirebaseAuthException catch (e) {
-      print('auth_service: Email verification error: ${e.message}');
+      print(
+          'auth_service: ❌ Verification email error: ${e.code} — ${e.message}');
       rethrow;
     }
   }
@@ -183,6 +223,23 @@ class AuthService {
   bool get isEmailVerified {
     User? user = _auth.currentUser;
     return user?.emailVerified ?? false;
+  }
+
+  /// Reloads the Firebase user from the server and returns the fresh
+  /// [emailVerified] value. Use this for the verification-check button
+  /// and auto-poll so stale cached state is never used.
+  Future<bool> reloadAndCheckVerification() async {
+    try {
+      await _auth.currentUser?.reload();
+      final fresh = _auth.currentUser;
+      final verified = fresh?.emailVerified ?? false;
+      print(
+          'auth_service: reloadAndCheckVerification → verified=$verified (${fresh?.email})');
+      return verified;
+    } catch (e) {
+      print('auth_service: reloadAndCheckVerification error: $e');
+      rethrow;
+    }
   }
 
   Future<void> reloadUser() async {
