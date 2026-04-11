@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   cupertino_icons: ^1.0.8
   flutter_screenutil: ^5.9.3
   firebase_core: ^3.6.0
@@ -24,6 +26,7 @@ dependencies:
   cached_network_image: ^3.4.1
   purchases_flutter: ^9.10.3
   purchases_ui_flutter: any
+  shared_preferences: ^2.2.3
 
 flutter_launcher_icons:
   android: "launcher_icon"

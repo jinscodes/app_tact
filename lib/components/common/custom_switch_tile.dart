@@ -1,8 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:app_tact/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+const _kAccent = Color(0xFF7C6BFF);
+const _kSurface = Color(0xFF1A1A1A);
+const _kBorder = Color(0x1FFFFFFF);
 
 class CustomSwitchTile extends StatelessWidget {
   final IconData icon;
@@ -23,57 +26,59 @@ class CustomSwitchTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
+      margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
+        color: _kSurface,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: _kBorder, width: 1),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
+        child: Row(
+          children: [
+            Container(
+              width: 36.r,
+              height: 36.r,
+              decoration: BoxDecoration(
+                color: _kAccent.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Center(child: Icon(icon, color: _kAccent, size: 18.sp)),
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: const Color(0xFF8A8A8E),
+                      fontSize: 13.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              activeTrackColor: _kAccent,
+              inactiveTrackColor: const Color(0xFF2C2C2E),
+              thumbColor: WidgetStateProperty.all(Colors.white),
+              trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: SwitchListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 8.h,
-        ),
-        secondary: Container(
-          padding: EdgeInsets.all(10.w),
-          decoration: BoxDecoration(
-            color: AppColors.accentPurple.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Icon(
-            icon,
-            color: AppColors.accentPurple,
-            size: 24.sp,
-          ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: AppColors.textMedium,
-            fontSize: 13.sp,
-          ),
-        ),
-        value: value,
-        onChanged: onChanged,
-        activeColor: AppColors.accentPurple,
       ),
     );
   }

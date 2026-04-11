@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
 import 'package:app_tact/utils/message_utils.dart';
@@ -51,6 +52,7 @@ class _ProfilesState extends State<Profiles> {
   }
 
   Future<void> _pickAndUploadImage() async {
+    final l = AppLocalizations.of(context);
     try {
       if (mounted) {
         showDialog(
@@ -65,7 +67,7 @@ class _ProfilesState extends State<Profiles> {
                 ),
                 SizedBox(height: 16.h),
                 Text(
-                  'Opening gallery...',
+                  l.profileOpeningGallery,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -98,7 +100,7 @@ class _ProfilesState extends State<Profiles> {
         if (mounted) {
           MessageUtils.showErrorMessage(
             context,
-            'Image is too large. Please choose a photo under 2 MB.',
+            l.profileImageTooLarge,
           );
         }
         return;
@@ -117,7 +119,7 @@ class _ProfilesState extends State<Profiles> {
                 ),
                 SizedBox(height: 16.h),
                 Text(
-                  'Uploading image...',
+                  l.profileUploadingImage,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -151,7 +153,7 @@ class _ProfilesState extends State<Profiles> {
         Navigator.pop(context);
         MessageUtils.showSuccessMessage(
           context,
-          'Profile image updated successfully',
+          l.profileImageUpdated,
         );
       }
     } catch (e) {
@@ -160,14 +162,13 @@ class _ProfilesState extends State<Profiles> {
           Navigator.of(context, rootNavigator: true).pop();
         } catch (_) {}
 
-        String errorMessage = 'Failed to upload image';
+        String errorMessage = l.profileFailedUpload;
         if (e.toString().contains('storage')) {
-          errorMessage =
-              'Storage error. Please ensure Firebase Storage is enabled.';
+          errorMessage = l.profileStorageError;
         } else if (e.toString().contains('permission')) {
-          errorMessage = 'Permission denied. Please check storage rules.';
+          errorMessage = l.profilePermissionError;
         } else if (e.toString().contains('network')) {
-          errorMessage = 'Network error. Please check your connection.';
+          errorMessage = l.profileNetworkError;
         }
 
         MessageUtils.showErrorMessage(
@@ -179,6 +180,7 @@ class _ProfilesState extends State<Profiles> {
   }
 
   void _showEditNameDialog() {
+    final l = AppLocalizations.of(context);
     final nameController = TextEditingController(
       text: _profileData?['name'] ?? _user?.displayName ?? '',
     );
@@ -202,7 +204,7 @@ class _ProfilesState extends State<Profiles> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Edit Name',
+                l.profileEditName,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20.sp,
@@ -219,7 +221,7 @@ class _ProfilesState extends State<Profiles> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white.withOpacity(0.1),
-                  hintText: 'Enter your name',
+                  hintText: l.profileEnterNameHint,
                   hintStyle: TextStyle(
                     color: Colors.grey[500],
                   ),
@@ -264,7 +266,7 @@ class _ProfilesState extends State<Profiles> {
                         minimumSize: Size(0, 48.h),
                       ),
                       child: Text(
-                        'Cancel',
+                        l.profileCancel,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16.sp,
@@ -316,7 +318,7 @@ class _ProfilesState extends State<Profiles> {
                           },
                           child: Center(
                             child: Text(
-                              'Save',
+                              l.profileSave,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16.sp,
@@ -341,6 +343,7 @@ class _ProfilesState extends State<Profiles> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -356,15 +359,15 @@ class _ProfilesState extends State<Profiles> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _sectionLabel('Account'),
+                    _sectionLabel(l.profileSectionAccount),
                     SizedBox(height: 10.h),
                     _buildAccountGroup(),
                     SizedBox(height: 28.h),
-                    _sectionLabel('Subscription'),
+                    _sectionLabel(l.profileSectionSubscription),
                     SizedBox(height: 10.h),
                     _buildSubscriptionGroup(),
                     SizedBox(height: 28.h),
-                    _sectionLabel('Support'),
+                    _sectionLabel(l.profileSectionSupport),
                     SizedBox(height: 10.h),
                     _buildSupportGroup(),
                     SizedBox(height: 32.h),
@@ -516,12 +519,13 @@ class _ProfilesState extends State<Profiles> {
   // ─── Account section ─────────────────────────────────────────────────────────
 
   Widget _buildAccountGroup() {
+    final l = AppLocalizations.of(context);
     return _ProfileGroup(
       children: [
         _ProfileRow(
           icon: Icons.email_outlined,
           iconColor: const Color(0xFF5E9BFF),
-          label: 'Email',
+          label: l.profileRowEmail,
           value: _profileData?['email'] ?? _user?.email ?? '—',
           trailing: (_user?.emailVerified ?? false)
               ? Icon(Icons.verified_rounded,
@@ -531,20 +535,20 @@ class _ProfilesState extends State<Profiles> {
         _ProfileRow(
           icon: Icons.calendar_today_outlined,
           iconColor: const Color(0xFF34C759),
-          label: 'Member Since',
+          label: l.profileRowMemberSince,
           value: AppDateUtils.DateUtils.formatSimpleDate(
               _profileData?['memberSince']),
         ),
         _ProfileRow(
           icon: Icons.fingerprint_rounded,
           iconColor: const Color(0xFFFF9F0A),
-          label: 'User ID',
+          label: l.profileRowUserId,
           value: _profileData?['userId'] ?? _user?.uid ?? '—',
           onTap: () {
             final uid = _profileData?['userId'] ?? _user?.uid ?? '';
             if (uid.isNotEmpty) {
               Clipboard.setData(ClipboardData(text: uid));
-              MessageUtils.showSuccessMessage(context, 'User ID copied');
+              MessageUtils.showSuccessMessage(context, l.profileUserIdCopied);
             }
           },
           trailing: Icon(Icons.copy_rounded,
@@ -557,6 +561,7 @@ class _ProfilesState extends State<Profiles> {
   // ─── Subscription section ────────────────────────────────────────────────────
 
   Widget _buildSubscriptionGroup() {
+    final l = AppLocalizations.of(context);
     final plan =
         (_profileData?['subscriptionPlan'] as String?)?.trim() ?? 'Free';
     final status =
@@ -578,7 +583,7 @@ class _ProfilesState extends State<Profiles> {
         _ProfileRow(
           icon: Icons.workspace_premium_rounded,
           iconColor: const Color(0xFFAA8AFF),
-          label: 'Plan',
+          label: l.profileRowPlan,
           value: plan,
           trailing: isActive
               ? Container(
@@ -591,7 +596,7 @@ class _ProfilesState extends State<Profiles> {
                         width: 1),
                   ),
                   child: Text(
-                    'Active',
+                    l.profileSubActive,
                     style: TextStyle(
                         color: const Color(0xFF34C759),
                         fontSize: 11.sp,
@@ -603,7 +608,7 @@ class _ProfilesState extends State<Profiles> {
         _ProfileRow(
           icon: Icons.autorenew_rounded,
           iconColor: const Color(0xFF5E9BFF),
-          label: 'Renews',
+          label: l.subRenews,
           value: renewal,
         ),
       ],
@@ -613,23 +618,24 @@ class _ProfilesState extends State<Profiles> {
   // ─── Support section ─────────────────────────────────────────────────────────
 
   Widget _buildSupportGroup() {
+    final l = AppLocalizations.of(context);
     return _ProfileGroup(
       children: [
         _ProfileRow(
           icon: Icons.help_outline_rounded,
           iconColor: const Color(0xFF5E9BFF),
-          label: 'Get help',
-          value: 'Help & Support',
-          onTap: () => MessageUtils.showSuccessMessage(context, 'Coming soon'),
+          label: l.profileRowGetHelp,
+          value: l.rowHelpSupport,
+          onTap: () => MessageUtils.showSuccessMessage(context, l.profileComingSoon),
           trailing: Icon(Icons.chevron_right_rounded,
               size: 18.sp, color: Colors.white.withOpacity(0.25)),
         ),
         _ProfileRow(
           icon: Icons.info_outline_rounded,
           iconColor: const Color(0xFFAA8AFF),
-          label: 'Version 1.0.0',
-          value: 'About',
-          onTap: () => MessageUtils.showSuccessMessage(context, 'Coming soon'),
+          label: l.rowVersionLabel,
+          value: l.rowAbout,
+          onTap: () => MessageUtils.showSuccessMessage(context, l.profileComingSoon),
           trailing: Icon(Icons.chevron_right_rounded,
               size: 18.sp, color: Colors.white.withOpacity(0.25)),
         ),
@@ -840,7 +846,7 @@ class _LogoutButtonState extends State<_LogoutButton> {
                   color: const Color(0xFFFF453A).withOpacity(0.85)),
               SizedBox(width: 8.w),
               Text(
-                'Log Out',
+                AppLocalizations.of(context).profileLogOut,
                 style: TextStyle(
                   color: const Color(0xFFFF453A).withOpacity(0.85),
                   fontSize: 16.sp,

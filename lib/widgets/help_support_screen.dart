@@ -4,6 +4,7 @@ import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/common/custom_list_tile.dart';
 import 'package:app_tact/components/common/faq_item.dart';
 import 'package:app_tact/components/common/section_title.dart';
+import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,23 +38,23 @@ class HelpSupportScreen extends StatelessWidget {
             child: Container(
               width: 360.w,
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 41, 41, 59),
-                borderRadius: BorderRadius.circular(8.r),
+                color: const Color(0xFF1A1A1A),
+                borderRadius: BorderRadius.circular(18.r),
                 border: Border.all(
-                  color: Color(0xFF585967),
-                  width: 2,
+                  color: const Color(0x1FFFFFFF),
+                  width: 1,
                 ),
               ),
               child: Padding(
-                padding: EdgeInsets.all(16.w),
+                padding: EdgeInsets.all(20.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 4.h),
                     Center(
                       child: Text(
-                        'Report a Bug',
+                        AppLocalizations.of(context).helpBugDialogTitle,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.sp,
@@ -61,13 +62,14 @@ class HelpSupportScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 30.h),
+                    SizedBox(height: 20.h),
                     Text(
-                      'Bug Title',
+                      AppLocalizations.of(context).helpBugTitleLabel,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF8A8A8E),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
                       ),
                     ),
                     SizedBox(height: 8.h),
@@ -79,41 +81,42 @@ class HelpSupportScreen extends StatelessWidget {
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
+                        fillColor: const Color(0xFF262626),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0x1FFFFFFF),
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0x1FFFFFFF),
                             width: 1,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 2,
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF7C6BFF),
+                            width: 1.5,
                           ),
                         ),
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
+                          horizontal: 14.w,
                           vertical: 12.h,
                         ),
                       ),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 14.h),
                     Text(
-                      'Description',
+                      AppLocalizations.of(context).helpDescriptionLabel,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF8A8A8E),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
                       ),
                     ),
                     SizedBox(height: 8.h),
@@ -126,35 +129,35 @@ class HelpSupportScreen extends StatelessWidget {
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
+                        fillColor: const Color(0xFF262626),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0x1FFFFFFF),
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0x1FFFFFFF),
                             width: 1,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 2,
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF7C6BFF),
+                            width: 1.5,
                           ),
                         ),
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
+                          horizontal: 14.w,
                           vertical: 12.h,
                         ),
                       ),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 20.h),
                     Row(
                       children: [
                         Expanded(
@@ -163,74 +166,58 @@ class HelpSupportScreen extends StatelessWidget {
                               Navigator.of(context).pop();
                             },
                             style: OutlinedButton.styleFrom(
-                              backgroundColor: Color(0xFF353442),
-                              side: BorderSide(
-                                color: Colors.white.withOpacity(0.3),
+                              backgroundColor: const Color(0xFF262626),
+                              side: const BorderSide(
+                                color: Color(0x1FFFFFFF),
                                 width: 1,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
-                              minimumSize: Size(0, 42.h),
+                              minimumSize: Size(0, 44.h),
                             ),
                             child: Text(
-                              'Cancel',
+                              AppLocalizations.of(context).helpCancel,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
                         ),
                         SizedBox(width: 12.w),
                         Expanded(
-                          child: Container(
-                            height: 42.h,
-                            decoration: BoxDecoration(
-                              gradient: isInputEmpty
-                                  ? LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [
-                                        Colors.grey.withOpacity(0.5),
-                                        Colors.grey.withOpacity(0.5),
-                                      ],
-                                    )
-                                  : LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [
-                                        Color(0xFFB93CFF),
-                                        Color(0xFF4F46E5),
-                                      ],
-                                    ),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(8.r),
-                                onTap: isInputEmpty
-                                    ? null
-                                    : () {
-                                        Navigator.pop(context);
-                                        MessageUtils.showSuccessMessage(
-                                          context,
-                                          'Bug report submitted!',
-                                        );
-                                      },
-                                child: Center(
-                                  child: Text(
-                                    'Submit',
-                                    style: TextStyle(
-                                      color: isInputEmpty
-                                          ? Colors.grey[600]
-                                          : Colors.white,
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                          child: SizedBox(
+                            height: 44.h,
+                            child: ElevatedButton(
+                              onPressed: isInputEmpty
+                                  ? null
+                                  : () {
+                                      Navigator.pop(context);
+                                      MessageUtils.showSuccessMessage(
+                                        context,
+                                        AppLocalizations.of(context)
+                                            .helpBugSubmitted,
+                                      );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isInputEmpty
+                                    ? const Color(0xFF2C2C2E)
+                                    : const Color(0xFF7C6BFF),
+                                foregroundColor: isInputEmpty
+                                    ? const Color(0xFF8A8A8E)
+                                    : Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context).helpSubmit,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -273,23 +260,23 @@ class HelpSupportScreen extends StatelessWidget {
             child: Container(
               width: 360.w,
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 41, 41, 59),
-                borderRadius: BorderRadius.circular(8.r),
+                color: const Color(0xFF1A1A1A),
+                borderRadius: BorderRadius.circular(18.r),
                 border: Border.all(
-                  color: Color(0xFF585967),
-                  width: 2,
+                  color: const Color(0x1FFFFFFF),
+                  width: 1,
                 ),
               ),
               child: Padding(
-                padding: EdgeInsets.all(16.w),
+                padding: EdgeInsets.all(20.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 4.h),
                     Center(
                       child: Text(
-                        'Feature Request',
+                        AppLocalizations.of(context).helpFeatureDialogTitle,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.sp,
@@ -297,13 +284,14 @@ class HelpSupportScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 30.h),
+                    SizedBox(height: 20.h),
                     Text(
-                      'Feature Title',
+                      AppLocalizations.of(context).helpFeatureTitleLabel,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF8A8A8E),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
                       ),
                     ),
                     SizedBox(height: 8.h),
@@ -315,41 +303,42 @@ class HelpSupportScreen extends StatelessWidget {
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
+                        fillColor: const Color(0xFF262626),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0x1FFFFFFF),
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0x1FFFFFFF),
                             width: 1,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 2,
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF7C6BFF),
+                            width: 1.5,
                           ),
                         ),
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
+                          horizontal: 14.w,
                           vertical: 12.h,
                         ),
                       ),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 14.h),
                     Text(
-                      'Description',
+                      AppLocalizations.of(context).helpDescriptionLabel,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF8A8A8E),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
                       ),
                     ),
                     SizedBox(height: 8.h),
@@ -362,35 +351,35 @@ class HelpSupportScreen extends StatelessWidget {
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
+                        fillColor: const Color(0xFF262626),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0x1FFFFFFF),
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0x1FFFFFFF),
                             width: 1,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 2,
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF7C6BFF),
+                            width: 1.5,
                           ),
                         ),
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
+                          horizontal: 14.w,
                           vertical: 12.h,
                         ),
                       ),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 20.h),
                     Row(
                       children: [
                         Expanded(
@@ -399,74 +388,58 @@ class HelpSupportScreen extends StatelessWidget {
                               Navigator.of(context).pop();
                             },
                             style: OutlinedButton.styleFrom(
-                              backgroundColor: Color(0xFF353442),
-                              side: BorderSide(
-                                color: Colors.white.withOpacity(0.3),
+                              backgroundColor: const Color(0xFF262626),
+                              side: const BorderSide(
+                                color: Color(0x1FFFFFFF),
                                 width: 1,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
-                              minimumSize: Size(0, 42.h),
+                              minimumSize: Size(0, 44.h),
                             ),
                             child: Text(
-                              'Cancel',
+                              AppLocalizations.of(context).helpCancel,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
                         ),
                         SizedBox(width: 12.w),
                         Expanded(
-                          child: Container(
-                            height: 42.h,
-                            decoration: BoxDecoration(
-                              gradient: isInputEmpty
-                                  ? LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [
-                                        Colors.grey.withOpacity(0.5),
-                                        Colors.grey.withOpacity(0.5),
-                                      ],
-                                    )
-                                  : LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [
-                                        Color(0xFFB93CFF),
-                                        Color(0xFF4F46E5),
-                                      ],
-                                    ),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(8.r),
-                                onTap: isInputEmpty
-                                    ? null
-                                    : () {
-                                        Navigator.pop(context);
-                                        MessageUtils.showSuccessMessage(
-                                          context,
-                                          'Feature request submitted!',
-                                        );
-                                      },
-                                child: Center(
-                                  child: Text(
-                                    'Submit',
-                                    style: TextStyle(
-                                      color: isInputEmpty
-                                          ? Colors.grey[600]
-                                          : Colors.white,
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                          child: SizedBox(
+                            height: 44.h,
+                            child: ElevatedButton(
+                              onPressed: isInputEmpty
+                                  ? null
+                                  : () {
+                                      Navigator.pop(context);
+                                      MessageUtils.showSuccessMessage(
+                                        context,
+                                        AppLocalizations.of(context)
+                                            .helpFeatureSubmitted,
+                                      );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isInputEmpty
+                                    ? const Color(0xFF2C2C2E)
+                                    : const Color(0xFF7C6BFF),
+                                foregroundColor: isInputEmpty
+                                    ? const Color(0xFF8A8A8E)
+                                    : Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context).helpSubmit,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -486,6 +459,7 @@ class HelpSupportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Container(
       decoration: const BoxDecoration(
         gradient: AppColors.backgroundGradient,
@@ -497,11 +471,12 @@ class HelpSupportScreen extends StatelessWidget {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
-            'Help & Support',
+            l.helpTitle,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18.sp,
@@ -516,115 +491,98 @@ class HelpSupportScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SectionTitle('Contact Us'),
+                SectionTitle(l.helpSectionContactUs),
                 CustomTile(
                   icon: Icons.email_outlined,
-                  title: 'Email Support',
+                  title: l.helpEmailSupportTitle,
                   subtitle: 'jayhan0215@gmail.com',
                   onTap: () async {
                     await Clipboard.setData(
-                      ClipboardData(text: 'jayhan0215@gmail.com'),
+                      const ClipboardData(text: 'jayhan0215@gmail.com'),
                     );
                     if (context.mounted) {
                       MessageUtils.showSuccessMessage(
                         context,
-                        'Email copied to clipboard',
+                        AppLocalizations.of(context).helpEmailCopied,
                       );
                     }
                   },
                 ),
-                // CustomTile(
-                //   icon: Icons.chat_bubble_outline,
-                //   title: 'Live Chat',
-                //   subtitle: 'Chat with our support team',
-                //   onTap: () {
-                //     MessageUtils.showSuccessMessage(
-                //       context,
-                //       'Live chat coming soon!',
-                //     );
-                //   },
-                // ),
                 CustomTile(
                   icon: Icons.bug_report_outlined,
-                  title: 'Report a Bug',
-                  subtitle: 'Help us improve Tact',
+                  title: l.helpReportBugTitle,
+                  subtitle: l.helpReportBugSubtitle,
                   onTap: () {
                     _showBugReportDialog(context);
                   },
                 ),
                 SizedBox(height: 24.h),
-                SectionTitle('Frequently Asked Questions'),
+                SectionTitle(l.helpSectionFAQ),
                 FAQItem(
-                  question: 'How do I create a category?',
-                  answer:
-                      'Tap the + button on the main screen, enter a category name and emoji, then tap Create.',
+                  question: l.helpFAQ1Q,
+                  answer: l.helpFAQ1A,
                 ),
                 FAQItem(
-                  question: 'How do I add links to a category?',
-                  answer:
-                      'Tap on a category card, then tap the + button to add a new link. Enter the URL and optional title.',
+                  question: l.helpFAQ2Q,
+                  answer: l.helpFAQ2A,
                 ),
                 FAQItem(
-                  question: 'Can I sync my data across devices?',
-                  answer:
-                      'Yes! Your data is automatically synced across all devices where you\'re signed in with the same account.',
+                  question: l.helpFAQ3Q,
+                  answer: l.helpFAQ3A,
                 ),
                 FAQItem(
-                  question: 'How do I delete a category?',
-                  answer:
-                      'Long press on a category card, then select the delete option from the menu.',
+                  question: l.helpFAQ4Q,
+                  answer: l.helpFAQ4A,
                 ),
                 FAQItem(
-                  question: 'Is my data secure?',
-                  answer:
-                      'Yes, all your data is encrypted and stored securely using Firebase. We take your privacy seriously.',
+                  question: l.helpFAQ5Q,
+                  answer: l.helpFAQ5A,
                 ),
                 FAQItem(
-                  question: 'How do I change my password?',
-                  answer:
-                      'Go to Settings > Privacy & Security > Change Password to update your account password.',
+                  question: l.helpFAQ6Q,
+                  answer: l.helpFAQ6A,
                 ),
                 SizedBox(height: 24.h),
-                SectionTitle('Resources'),
+                SectionTitle(l.helpSectionResources),
                 CustomTile(
                   icon: Icons.book_outlined,
-                  title: 'User Guide',
-                  subtitle: 'Learn how to use Tact',
+                  title: l.helpUserGuideTitle,
+                  subtitle: l.helpUserGuideSubtitle,
                   onTap: () {
                     MessageUtils.showSuccessMessage(
                       context,
-                      'Opening user guide...',
+                      l.helpOpeningUserGuide,
                     );
                   },
                 ),
                 CustomTile(
                   icon: Icons.video_library_outlined,
-                  title: 'Video Tutorials',
-                  subtitle: 'Watch step-by-step guides',
+                  title: l.helpVideoTutorialsTitle,
+                  subtitle: l.helpVideoTutorialsSubtitle,
                   onTap: () {
                     MessageUtils.showSuccessMessage(
                       context,
-                      'Opening video tutorials...',
+                      l.helpOpeningVideoTutorials,
                     );
                   },
                 ),
                 CustomTile(
                   icon: Icons.article_outlined,
-                  title: 'Blog & Updates',
-                  subtitle: 'Latest news and tips',
+                  title: l.helpBlogUpdatesTitle,
+                  subtitle: l.helpBlogUpdatesSubtitle,
                   onTap: () {
                     MessageUtils.showSuccessMessage(
                       context,
-                      'Opening blog...',
+                      l.helpOpeningBlog,
                     );
                   },
                 ),
                 SizedBox(height: 24.h),
-                SectionTitle('Community'),
+                SectionTitle(l.helpSectionCommunity),
                 CustomTile(
                   icon: Icons.feedback_outlined,
-                  title: 'Feature Requests',
-                  subtitle: 'Suggest new features',
+                  title: l.helpFeatureRequestsTitle,
+                  subtitle: l.helpFeatureRequestsSubtitle,
                   onTap: () {
                     _showFeatureRequestDialog(context);
                   },
