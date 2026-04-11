@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously, deprecated_member_use
 
+import 'dart:ui';
+
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -55,6 +57,9 @@ class _SignupScreenState extends State<SignupScreen> {
   void initState() {
     super.initState();
     _passwordController.addListener(_updateStrength);
+    // Rebuild the step-1 UI reactively when the email field changes
+    // so the Gmail hint banner and button swap appear immediately.
+    _emailController.addListener(_onEmailChanged);
   }
 
   @override
@@ -66,6 +71,13 @@ class _SignupScreenState extends State<SignupScreen> {
     _confirmController.dispose();
     super.dispose();
   }
+
+  // Triggers a rebuild whenever the email field changes so the Gmail
+  // hint and button-swap update in real time.
+  void _onEmailChanged() => setState(() {});
+
+  bool get _isGmailAddress =>
+      _emailController.text.trim().toLowerCase().endsWith('@gmail.com');
 
   // ─── Password strength ───────────────────────────────────────────────────
 
@@ -111,7 +123,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   // ─── Navigation ──────────────────────────────────────────────────────────
 
-  void _goToStep2() {
+  // If the user entered a Gmail address, skip the password step entirely
+  // and go straight to Google Sign-In — no duplicate accounts possible.
+  Future<void> _goToStep2() async {
     setState(() {
       _nameError = null;
       _emailError = null;
@@ -131,6 +145,13 @@ class _SignupScreenState extends State<SignupScreen> {
     }
     if (!emailRx.hasMatch(email)) {
       setState(() => _emailError = 'Enter a valid email address');
+      return;
+    }
+
+    // Gmail → skip password step, use Google Sign-In directly.
+    if (_isGmailAddress) {
+      debugPrint('[Signup] Gmail detected — auto-routing to Google Sign-In');
+      await _googleSignUp();
       return;
     }
 
@@ -218,29 +239,14 @@ class _SignupScreenState extends State<SignupScreen> {
         }
       }
     } on FirebaseAuthException catch (e) {
-      final email = _emailController.text.trim();
-      final isGmail = email.toLowerCase().endsWith('@gmail.com');
-
       if (e.code == 'email-already-in-use') {
-        if (isGmail) {
-          // Gmail address already registered — most likely via Google SSO.
-          // Automatically switch to Google sign-in so the user doesn't get stuck.
-          debugPrint(
-              '[Signup] Gmail already in use — switching to Google sign-in');
-          if (mounted) {
-            MessageUtils.showInfoMessage(
-              context,
-              'This Gmail is linked to a Google account. Signing you in with Google…',
-            );
-            await Future.delayed(const Duration(milliseconds: 800));
-            await _googleSignUp();
-          }
-          return;
-        }
-        if (mounted) {
-          MessageUtils.showErrorMessage(
-              context, 'This email is already registered. Try logging in.');
-        }
+        // Ask Firebase which providers are actually registered for this email
+        // instead of guessing from the address format.
+        final email = _emailController.text.trim();
+        final providers = await _authService.fetchProvidersForEmail(email);
+        debugPrint('[Signup] email-already-in-use providers=$providers');
+
+        if (mounted) _showProviderConflictSheet(providers);
         return;
       }
 
@@ -315,6 +321,77 @@ class _SignupScreenState extends State<SignupScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  // ─── Gmail hint ───────────────────────────────────────────────────────────
+
+  /// Subtle banner shown below the email field when a gmail.com address is
+  /// detected. Explains that the user will be signed in via Google, not via
+  /// email+password — sets clear expectations before they tap the button.
+  List<Widget> _buildGmailHint() {
+    return [
+      SizedBox(height: 10.h),
+      AnimatedSize(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 11.h),
+          decoration: BoxDecoration(
+            // Subtle purple tint matching the accent
+            color: const Color(0x197C6BFF),
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(color: const Color(0x337C6BFF), width: 1),
+          ),
+          child: Row(
+            children: [
+              // Google "G" mark
+              const SizedBox(width: 18, height: 18, child: _GoogleLogo()),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Text(
+                  'Looks like a Google account — we\'ll sign you in with Google.',
+                  style: TextStyle(
+                    color: const Color(0xFFB8AFFF),
+                    fontSize: 12.5.sp,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ];
+  }
+
+  // ─── Provider conflict ────────────────────────────────────────────────────
+
+  /// Shows a bottom sheet that tells the user which provider their email is
+  /// already registered with and gives them a single clear action to take.
+  void _showProviderConflictSheet(List<String> providers) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: true,
+      enableDrag: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.55),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
+      ),
+      builder: (_) => _ProviderConflictSheet(
+        email: _emailController.text.trim(),
+        providers: providers,
+        onGoogleSignIn: () async {
+          Navigator.pop(context);
+          await _googleSignUp();
+        },
+        onGoToLogin: () {
+          Navigator.pop(context);
+          Navigator.pushReplacementNamed(context, '/login');
+        },
+      ),
+    );
   }
 
   // ─── Build ───────────────────────────────────────────────────────────────
@@ -410,27 +487,39 @@ class _SignupScreenState extends State<SignupScreen> {
             keyboardType: TextInputType.emailAddress,
             error: _emailError,
           ),
+
+          // Gmail hint banner — appears as soon as @gmail.com is typed
+          if (_isGmailAddress) ..._buildGmailHint(),
+
           SizedBox(height: 32.h),
 
-          // Continue button
-          _AuthButton(
-            label: 'Continue',
-            isLoading: _isLoading,
-            onTap: _goToStep2,
-          ),
+          // Continue button — swaps to Google button when gmail is detected
+          if (_isGmailAddress)
+            _SocialButton(
+              icon: _kGoogleIcon,
+              label: 'Continue with Google',
+              onTap: _isLoading ? null : _goToStep2,
+            )
+          else
+            _AuthButton(
+              label: 'Continue',
+              isLoading: _isLoading,
+              onTap: _goToStep2,
+            ),
           SizedBox(height: 28.h),
 
           // Divider
           _OrDivider(),
           SizedBox(height: 20.h),
 
-          // Google
-          _SocialButton(
-            icon: _kGoogleIcon,
-            label: 'Continue with Google',
-            onTap: _isLoading ? null : _googleSignUp,
-          ),
-          SizedBox(height: 32.h),
+          // Google (always visible as fallback)
+          if (!_isGmailAddress)
+            _SocialButton(
+              icon: _kGoogleIcon,
+              label: 'Continue with Google',
+              onTap: _isLoading ? null : _googleSignUp,
+            ),
+          if (!_isGmailAddress) SizedBox(height: 32.h),
 
           // Login link
           Center(
@@ -852,6 +941,218 @@ class _StrengthBar extends StatelessWidget {
           ),
         );
       }),
+    );
+  }
+}
+
+// ─── Provider conflict bottom sheet ─────────────────────────────────────────
+
+class _ProviderConflictSheet extends StatefulWidget {
+  const _ProviderConflictSheet({
+    required this.email,
+    required this.providers,
+    required this.onGoogleSignIn,
+    required this.onGoToLogin,
+  });
+
+  final String email;
+  final List<String> providers;
+  final VoidCallback onGoogleSignIn;
+  final VoidCallback onGoToLogin;
+
+  @override
+  State<_ProviderConflictSheet> createState() => _ProviderConflictSheetState();
+}
+
+class _ProviderConflictSheetState extends State<_ProviderConflictSheet> {
+  bool _primaryPressed = false;
+  bool _secondaryPressed = false;
+
+  bool get _hasGoogle => widget.providers.contains('google.com');
+  bool get _hasApple => widget.providers.contains('apple.com');
+
+  String get _headline {
+    if (_hasGoogle) return 'Already signed in with Google';
+    if (_hasApple) return 'Already signed in with Apple';
+    return 'Email already registered';
+  }
+
+  String get _body {
+    if (_hasGoogle) {
+      return 'This email (${widget.email}) is linked to a Google account. Use Google to sign in instead.';
+    }
+    if (_hasApple) {
+      return 'This email (${widget.email}) is linked to an Apple account. Use Apple to sign in instead.';
+    }
+    return 'An account with ${widget.email} already exists. Head to Login to continue.';
+  }
+
+  String get _primaryLabel {
+    if (_hasGoogle) return 'Continue with Google';
+    if (_hasApple) return 'Continue with Apple';
+    return 'Go to Login';
+  }
+
+  Widget get _primaryIcon {
+    if (_hasGoogle) return const _GoogleLogo();
+    if (_hasApple) {
+      return Icon(Icons.apple, color: Colors.white, size: 18.sp);
+    }
+    return Icon(Icons.login_rounded, color: Colors.white, size: 18.sp);
+  }
+
+  VoidCallback get _primaryAction {
+    if (_hasGoogle) return widget.onGoogleSignIn;
+    // Apple sign-in not yet implemented — fall through to login
+    return widget.onGoToLogin;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1C1828).withOpacity(0.92),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
+            border: Border(
+              top: BorderSide(color: Colors.white.withOpacity(0.08)),
+            ),
+          ),
+          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 40.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 12.h),
+                child: Container(
+                  width: 36.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
+                ),
+              ),
+              SizedBox(height: 8.h),
+
+              // Icon
+              Container(
+                width: 52.r,
+                height: 52.r,
+                decoration: BoxDecoration(
+                  color: const Color(0x267C6BFF),
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                child: Center(
+                  child: _hasGoogle
+                      ? const SizedBox(
+                          width: 26, height: 26, child: _GoogleLogo())
+                      : _hasApple
+                          ? Icon(Icons.apple, color: _kAccent, size: 28.r)
+                          : Icon(Icons.email_outlined,
+                              color: _kAccent, size: 24.r),
+                ),
+              ),
+              SizedBox(height: 16.h),
+
+              // Title
+              Text(
+                _headline,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 8.h),
+
+              // Body
+              Text(
+                _body,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.52),
+                  fontSize: 13.sp,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 28.h),
+
+              // Primary button
+              GestureDetector(
+                onTapDown: (_) => setState(() => _primaryPressed = true),
+                onTapUp: (_) {
+                  setState(() => _primaryPressed = false);
+                  _primaryAction();
+                },
+                onTapCancel: () => setState(() => _primaryPressed = false),
+                child: AnimatedScale(
+                  scale: _primaryPressed ? 0.97 : 1.0,
+                  duration: const Duration(milliseconds: 80),
+                  child: Container(
+                    width: double.infinity,
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      color: _kAccent,
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _primaryIcon,
+                        SizedBox(width: 8.w),
+                        Text(
+                          _primaryLabel,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 12.h),
+
+              // Secondary: Go to Login (always shown except when primary IS login)
+              if (_hasGoogle || _hasApple)
+                GestureDetector(
+                  onTapDown: (_) => setState(() => _secondaryPressed = true),
+                  onTapUp: (_) {
+                    setState(() => _secondaryPressed = false);
+                    widget.onGoToLogin();
+                  },
+                  onTapCancel: () => setState(() => _secondaryPressed = false),
+                  child: AnimatedScale(
+                    scale: _secondaryPressed ? 0.97 : 1.0,
+                    duration: const Duration(milliseconds: 80),
+                    child: Container(
+                      width: double.infinity,
+                      height: 50.h,
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Go to Login',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.40),
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

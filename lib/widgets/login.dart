@@ -84,34 +84,38 @@ class _LoginScreenState extends State<LoginScreen> {
       print('[Login] FirebaseAuthException: ${e.code}');
       if (!mounted) return;
 
-      final email = _emailController.text.trim();
-      final isGmail = email.toLowerCase().endsWith('@gmail.com');
-
-      if (e.code == 'account-exists-with-different-credential' ||
-          (isGmail &&
-              (e.code == 'user-not-found' ||
-                  e.code == 'wrong-password' ||
-                  e.code == 'invalid-credential'))) {
-        // Gmail address → nudge towards Google sign-in
-        setState(() {
-          _emailError = isGmail
-              ? 'This Gmail address may use Google sign-in'
-              : 'Incorrect email or password';
-          _passwordError = ' ';
-        });
-        if (isGmail) {
-          MessageUtils.showInfoMessage(
-            context,
-            'Try signing in with the Google button below.',
-          );
-        }
-      } else if (e.code == 'user-not-found' ||
+      if (e.code == 'user-not-found' ||
           e.code == 'wrong-password' ||
-          e.code == 'invalid-credential') {
-        setState(() {
-          _emailError = 'Incorrect email or password';
-          _passwordError = ' ';
-        });
+          e.code == 'invalid-credential' ||
+          e.code == 'account-exists-with-different-credential') {
+        // Look up which provider(s) the email is actually registered with.
+        // This replaces the old gmail-domain heuristic with a real Firebase check.
+        final email = _emailController.text.trim();
+        final providers = await _authService.fetchProvidersForEmail(email);
+        print('[Login] providers for $email → $providers');
+
+        if (providers.contains('google.com')) {
+          // Account exists but it's Google-based — auto-switch to Google login.
+          setState(() {
+            _emailError = 'This email is linked to a Google account';
+            _passwordError = null;
+          });
+          MessageUtils.showInfoMessage(context, 'Signing you in with Google…');
+          await Future.delayed(const Duration(milliseconds: 600));
+          if (mounted) await _googleSignIn();
+        } else if (providers.isEmpty) {
+          // No account found at all.
+          setState(() {
+            _emailError = 'No account found with this email';
+            _passwordError = null;
+          });
+        } else {
+          // Account exists with password provider but wrong credentials.
+          setState(() {
+            _emailError = 'Incorrect email or password';
+            _passwordError = ' ';
+          });
+        }
       } else {
         MessageUtils.showErrorMessage(context, 'Sign-in failed. Try again.');
       }
