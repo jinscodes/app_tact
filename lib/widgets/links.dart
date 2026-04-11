@@ -72,8 +72,7 @@ class _LinksState extends State<Links> {
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: url));
                     Navigator.pop(context);
-                    MessageUtils.showSuccessMessage(
-                        context, l.linksUrlCopied);
+                    MessageUtils.showSuccessMessage(context, l.linksUrlCopied);
                   },
                 ),
                 const SizedBox(height: 10),
@@ -164,7 +163,8 @@ class _LinksState extends State<Links> {
                             ),
                             SizedBox(height: 20.h),
                             Text(
-                              AppLocalizations.of(context).linksNoCategoriesTitle,
+                              AppLocalizations.of(context)
+                                  .linksNoCategoriesTitle,
                               style: TextStyle(
                                 color: Colors.grey[400],
                                 fontSize: 18.sp,
@@ -173,7 +173,8 @@ class _LinksState extends State<Links> {
                             ),
                             SizedBox(height: 8.h),
                             Text(
-                              AppLocalizations.of(context).linksNoCategoriesSubtitle,
+                              AppLocalizations.of(context)
+                                  .linksNoCategoriesSubtitle,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 14.sp,

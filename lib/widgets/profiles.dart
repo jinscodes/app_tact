@@ -626,7 +626,8 @@ class _ProfilesState extends State<Profiles> {
           iconColor: const Color(0xFF5E9BFF),
           label: l.profileRowGetHelp,
           value: l.rowHelpSupport,
-          onTap: () => MessageUtils.showSuccessMessage(context, l.profileComingSoon),
+          onTap: () =>
+              MessageUtils.showSuccessMessage(context, l.profileComingSoon),
           trailing: Icon(Icons.chevron_right_rounded,
               size: 18.sp, color: Colors.white.withOpacity(0.25)),
         ),
@@ -635,7 +636,8 @@ class _ProfilesState extends State<Profiles> {
           iconColor: const Color(0xFFAA8AFF),
           label: l.rowVersionLabel,
           value: l.rowAbout,
-          onTap: () => MessageUtils.showSuccessMessage(context, l.profileComingSoon),
+          onTap: () =>
+              MessageUtils.showSuccessMessage(context, l.profileComingSoon),
           trailing: Icon(Icons.chevron_right_rounded,
               size: 18.sp, color: Colors.white.withOpacity(0.25)),
         ),

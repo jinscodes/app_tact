@@ -188,10 +188,13 @@ class AppLocalizations {
       'profileOpeningGallery': 'Opening gallery...',
       'profileUploadingImage': 'Uploading image...',
       'profileImageUpdated': 'Profile image updated successfully',
-      'profileImageTooLarge': 'Image is too large. Please choose a photo under 2 MB.',
+      'profileImageTooLarge':
+          'Image is too large. Please choose a photo under 2 MB.',
       'profileFailedUpload': 'Failed to upload image',
-      'profileStorageError': 'Storage error. Please ensure Firebase Storage is enabled.',
-      'profilePermissionError': 'Permission denied. Please check storage rules.',
+      'profileStorageError':
+          'Storage error. Please ensure Firebase Storage is enabled.',
+      'profilePermissionError':
+          'Permission denied. Please check storage rules.',
       'profileNetworkError': 'Network error. Please check your connection.',
       'profileUserIdCopied': 'User ID copied',
       'profileSectionAccount': 'Account',
