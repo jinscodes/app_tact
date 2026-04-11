@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:app_tact/colors.dart';
 import 'package:app_tact/services/notification_service.dart';
 import 'package:app_tact/widgets/links.dart';
 import 'package:app_tact/widgets/profiles.dart';
@@ -45,7 +44,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   Future<void> _checkFirstTimeNotification() async {
-    await Future.delayed(const Duration(milliseconds: 800));
+    // Wait until the user has had a moment to see the app before asking
+    await Future.delayed(const Duration(milliseconds: 2500));
 
     if (!mounted) return;
 
@@ -59,132 +59,27 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   void _showNotificationPermissionDialog() {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: EdgeInsets.all(24.w),
-          decoration: BoxDecoration(
-            color: Color(0xFF2E2939),
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  color: AppColors.accentPurple.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(50.r),
-                ),
-                child: Icon(
-                  Icons.notifications_active,
-                  color: AppColors.accentPurple,
-                  size: 48.sp,
-                ),
-              ),
-              SizedBox(height: 20.h),
-              Text(
-                'Enable Notifications?',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                'Stay updated with link reminders, weekly digests, and new features.',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
-                  fontSize: 14.sp,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 24.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        await NotificationService().setNotificationPreferences(
-                          enabled: false,
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.05),
-                        side: BorderSide(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        minimumSize: Size(0, 48.h),
-                      ),
-                      child: Text(
-                        'No',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Container(
-                      height: 48.h,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [
-                            Color(0xFFB93CFF),
-                            Color(0xFF4F46E5),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12.r),
-                          onTap: () async {
-                            Navigator.pop(context);
-                            await NotificationService()
-                                .setNotificationPreferences(
-                              enabled: true,
-                            );
-                          },
-                          child: Center(
-                            child: Text(
-                              'Turn On',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+      // Allow swipe-down to dismiss (acts as "Not Now")
+      isDismissible: true,
+      enableDrag: true,
+      backgroundColor: Colors.transparent,
+      // Slide-up animation via built-in bottom sheet transition
+      barrierColor: Colors.black.withOpacity(0.55),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
+      ),
+      builder: (ctx) => _NotificationPermissionSheet(
+        onAllow: () async {
+          Navigator.pop(ctx);
+          await NotificationService().setNotificationPreferences(enabled: true);
+        },
+        onDeny: () async {
+          Navigator.pop(ctx);
+          await NotificationService()
+              .setNotificationPreferences(enabled: false);
+        },
       ),
     );
   }
@@ -449,6 +344,171 @@ class _TabItem extends StatelessWidget {
               child: Text(label),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Notification permission bottom sheet ────────────────────────────────────
+
+class _NotificationPermissionSheet extends StatefulWidget {
+  const _NotificationPermissionSheet({
+    required this.onAllow,
+    required this.onDeny,
+  });
+
+  final VoidCallback onAllow;
+  final VoidCallback onDeny;
+
+  @override
+  State<_NotificationPermissionSheet> createState() =>
+      _NotificationPermissionSheetState();
+}
+
+class _NotificationPermissionSheetState
+    extends State<_NotificationPermissionSheet> {
+  bool _allowPressed = false;
+  bool _denyPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            // Glassmorphism: very subtle white tint over the blurred background
+            color: const Color(0xFF1C1828).withOpacity(0.92),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
+            border: Border(
+              top: BorderSide(
+                color: Colors.white.withOpacity(0.08),
+                width: 1,
+              ),
+            ),
+          ),
+          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 36.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ─ Drag indicator ─
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 12.h),
+                child: Container(
+                  width: 36.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
+                ),
+              ),
+              SizedBox(height: 8.h),
+
+              // ─ Icon ─
+              Container(
+                width: 52.r,
+                height: 52.r,
+                decoration: BoxDecoration(
+                  // rgba(124,107,255,0.15)
+                  color: const Color(0x267C6BFF),
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                child: Icon(
+                  Icons.notifications_outlined,
+                  color: const Color(0xFF7C6BFF),
+                  size: 26.r,
+                ),
+              ),
+              SizedBox(height: 16.h),
+
+              // ─ Title ─
+              Text(
+                'Allow Notifications',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                ),
+              ),
+              SizedBox(height: 8.h),
+
+              // ─ Body ─
+              Text(
+                'Get reminders and updates when they matter.',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.52),
+                  fontSize: 14.sp,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 28.h),
+
+              // ─ Primary: Allow ─
+              GestureDetector(
+                onTapDown: (_) => setState(() => _allowPressed = true),
+                onTapUp: (_) {
+                  setState(() => _allowPressed = false);
+                  widget.onAllow();
+                },
+                onTapCancel: () => setState(() => _allowPressed = false),
+                child: AnimatedScale(
+                  scale: _allowPressed ? 0.97 : 1.0,
+                  duration: const Duration(milliseconds: 80),
+                  child: Container(
+                    width: double.infinity,
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      // Flat fill — no gradient, per the spec
+                      color: const Color(0xFF7C6BFF),
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Allow Notifications',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 12.h),
+
+              // ─ Secondary: Not Now ─
+              GestureDetector(
+                onTapDown: (_) => setState(() => _denyPressed = true),
+                onTapUp: (_) {
+                  setState(() => _denyPressed = false);
+                  widget.onDeny();
+                },
+                onTapCancel: () => setState(() => _denyPressed = false),
+                child: AnimatedScale(
+                  scale: _denyPressed ? 0.97 : 1.0,
+                  duration: const Duration(milliseconds: 80),
+                  child: Container(
+                    width: double.infinity,
+                    height: 50.h,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Not Now',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.40),
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

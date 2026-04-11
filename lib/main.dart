@@ -1,17 +1,17 @@
 import 'package:app_tact/colors.dart';
-import 'package:app_tact/widgets/auth_wrapper.dart';
+import 'package:app_tact/services/subscription_service.dart';
+import 'package:app_tact/widgets/email_verification_screen.dart';
 import 'package:app_tact/widgets/home.dart';
 import 'package:app_tact/widgets/links.dart';
 import 'package:app_tact/widgets/login.dart';
 import 'package:app_tact/widgets/signup.dart';
 import 'package:app_tact/widgets/splash_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:app_tact/services/subscription_service.dart';
 
 import 'firebase_options.dart';
 
@@ -203,7 +203,7 @@ class MyApp extends StatelessWidget {
         page = const SignupScreen();
         break;
       case '/verify':
-        page = const AuthWrapper();
+        page = const EmailVerificationScreen();
         break;
       case '/links':
         page = const Links();
