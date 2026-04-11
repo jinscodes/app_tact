@@ -1,4 +1,6 @@
 import 'package:app_tact/colors.dart';
+import 'package:app_tact/l10n/app_localizations.dart';
+import 'package:app_tact/services/language_service.dart';
 import 'package:app_tact/services/subscription_service.dart';
 import 'package:app_tact/widgets/email_verification_screen.dart';
 import 'package:app_tact/widgets/home.dart';
@@ -10,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -30,6 +33,7 @@ void main() async {
       enableDebugLogs: false,
     );
   } catch (_) {}
+  await LanguageService.init();
   runApp(const MyApp());
 }
 
@@ -225,40 +229,51 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          themeMode: ThemeMode.system,
-          theme: ThemeData(
-            useMaterial3: true,
-            colorSchemeSeed: AppColors.baseBlack,
-            brightness: Brightness.light,
-            scaffoldBackgroundColor: Colors.transparent,
-            textTheme: GoogleFonts.interTextTheme(),
-            fontFamily: GoogleFonts.inter().fontFamily,
-            pageTransitionsTheme: const PageTransitionsTheme(
-              builders: {
-                TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-              },
-            ),
-          ),
-          title: 'Sticker Note App',
-          builder: (context, child) {
-            return Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
-                ),
+        return ValueListenableBuilder<Locale>(
+          valueListenable: LanguageService.locale,
+          builder: (context, locale, _) => MaterialApp(
+            debugShowCheckedModeBanner: false,
+            locale: locale,
+            supportedLocales: const [Locale('en'), Locale('ko')],
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            themeMode: ThemeMode.system,
+            theme: ThemeData(
+              useMaterial3: true,
+              colorSchemeSeed: AppColors.baseBlack,
+              brightness: Brightness.light,
+              scaffoldBackgroundColor: Colors.transparent,
+              textTheme: GoogleFonts.interTextTheme(),
+              fontFamily: GoogleFonts.inter().fontFamily,
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                },
               ),
-              child: child,
-            );
-          },
-          home: const SplashScreen(),
-          onGenerateRoute: (RouteSettings settings) {
-            return _createSmoothRoute(settings);
-          },
+            ),
+            title: 'Sticker Note App',
+            builder: (context, child) {
+              return Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
+                  ),
+                ),
+                child: child,
+              );
+            },
+            home: const SplashScreen(),
+            onGenerateRoute: (RouteSettings settings) {
+              return _createSmoothRoute(settings);
+            },
+          ),
         );
       },
     );

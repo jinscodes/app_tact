@@ -1,6 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/services/language_service.dart';
 import 'package:app_tact/widgets/about_screen.dart';
 import 'package:app_tact/widgets/help_support_screen.dart';
 import 'package:app_tact/widgets/notifications_screen.dart';
@@ -20,10 +22,26 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   final AuthService _authService = AuthService();
 
+  @override
+  void initState() {
+    super.initState();
+    // Rebuild when the app language changes so the value label updates.
+    LanguageService.locale.addListener(_onLocaleChanged);
+  }
+
+  void _onLocaleChanged() => setState(() {});
+
+  @override
+  void dispose() {
+    LanguageService.locale.removeListener(_onLocaleChanged);
+    super.dispose();
+  }
+
   // ─── Build ────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -33,23 +51,23 @@ class _SettingsState extends State<Settings> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildHeader(),
+              _buildHeader(l),
               Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 28.h, 16.w, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _sectionLabel('Preferences'),
+                    _sectionLabel(l.sectionPreferences),
                     SizedBox(height: 10.h),
-                    _buildPreferencesGroup(),
+                    _buildPreferencesGroup(l),
                     SizedBox(height: 28.h),
-                    _sectionLabel('Account'),
+                    _sectionLabel(l.sectionAccount),
                     SizedBox(height: 10.h),
-                    _buildAccountGroup(),
+                    _buildAccountGroup(l),
                     SizedBox(height: 28.h),
-                    _sectionLabel('Support'),
+                    _sectionLabel(l.sectionSupport),
                     SizedBox(height: 10.h),
-                    _buildSupportGroup(),
+                    _buildSupportGroup(l),
                     SizedBox(height: 32.h),
                     _buildLogoutButton(),
                     SizedBox(height: 48.h),
@@ -65,12 +83,12 @@ class _SettingsState extends State<Settings> {
 
   // ─── Header ───────────────────────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 28.h),
       child: Center(
         child: Text(
-          'Settings',
+          l.settingsTitle,
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.sp,
@@ -99,13 +117,13 @@ class _SettingsState extends State<Settings> {
 
   // ─── Preferences ──────────────────────────────────────────────────────────
 
-  Widget _buildPreferencesGroup() {
+  Widget _buildPreferencesGroup(AppLocalizations l) {
     return _SettingGroup(
       children: [
         _SettingRow(
           icon: Icons.notifications_outlined,
           iconColor: const Color(0xFF5E9BFF),
-          title: 'Notifications',
+          title: l.rowNotifications,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const NotificationsScreen()),
@@ -114,15 +132,15 @@ class _SettingsState extends State<Settings> {
         _SettingRow(
           icon: Icons.palette_outlined,
           iconColor: const Color(0xFFAA8AFF),
-          title: 'Appearance',
+          title: l.rowAppearance,
           onTap: () {},
         ),
         _SettingRow(
           icon: Icons.language_rounded,
           iconColor: const Color(0xFF34C759),
-          title: 'Language',
-          valueLabel: 'English',
-          onTap: () {},
+          title: l.rowLanguage,
+          valueLabel: LanguageService.current.nativeLabel,
+          onTap: _showLanguagePicker,
         ),
       ],
     );
@@ -130,19 +148,19 @@ class _SettingsState extends State<Settings> {
 
   // ─── Account ──────────────────────────────────────────────────────────────
 
-  Widget _buildAccountGroup() {
+  Widget _buildAccountGroup(AppLocalizations l) {
     return _SettingGroup(
       children: [
         _SettingRow(
           icon: Icons.person_outline_rounded,
           iconColor: const Color(0xFFAA8AFF),
-          title: 'Profile',
+          title: l.rowProfile,
           onTap: widget.onNavigateToProfile,
         ),
         _SettingRow(
           icon: Icons.security_rounded,
           iconColor: const Color(0xFFFF9F0A),
-          title: 'Privacy & Security',
+          title: l.rowPrivacySecurity,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const PrivacySecurityScreen()),
@@ -151,7 +169,7 @@ class _SettingsState extends State<Settings> {
         _SettingRow(
           icon: Icons.workspace_premium_rounded,
           iconColor: const Color(0xFF5E9BFF),
-          title: 'Subscription',
+          title: l.rowSubscription,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
@@ -163,13 +181,13 @@ class _SettingsState extends State<Settings> {
 
   // ─── Support ──────────────────────────────────────────────────────────────
 
-  Widget _buildSupportGroup() {
+  Widget _buildSupportGroup(AppLocalizations l) {
     return _SettingGroup(
       children: [
         _SettingRow(
           icon: Icons.help_outline_rounded,
           iconColor: const Color(0xFF5E9BFF),
-          title: 'Help & Support',
+          title: l.rowHelpSupport,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
@@ -178,14 +196,32 @@ class _SettingsState extends State<Settings> {
         _SettingRow(
           icon: Icons.info_outline_rounded,
           iconColor: const Color(0xFF34C759),
-          title: 'About',
-          valueLabel: 'Version 1.0.0',
+          title: l.rowAbout,
+          valueLabel: l.rowVersionLabel,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const AboutScreen()),
           ),
         ),
       ],
+    );
+  }
+
+  // ─── Language picker ───────────────────────────────────────────────────
+
+  void _showLanguagePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.55),
+      isScrollControlled: true,
+      builder: (_) => _LanguagePickerSheet(
+        current: LanguageService.current.code,
+        onSelect: (code) async {
+          await LanguageService.setLanguage(code);
+          Navigator.pop(context);
+        },
+      ),
     );
   }
 
@@ -385,7 +421,7 @@ class _LogoutButtonState extends State<_LogoutButton> {
                   color: const Color(0xFFFF453A).withOpacity(0.85)),
               SizedBox(width: 8.w),
               Text(
-                'Log Out',
+                AppLocalizations.of(context).logOut,
                 style: TextStyle(
                   color: const Color(0xFFFF453A).withOpacity(0.85),
                   fontSize: 16.sp,
@@ -396,6 +432,145 @@ class _LogoutButtonState extends State<_LogoutButton> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ─── Language picker bottom sheet ────────────────────────────────────────────
+
+class _LanguagePickerSheet extends StatelessWidget {
+  final String current;
+  final ValueChanged<String> onSelect;
+
+  const _LanguagePickerSheet({required this.current, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        border: Border(
+          top: BorderSide(color: Colors.white.withOpacity(0.08), width: 1),
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 32.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Drag handle
+          Container(
+            width: 36.w,
+            height: 4.h,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(2.r),
+            ),
+          ),
+          SizedBox(height: 20.h),
+
+          // Title
+          Text(
+            AppLocalizations.of(context).langPickerTitle,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            AppLocalizations.of(context).langPickerSubtitle,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.45),
+              fontSize: 13.sp,
+            ),
+          ),
+          SizedBox(height: 24.h),
+
+          // Language options
+          ...LanguageService.supported.map((lang) {
+            final isSelected = lang.code == current;
+            return GestureDetector(
+              onTap: () => onSelect(lang.code),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                margin: EdgeInsets.only(bottom: 10.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? const Color(0xFF7C6BFF).withOpacity(0.15)
+                      : const Color(0xFF252535),
+                  borderRadius: BorderRadius.circular(14.r),
+                  border: Border.all(
+                    color: isSelected
+                        ? const Color(0xFF7C6BFF).withOpacity(0.55)
+                        : Colors.white.withOpacity(0.06),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Text(lang.flag, style: TextStyle(fontSize: 24.sp)),
+                    SizedBox(width: 14.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lang.nativeLabel,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            lang.label,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.4),
+                              fontSize: 12.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isSelected)
+                      Container(
+                        width: 22.r,
+                        height: 22.r,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF7C6BFF),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.check_rounded,
+                            color: Colors.white,
+                            size: 13.sp,
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        width: 22.r,
+                        height: 22.r,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

@@ -1,8 +1,14 @@
 import 'package:app_tact/colors.dart';
+import 'package:app_tact/components/common/about_feature_item.dart';
+import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:app_tact/components/common/about_feature_item.dart';
-import 'package:app_tact/components/common/info_row.dart';
+
+// ── Design tokens ─────────────────────────────────────────────────────────────
+const _kAccent = Color(0xFF7C6BFF);
+const _kSurface = Color(0xFF1A1A1A);
+const _kBorder = Color(0x1FFFFFFF);
+const _kSub = Color(0xFF8A8A8E);
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -20,11 +26,12 @@ class AboutScreen extends StatelessWidget {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
-            'About',
+            AppLocalizations.of(context).aboutTitle,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18.sp,
@@ -35,141 +42,212 @@ class AboutScreen extends StatelessWidget {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(20.w),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 20.h),
+                SizedBox(height: 32.h),
+
+                // ── Hero ──────────────────────────────────────────────
                 Container(
-                  width: 100.w,
-                  height: 100.h,
+                  width: 84.r,
+                  height: 84.r,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20.r),
+                    color: _kAccent.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(22.r),
                     border: Border.all(
-                      color: AppColors.gradientPurple,
-                      width: 2,
+                      color: _kAccent.withOpacity(0.35),
+                      width: 1.5,
                     ),
                   ),
                   child: Center(
                     child: Image.asset(
                       'assets/tact_logo.png',
-                      width: 50.w,
-                      height: 50.w,
+                      width: 46.w,
+                      height: 46.w,
                       fit: BoxFit.contain,
                     ),
                   ),
                 ),
-                SizedBox(height: 24.h),
+                SizedBox(height: 16.h),
                 Text(
                   'Tact',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 32.sp,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                SizedBox(height: 8.h),
-                Text(
-                  'Version 1.0.0',
-                  style: TextStyle(
-                    color: AppColors.textMedium,
-                    fontSize: 14.sp,
-                  ),
-                ),
-                SizedBox(height: 40.h),
+                SizedBox(height: 6.h),
                 Container(
-                  padding: EdgeInsets.all(20.w),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white.withOpacity(0.1),
-                        Colors.white.withOpacity(0.05),
-                      ],
+                    color: _kAccent.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(20.r),
+                    border:
+                        Border.all(color: _kAccent.withOpacity(0.3), width: 1),
+                  ),
+                  child: Text(
+                    'Version 1.0.0',
+                    style: TextStyle(
+                      color: _kAccent,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
                     ),
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  AppLocalizations.of(context).aboutAppSubtitle,
+                  style: TextStyle(color: _kSub, fontSize: 14.sp, height: 1.5),
+                  textAlign: TextAlign.center,
+                ),
+
+                SizedBox(height: 32.h),
+
+                // ── About card ────────────────────────────────────────
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(18.w),
+                  decoration: BoxDecoration(
+                    color: _kSurface,
                     borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                      width: 1,
-                    ),
+                    border: Border.all(color: _kBorder, width: 1),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'About Tact',
-                        style: TextStyle(
-                          color: AppColors.accentPurple,
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 28.r,
+                            height: 28.r,
+                            decoration: BoxDecoration(
+                              color: _kAccent.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Center(
+                              child: Icon(Icons.info_outline_rounded,
+                                  color: _kAccent, size: 14.sp),
+                            ),
+                          ),
+                          SizedBox(width: 10.w),
+                          Text(
+                            AppLocalizations.of(context).aboutCardTitle,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 12.h),
                       Text(
-                        'Tact is your personal link organization tool that helps you keep track of important URLs, resources, and references. Create categories, organize your links, and access them anytime, anywhere.',
+                        AppLocalizations.of(context).aboutCardBody,
                         style: TextStyle(
-                          color: AppColors.textLight,
-                          fontSize: 14.sp,
-                          height: 1.6,
+                          color: _kSub,
+                          fontSize: 13.sp,
+                          height: 1.65,
                         ),
                       ),
                     ],
                   ),
                 ),
+
                 SizedBox(height: 24.h),
+
+                // ── Section label ─────────────────────────────────────
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 10.h),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 3.w,
+                          height: 13.h,
+                          decoration: BoxDecoration(
+                            color: _kAccent,
+                            borderRadius: BorderRadius.circular(2.r),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          AppLocalizations.of(context).aboutSectionFeatures,
+                          style: TextStyle(
+                            color: _kSub,
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 buildFeatureItem(
                   icon: Icons.folder_outlined,
-                  title: 'Organize with Categories',
-                  description:
-                      'Create custom categories to organize your links',
+                  title: AppLocalizations.of(context).aboutFeature1Title,
+                  description: AppLocalizations.of(context).aboutFeature1Desc,
                 ),
                 buildFeatureItem(
-                  icon: Icons.cloud_sync,
-                  title: 'Cloud Sync',
-                  description: 'Access your links across all your devices',
+                  icon: Icons.cloud_sync_outlined,
+                  title: AppLocalizations.of(context).aboutFeature2Title,
+                  description: AppLocalizations.of(context).aboutFeature2Desc,
                 ),
                 buildFeatureItem(
-                  icon: Icons.lock_outline,
-                  title: 'Secure & Private',
-                  description: 'Your data is encrypted and protected',
+                  icon: Icons.lock_outline_rounded,
+                  title: AppLocalizations.of(context).aboutFeature3Title,
+                  description: AppLocalizations.of(context).aboutFeature3Desc,
                 ),
                 buildFeatureItem(
-                  icon: Icons.note_outlined,
-                  title: 'Notes & Annotations',
-                  description: 'Add notes and context to your links',
+                  icon: Icons.sticky_note_2_outlined,
+                  title: AppLocalizations.of(context).aboutFeature4Title,
+                  description: AppLocalizations.of(context).aboutFeature4Desc,
                 ),
-                SizedBox(height: 32.h),
-                // Additional Info
+
+                SizedBox(height: 24.h),
+
+                // ── Info card ─────────────────────────────────────────
                 Container(
-                  padding: EdgeInsets.all(16.w),
+                  width: double.infinity,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
                   decoration: BoxDecoration(
-                    color: AppColors.accentPurple.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: AppColors.accentPurple.withOpacity(0.3),
-                      width: 1,
-                    ),
+                    color: _kSurface,
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(color: _kBorder, width: 1),
                   ),
                   child: Column(
                     children: [
-                      buildInfoRow('Developer', 'Tact Team'),
-                      SizedBox(height: 12.h),
-                      buildInfoRow('Platform', 'Flutter'),
-                      SizedBox(height: 12.h),
-                      buildInfoRow('Release Date', 'November 2025'),
-                      SizedBox(height: 12.h),
-                      buildInfoRow('Contact', 'support@appstact.com'),
+                      _InfoRow(
+                          label:
+                              AppLocalizations.of(context).aboutInfoDeveloper,
+                          value: 'Jay Han'),
+                      _Divider(),
+                      _InfoRow(
+                          label: AppLocalizations.of(context).aboutInfoPlatform,
+                          value: 'Flutter'),
+                      _Divider(),
+                      _InfoRow(
+                          label: AppLocalizations.of(context).aboutInfoReleased,
+                          value: 'November 2025'),
+                      _Divider(),
+                      _InfoRow(
+                          label: AppLocalizations.of(context).aboutInfoContact,
+                          value: 'jayhan0215@gmail.com'),
                     ],
                   ),
                 ),
-                SizedBox(height: 32.h),
+
+                SizedBox(height: 28.h),
                 Text(
-                  '© 2025 Tact. All rights reserved.',
-                  style: TextStyle(
-                    color: AppColors.textMedium,
-                    fontSize: 12.sp,
-                  ),
+                  AppLocalizations.of(context).aboutCopyright,
+                  style: TextStyle(color: _kSub, fontSize: 12.sp),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 40.h),
@@ -180,4 +258,33 @@ class AboutScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _InfoRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 11.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(color: _kSub, fontSize: 13.sp)),
+          Text(value,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Container(height: 1, color: _kBorder);
 }

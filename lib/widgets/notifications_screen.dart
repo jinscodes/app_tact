@@ -3,6 +3,7 @@
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/common/custom_switch_tile.dart';
 import 'package:app_tact/components/common/section_title.dart';
+import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -128,11 +129,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
-            'Notifications',
+            AppLocalizations.of(context).rowNotifications,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18.sp,
@@ -142,20 +144,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           centerTitle: true,
         ),
         body: _isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(
-                  color: AppColors.accentPurple,
+                  color: Color(0xFF7C6BFF),
+                  strokeWidth: 2,
                 ),
               )
             : SafeArea(
                 child: ListView(
                   padding: EdgeInsets.all(20.w),
                   children: [
-                    SectionTitle('General'),
+                    SectionTitle(
+                        AppLocalizations.of(context).notifSectionGeneral),
                     CustomSwitchTile(
                       icon: Icons.notifications_active,
-                      title: 'Push Notifications',
-                      subtitle: 'Receive push notifications',
+                      title: AppLocalizations.of(context).notifPushTitle,
+                      subtitle: AppLocalizations.of(context).notifPushSubtitle,
                       value: _pushNotifications,
                       onChanged: (value) {
                         setState(() {
@@ -166,8 +170,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     CustomSwitchTile(
                       icon: Icons.email_outlined,
-                      title: 'Email Notifications',
-                      subtitle: 'Receive notifications via email',
+                      title: AppLocalizations.of(context).notifEmailTitle,
+                      subtitle: AppLocalizations.of(context).notifEmailSubtitle,
                       value: _emailNotifications,
                       onChanged: (value) {
                         setState(() {
@@ -177,11 +181,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       },
                     ),
                     SizedBox(height: 20.h),
-                    SectionTitle('Activity'),
+                    SectionTitle(
+                        AppLocalizations.of(context).notifSectionActivity),
                     CustomSwitchTile(
                       icon: Icons.link,
-                      title: 'Link Reminders',
-                      subtitle: 'Get reminded about saved links',
+                      title:
+                          AppLocalizations.of(context).notifLinkRemindersTitle,
+                      subtitle: AppLocalizations.of(context)
+                          .notifLinkRemindersSubtitle,
                       value: _linkReminders,
                       onChanged: (value) {
                         setState(() {
@@ -192,8 +199,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     CustomSwitchTile(
                       icon: Icons.calendar_today,
-                      title: 'Weekly Digest',
-                      subtitle: 'Weekly summary of your activity',
+                      title:
+                          AppLocalizations.of(context).notifWeeklyDigestTitle,
+                      subtitle: AppLocalizations.of(context)
+                          .notifWeeklyDigestSubtitle,
                       value: _weeklyDigest,
                       onChanged: (value) {
                         setState(() {
@@ -203,11 +212,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       },
                     ),
                     SizedBox(height: 20.h),
-                    SectionTitle('Updates'),
+                    SectionTitle(
+                        AppLocalizations.of(context).notifSectionUpdates),
                     CustomSwitchTile(
                       icon: Icons.new_releases_outlined,
-                      title: 'New Features',
-                      subtitle: 'Updates about new features',
+                      title: AppLocalizations.of(context).notifNewFeaturesTitle,
+                      subtitle:
+                          AppLocalizations.of(context).notifNewFeaturesSubtitle,
                       value: _newFeatures,
                       onChanged: (value) {
                         setState(() {
@@ -218,8 +229,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     CustomSwitchTile(
                       icon: Icons.local_offer_outlined,
-                      title: 'Promotions',
-                      subtitle: 'Special offers and promotions',
+                      title: AppLocalizations.of(context).notifPromotionsTitle,
+                      subtitle:
+                          AppLocalizations.of(context).notifPromotionsSubtitle,
                       value: _promotions,
                       onChanged: (value) {
                         setState(() {

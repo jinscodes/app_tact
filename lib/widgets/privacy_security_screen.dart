@@ -8,6 +8,7 @@ import 'package:app_tact/components/dialogs/delete_account_dialog.dart';
 import 'package:app_tact/components/dialogs/password_not_available_dialog.dart';
 import 'package:app_tact/components/dialogs/reauthentication_dialog.dart';
 import 'package:app_tact/components/dialogs/two_factor_required_dialog.dart';
+import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/models/two_factor_auth.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/password_change/verify_current_password_screen.dart';
@@ -228,11 +229,12 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
-            'Privacy & Security',
+            AppLocalizations.of(context).privSecTitle,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18.sp,
@@ -245,25 +247,26 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           child: ListView(
             padding: EdgeInsets.all(20.w),
             children: [
-              SectionTitle('Authentication'),
+              SectionTitle(AppLocalizations.of(context).privSecSectionAuth),
               CustomSwitchTile(
                 icon: Icons.fingerprint,
-                title: 'Biometric Login',
-                subtitle: 'Use fingerprint or face ID',
+                title: AppLocalizations.of(context).privSecBiometricTitle,
+                subtitle: AppLocalizations.of(context).privSecBiometricSubtitle,
                 value: _biometricEnabled,
                 onChanged: _handleBiometricToggle,
               ),
               CustomSwitchTile(
                 icon: Icons.security,
-                title: 'Two-Factor Authentication',
-                subtitle: 'Add an extra layer of security',
+                title: AppLocalizations.of(context).privSecTwoFactorTitle,
+                subtitle: AppLocalizations.of(context).privSecTwoFactorSubtitle,
                 value: _twoFactorEnabled,
                 onChanged: _handleTwoFactorToggle,
               ),
               CustomSettingTile(
                 icon: Icons.pin_outlined,
-                title: 'Set Two-Factor Authentication',
-                subtitle: 'Configure 2FA with verification code',
+                title: AppLocalizations.of(context).privSecSetTwoFactorTitle,
+                subtitle:
+                    AppLocalizations.of(context).privSecSetTwoFactorSubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -274,11 +277,12 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 },
               ),
               SizedBox(height: 20.h),
-              SectionTitle('Password'),
+              SectionTitle(AppLocalizations.of(context).privSecSectionPassword),
               CustomSettingTile(
                 icon: Icons.lock_outline,
-                title: 'Change Password',
-                subtitle: 'Update your account password',
+                title: AppLocalizations.of(context).privSecChangePasswordTitle,
+                subtitle:
+                    AppLocalizations.of(context).privSecChangePasswordSubtitle,
                 onTap: () async {
                   User? user = FirebaseAuth.instance.currentUser;
                   if (user != null) {
@@ -311,11 +315,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 },
               ),
               SizedBox(height: 20.h),
-              SectionTitle('Privacy Policy'),
+              SectionTitle(
+                  AppLocalizations.of(context).privSecSectionPrivacyPolicy),
               CustomSettingTile(
                 icon: Icons.policy_outlined,
-                title: 'Privacy Policy',
-                subtitle: 'Read our privacy policy',
+                title: AppLocalizations.of(context).privSecPrivacyPolicyTitle,
+                subtitle:
+                    AppLocalizations.of(context).privSecPrivacyPolicySubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -327,8 +333,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               ),
               CustomSettingTile(
                 icon: Icons.description_outlined,
-                title: 'Terms of Service',
-                subtitle: 'Read our terms of service',
+                title: AppLocalizations.of(context).privSecTermsTitle,
+                subtitle: AppLocalizations.of(context).privSecTermsSubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -339,11 +345,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 },
               ),
               SizedBox(height: 20.h),
-              SectionTitle('Data & Privacy'),
+              SectionTitle(
+                  AppLocalizations.of(context).privSecSectionDataPrivacy),
               CustomSettingTile(
                 icon: Icons.download_outlined,
-                title: 'Download Your Data',
-                subtitle: 'Export your personal information',
+                title: AppLocalizations.of(context).privSecDownloadDataTitle,
+                subtitle:
+                    AppLocalizations.of(context).privSecDownloadDataSubtitle,
                 onTap: () {
                   MessageUtils.showSuccessMessage(
                     context,
@@ -353,8 +361,9 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               ),
               CustomSettingTile(
                 icon: Icons.delete_outline,
-                title: 'Delete Account',
-                subtitle: 'Permanently delete your account',
+                title: AppLocalizations.of(context).privSecDeleteAccountTitle,
+                subtitle:
+                    AppLocalizations.of(context).privSecDeleteAccountSubtitle,
                 onTap: () {
                   _showDeleteAccountDialog();
                 },

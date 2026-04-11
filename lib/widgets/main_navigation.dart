@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/notification_service.dart';
 import 'package:app_tact/widgets/links.dart';
 import 'package:app_tact/widgets/profiles.dart';
@@ -233,18 +234,18 @@ class _GlassTabBar extends StatelessWidget {
     required this.onTap,
   });
 
-  static const _items = [
-    (icon: Icons.link_rounded, label: 'Links'),
-    (icon: Icons.tune_rounded, label: 'Settings'),
-    (icon: Icons.person_rounded, label: 'Profile'),
-  ];
-
   static const _activeColor = Color(0xFF7C6BFF);
   static const _inactiveColor = Color(0xFFA0A0A0);
   static const _activeBg = Color(0x1F7C6BFF); // ~12 % violet pill
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final items = [
+      (icon: Icons.link_rounded, label: l.tabLinks),
+      (icon: Icons.tune_rounded, label: l.tabSettings),
+      (icon: Icons.person_rounded, label: l.tabProfile),
+    ];
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return ClipRRect(
@@ -268,10 +269,10 @@ class _GlassTabBar extends StatelessWidget {
           ),
           child: Row(
             children: [
-              for (int i = 0; i < _items.length; i++)
+              for (int i = 0; i < items.length; i++)
                 _TabItem(
-                  icon: _items[i].icon,
-                  label: _items[i].label,
+                  icon: items[i].icon,
+                  label: items[i].label,
                   selected: selectedIndex == i,
                   onTap: () => onTap(i),
                   activeColor: _activeColor,
@@ -373,6 +374,7 @@ class _NotificationPermissionSheetState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ClipRRect(
       borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
       child: BackdropFilter(
@@ -426,7 +428,7 @@ class _NotificationPermissionSheetState
 
               // ─ Title ─
               Text(
-                'Allow Notifications',
+                l.notifPermTitle,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18.sp,
@@ -438,7 +440,7 @@ class _NotificationPermissionSheetState
 
               // ─ Body ─
               Text(
-                'Get reminders and updates when they matter.',
+                l.notifPermBody,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.52),
                   fontSize: 14.sp,
@@ -469,7 +471,7 @@ class _NotificationPermissionSheetState
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'Allow Notifications',
+                      l.notifPermAllow,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 15.sp,
@@ -497,7 +499,7 @@ class _NotificationPermissionSheetState
                     height: 50.h,
                     alignment: Alignment.center,
                     child: Text(
-                      'Not Now',
+                      l.notifPermNotNow,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.40),
                         fontSize: 15.sp,

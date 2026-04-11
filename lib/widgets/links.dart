@@ -1,6 +1,7 @@
 import 'package:app_tact/components/add_category_dialog.dart';
 import 'package:app_tact/components/category_card.dart';
 import 'package:app_tact/components/sheet_theme.dart';
+import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
 import 'package:app_tact/utils/message_utils.dart';
@@ -19,11 +20,12 @@ class _LinksState extends State<Links> {
   final LinksService _linksService = LinksService();
 
   Future<void> _launchURL(String url) async {
+    final l = AppLocalizations.of(context);
     try {
       showAppSheet(
         context: context,
         child: AppSheetScaffold(
-          title: 'Open Link',
+          title: l.linksOpenLinkTitle,
           body: Padding(
             padding: const EdgeInsets.fromLTRB(
               kSheetHPad,
@@ -35,7 +37,7 @@ class _LinksState extends State<Links> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SheetSectionLabel('URL'),
+                SheetSectionLabel(l.linksUrlLabel),
                 const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
@@ -66,17 +68,17 @@ class _LinksState extends State<Links> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SheetPrimaryButton(
-                  label: 'Copy URL',
+                  label: l.linksCopyUrl,
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: url));
                     Navigator.pop(context);
                     MessageUtils.showSuccessMessage(
-                        context, 'URL copied to clipboard');
+                        context, l.linksUrlCopied);
                   },
                 ),
                 const SizedBox(height: 10),
                 SheetSecondaryButton(
-                  label: 'Close',
+                  label: l.linksClose,
                   onTap: () => Navigator.pop(context),
                 ),
               ],
@@ -98,7 +100,7 @@ class _LinksState extends State<Links> {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          'Links',
+          AppLocalizations.of(context).linksTitle,
           style: TextStyle(
             color: Colors.white,
             fontSize: 18.sp,
@@ -136,7 +138,7 @@ class _LinksState extends State<Links> {
                             ),
                             SizedBox(height: 20.h),
                             Text(
-                              'Error loading categories',
+                              AppLocalizations.of(context).linksErrorLoading,
                               style: TextStyle(
                                 color: Colors.red[400],
                                 fontSize: 18.sp,
@@ -162,7 +164,7 @@ class _LinksState extends State<Links> {
                             ),
                             SizedBox(height: 20.h),
                             Text(
-                              'No categories yet',
+                              AppLocalizations.of(context).linksNoCategoriesTitle,
                               style: TextStyle(
                                 color: Colors.grey[400],
                                 fontSize: 18.sp,
@@ -171,7 +173,7 @@ class _LinksState extends State<Links> {
                             ),
                             SizedBox(height: 8.h),
                             Text(
-                              'Start by creating your first category',
+                              AppLocalizations.of(context).linksNoCategoriesSubtitle,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 14.sp,
