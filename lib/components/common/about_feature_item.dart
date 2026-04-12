@@ -1,13 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 const _kFiAccent = Color(0xFF7C6BFF);
-const _kFiSurface = Color(0xFF1A1A1A);
-const _kFiBorder = Color(0x1FFFFFFF);
 
 Widget buildFeatureItem({
+  required BuildContext context,
   required IconData icon,
   required String title,
   required String description,
@@ -16,9 +16,9 @@ Widget buildFeatureItem({
     margin: EdgeInsets.only(bottom: 10.h),
     padding: EdgeInsets.all(16.w),
     decoration: BoxDecoration(
-      color: _kFiSurface,
+      color: context.cardSurface,
       borderRadius: BorderRadius.circular(14.r),
-      border: Border.all(color: _kFiBorder, width: 1),
+      border: Border.all(color: context.borderColor, width: 1),
     ),
     child: Row(
       children: [
@@ -41,7 +41,7 @@ Widget buildFeatureItem({
               Text(
                 title,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.textPrimary,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -50,7 +50,7 @@ Widget buildFeatureItem({
               Text(
                 description,
                 style: TextStyle(
-                  color: const Color(0xFF8A8A8E),
+                  color: context.textSecondary,
                   fontSize: 13.sp,
                   height: 1.5,
                 ),
