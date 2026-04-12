@@ -2,6 +2,7 @@
 
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/models/make_category.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -34,17 +35,18 @@ class LinkItemCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
-        color: AppColors.cardSurface,
+        color: context.cardSurface,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: AppColors.cardBorder,
+          color: context.borderColor,
           width: 1,
         ),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: AppColors.cardShadow,
+            color:
+                context.isDark ? AppColors.cardShadow : const Color(0x14000000),
             blurRadius: 16,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -70,12 +72,14 @@ class LinkItemCard extends StatelessWidget {
                               width: 48.w,
                               height: 48.w,
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.3),
+                                color: context.isDark
+                                    ? Colors.black.withOpacity(0.3)
+                                    : const Color(0xFFE5E7EB),
                                 borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: Icon(
                                 Icons.link,
-                                color: Colors.white,
+                                color: context.textSecondary,
                                 size: 24.sp,
                               ),
                             );
@@ -86,7 +90,9 @@ class LinkItemCard extends StatelessWidget {
                               width: 48.w,
                               height: 48.w,
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.3),
+                                color: context.isDark
+                                    ? Colors.black.withOpacity(0.3)
+                                    : const Color(0xFFE5E7EB),
                                 borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: Center(
@@ -96,7 +102,7 @@ class LinkItemCard extends StatelessWidget {
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white.withOpacity(0.5)),
+                                        context.textSecondary),
                                   ),
                                 ),
                               ),
@@ -107,12 +113,14 @@ class LinkItemCard extends StatelessWidget {
                           width: 48.w,
                           height: 48.w,
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
+                            color: context.isDark
+                                ? Colors.black.withOpacity(0.3)
+                                : const Color(0xFFE5E7EB),
                             borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: Icon(
                             Icons.link,
-                            color: Colors.white,
+                            color: context.textSecondary,
                             size: 24.sp,
                           ),
                         ),
@@ -125,7 +133,7 @@ class LinkItemCard extends StatelessWidget {
                       Text(
                         link.title,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: context.textPrimary,
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -136,7 +144,7 @@ class LinkItemCard extends StatelessWidget {
                       Text(
                         link.url,
                         style: TextStyle(
-                          color: Colors.grey[400],
+                          color: context.textSecondary,
                           fontSize: 13.sp,
                         ),
                         maxLines: 1,
@@ -150,7 +158,9 @@ class LinkItemCard extends StatelessWidget {
                   width: 36.w,
                   height: 36.w,
                   decoration: BoxDecoration(
-                    color: Color(0xFF4A4A5F),
+                    color: context.isDark
+                        ? const Color(0xFF4A4A5F)
+                        : const Color(0xFFE5E7EB),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Material(
@@ -164,7 +174,7 @@ class LinkItemCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8.r),
                       child: Icon(
                         Icons.edit_outlined,
-                        color: Colors.white,
+                        color: context.textSecondary,
                         size: 18.sp,
                       ),
                     ),

@@ -1,11 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 const _kAccent = Color(0xFF7C6BFF);
-const _kSurface = Color(0xFF1A1A1A);
-const _kBorder = Color(0x1FFFFFFF);
 const _kDestructive = Color(0xFFFF453A);
 
 class CustomTile extends StatelessWidget {
@@ -30,10 +29,10 @@ class CustomTile extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
-        color: _kSurface,
+        color: context.cardSurface,
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
-          color: isDestructive ? _kDestructive.withOpacity(0.2) : _kBorder,
+          color: isDestructive ? _kDestructive.withOpacity(0.2) : context.borderColor,
           width: 1,
         ),
       ),
@@ -64,7 +63,7 @@ class CustomTile extends StatelessWidget {
                       Text(
                         title,
                         style: TextStyle(
-                          color: isDestructive ? _kDestructive : Colors.white,
+                          color: isDestructive ? _kDestructive : context.textPrimary,
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -73,7 +72,7 @@ class CustomTile extends StatelessWidget {
                       Text(
                         subtitle,
                         style: TextStyle(
-                          color: const Color(0xFF8A8A8E),
+                          color: context.textSecondary,
                           fontSize: 13.sp,
                         ),
                       ),
@@ -82,7 +81,7 @@ class CustomTile extends StatelessWidget {
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
-                  color: const Color(0xFF8A8A8E),
+                  color: context.textSecondary,
                   size: 20.sp,
                 ),
               ],

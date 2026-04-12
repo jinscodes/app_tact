@@ -12,6 +12,7 @@ import 'package:app_tact/components/link_item_card.dart';
 import 'package:app_tact/components/sheet_theme.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
@@ -178,17 +179,18 @@ class _CategoryCardState extends State<CategoryCard> {
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
-        color: AppColors.cardSurface,
+        color: context.cardSurface,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: AppColors.cardBorder,
+          color: context.borderColor,
           width: 1,
         ),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: AppColors.cardShadow,
+            color:
+                context.isDark ? AppColors.cardShadow : const Color(0x14000000),
             blurRadius: 16,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -201,8 +203,8 @@ class _CategoryCardState extends State<CategoryCard> {
           childrenPadding: EdgeInsets.symmetric(horizontal: 16.w),
           backgroundColor: Colors.transparent,
           collapsedBackgroundColor: Colors.transparent,
-          iconColor: Colors.white,
-          collapsedIconColor: Colors.white,
+          iconColor: context.textPrimary,
+          collapsedIconColor: context.textPrimary,
           trailing: InkWell(
             onTap: _handleLockToggle,
             borderRadius: BorderRadius.circular(20.r),
@@ -230,7 +232,7 @@ class _CategoryCardState extends State<CategoryCard> {
           title: Text(
             widget.category.name,
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -238,7 +240,7 @@ class _CategoryCardState extends State<CategoryCard> {
           subtitle: Text(
             '${widget.category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(widget.category.createdAt)}',
             style: TextStyle(
-              color: Colors.grey[400],
+              color: context.textSecondary,
               fontSize: 12.sp,
             ),
           ),
@@ -252,7 +254,7 @@ class _CategoryCardState extends State<CategoryCard> {
                     padding: EdgeInsets.all(20.h),
                     child: Center(
                       child: CircularProgressIndicator(
-                        color: Colors.white,
+                        color: context.textPrimary,
                         strokeWidth: 2,
                       ),
                     ),

@@ -190,21 +190,25 @@ class AboutScreen extends StatelessWidget {
                 ),
 
                 buildFeatureItem(
+                  context: context,
                   icon: Icons.folder_outlined,
                   title: AppLocalizations.of(context).aboutFeature1Title,
                   description: AppLocalizations.of(context).aboutFeature1Desc,
                 ),
                 buildFeatureItem(
+                  context: context,
                   icon: Icons.cloud_sync_outlined,
                   title: AppLocalizations.of(context).aboutFeature2Title,
                   description: AppLocalizations.of(context).aboutFeature2Desc,
                 ),
                 buildFeatureItem(
+                  context: context,
                   icon: Icons.lock_outline_rounded,
                   title: AppLocalizations.of(context).aboutFeature3Title,
                   description: AppLocalizations.of(context).aboutFeature3Desc,
                 ),
                 buildFeatureItem(
+                  context: context,
                   icon: Icons.sticky_note_2_outlined,
                   title: AppLocalizations.of(context).aboutFeature4Title,
                   description: AppLocalizations.of(context).aboutFeature4Desc,
