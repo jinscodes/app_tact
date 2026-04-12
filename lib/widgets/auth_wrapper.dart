@@ -1,7 +1,9 @@
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/services/theme_service.dart';
 import 'package:app_tact/widgets/email_verification_screen.dart';
 import 'package:app_tact/widgets/home.dart';
 import 'package:app_tact/widgets/login.dart';
+import 'package:app_tact/widgets/theme_picker_screen.dart';
 import 'package:flutter/material.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -24,7 +26,10 @@ class AuthWrapper extends StatelessWidget {
 
         final route = authService.getInitialRoute();
 
-        if (route == '/home') return const HomeScreen();
+        if (route == '/home') {
+          if (!ThemeService.hasPicked) return const ThemePickerScreen();
+          return const HomeScreen();
+        }
         if (route == '/verify') return const EmailVerificationScreen();
         return const LoginScreen();
       },

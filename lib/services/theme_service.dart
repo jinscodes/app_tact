@@ -17,6 +17,10 @@ class ThemeService {
   static final ValueNotifier<ThemeMode> themeMode =
       ValueNotifier<ThemeMode>(ThemeMode.system);
 
+  /// True once the user has explicitly chosen a theme (light or dark).
+  /// False on first launch — used to trigger the theme-picker screen.
+  static bool hasPicked = false;
+
   // ── Initialise once before runApp() ──────────────────────────────────────
   static Future<void> init() async {
     SharedPreferences? prefs;
@@ -30,16 +34,18 @@ class ThemeService {
       final saved = prefs.getString(_kPrefKey);
       if (saved != null) {
         themeMode.value = _fromString(saved);
+        hasPicked = true;
         return;
       }
     }
     themeMode.value = ThemeMode.system;
+    hasPicked = false;
   }
 
   // ── Set & persist theme mode ──────────────────────────────────────────────
   static Future<void> setMode(ThemeMode mode) async {
-    if (themeMode.value == mode) return;
     themeMode.value = mode;
+    hasPicked = true;
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_kPrefKey, _toString(mode));
