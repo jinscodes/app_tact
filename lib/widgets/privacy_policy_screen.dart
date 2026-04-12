@@ -1,4 +1,5 @@
 import 'package:app_tact/colors.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -8,8 +9,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
+      decoration: BoxDecoration(
+        gradient: context.screenGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -17,13 +18,13 @@ class PrivacyPolicyScreen extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(Icons.arrow_back, color: context.textPrimary),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             'Privacy Policy',
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -39,17 +40,19 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 Text(
                   'Last Updated: November 30, 2025',
                   style: TextStyle(
-                    color: AppColors.textMedium,
+                    color: context.textSecondary,
                     fontSize: 13.sp,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
                 SizedBox(height: 24.h),
                 _buildSection(
+                  context,
                   'Introduction',
                   'Welcome to Tact. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you use our app and tell you about your privacy rights.',
                 ),
                 _buildSection(
+                  context,
                   'Information We Collect',
                   'We collect the following types of information:\n\n'
                       '• Account Information: Name, email address, and authentication credentials when you sign up\n'
@@ -59,6 +62,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       '• Authentication Data: Google or GitHub account information if you sign in with these services',
                 ),
                 _buildSection(
+                  context,
                   'How We Use Your Information',
                   'We use your information to:\n\n'
                       '• Provide and maintain our services\n'
@@ -70,10 +74,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       '• Comply with legal obligations',
                 ),
                 _buildSection(
+                  context,
                   'Data Storage and Security',
                   'We use Firebase services to securely store your data. Your data is encrypted in transit and at rest. We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.',
                 ),
                 _buildSection(
+                  context,
                   'Data Sharing',
                   'We do not sell, trade, or rent your personal information to third parties. We may share your information only in the following circumstances:\n\n'
                       '• With your explicit consent\n'
@@ -82,6 +88,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       '• With service providers who assist in operating our app (e.g., Firebase, Google)',
                 ),
                 _buildSection(
+                  context,
                   'Your Rights',
                   'You have the right to:\n\n'
                       '• Access your personal data\n'
@@ -92,6 +99,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       '• Object to processing of your data',
                 ),
                 _buildSection(
+                  context,
                   'Third-Party Services',
                   'Our app uses third-party services that may collect information used to identify you:\n\n'
                       '• Firebase Authentication and Firestore\n'
@@ -100,18 +108,22 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       'These services have their own privacy policies governing the use of your information.',
                 ),
                 _buildSection(
+                  context,
                   'Data Retention',
                   'We retain your personal information for as long as necessary to provide our services and fulfill the purposes outlined in this privacy policy. You can request deletion of your account and associated data at any time through the app settings.',
                 ),
                 _buildSection(
+                  context,
                   'Children\'s Privacy',
                   'Our services are not intended for children under the age of 13. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us.',
                 ),
                 _buildSection(
+                  context,
                   'Changes to This Policy',
                   'We may update this privacy policy from time to time. We will notify you of any changes by posting the new privacy policy on this page and updating the "Last Updated" date.',
                 ),
                 _buildSection(
+                  context,
                   'Contact Us',
                   'If you have any questions about this privacy policy or our data practices, please contact us at:\n\n'
                       'Email: jayhan0215@gmail.com\n'
@@ -126,7 +138,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title, String content) {
+  Widget _buildSection(BuildContext context, String title, String content) {
     return Padding(
       padding: EdgeInsets.only(bottom: 24.h),
       child: Column(
@@ -144,7 +156,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           Text(
             content,
             style: TextStyle(
-              color: AppColors.textLight,
+              color: context.textPrimary,
               fontSize: 14.sp,
               height: 1.6,
             ),

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print, deprecated_member_use
 
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,14 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Shared design tokens (same as signup.dart)
-const _kBg = Color(0xFF0F0F0F);
 const _kAccent = Color(0xFF7C6BFF);
-const _kSurface = Color(0xFF1A1A1A);
-const _kBorder = Color(0x1FFFFFFF);
 const _kBorderFocused = _kAccent;
-const _kTextPrimary = Colors.white;
-const Color _kTextSecondary = Color(0xFF8A8A8E);
-const _kDivider = Color(0x14FFFFFF);
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -174,9 +169,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: context.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: _kBg,
+        backgroundColor: context.screenSurface,
         resizeToAvoidBottomInset: true,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -189,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // ─ Headline ─
                   Text('Welcome\nback',
                       style: TextStyle(
-                        color: _kTextPrimary,
+                        color: context.textPrimary,
                         fontSize: 36.sp,
                         fontWeight: FontWeight.w700,
                         height: 1.12,
@@ -198,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 10.h),
                   Text('Sign in to continue.',
                       style: TextStyle(
-                          color: _kTextSecondary,
+                          color: context.textSecondary,
                           fontSize: 15.sp,
                           height: 1.4)),
                   SizedBox(height: 44.h),
@@ -235,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         _passwordVisible
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
-                        color: _kTextSecondary,
+                        color: context.textSecondary,
                         size: 18.sp,
                       ),
                       onPressed: () =>
@@ -291,7 +286,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             TextSpan(
                                 text: "Don't have an account? ",
-                                style: TextStyle(color: _kTextSecondary)),
+                                style: TextStyle(color: context.textSecondary)),
                             TextSpan(
                                 text: 'Sign up',
                                 style: TextStyle(
@@ -364,7 +359,7 @@ class _AuthInputState extends State<_AuthInput> {
         ? const Color(0xFFFF453A)
         : _focused
             ? _kBorderFocused
-            : _kBorder;
+            : context.inputBorderColor;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,7 +367,7 @@ class _AuthInputState extends State<_AuthInput> {
         Text(
           widget.label,
           style: TextStyle(
-            color: _focused ? _kAccent : _kTextSecondary,
+            color: _focused ? _kAccent : context.textSecondary,
             fontSize: 12.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.4,
@@ -382,7 +377,7 @@ class _AuthInputState extends State<_AuthInput> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
-            color: _kSurface,
+            color: context.inputSurface,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(color: borderColor, width: 1.2),
           ),
@@ -393,14 +388,14 @@ class _AuthInputState extends State<_AuthInput> {
             obscureText: widget.obscure,
             onChanged: widget.onChanged,
             style: TextStyle(
-              color: _kTextPrimary,
+              color: context.textPrimary,
               fontSize: 16.sp,
               fontWeight: FontWeight.w400,
             ),
             decoration: InputDecoration(
               hintText: widget.placeholder,
               hintStyle: TextStyle(
-                  color: Colors.white.withOpacity(0.22), fontSize: 16.sp),
+                  color: context.textSecondary.withOpacity(0.55), fontSize: 16.sp),
               border: InputBorder.none,
               contentPadding:
                   EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
@@ -496,13 +491,13 @@ class _OrDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Divider(color: _kDivider, thickness: 1)),
+        Expanded(child: Divider(color: context.dividerColor, thickness: 1)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Text('or',
-              style: TextStyle(color: _kTextSecondary, fontSize: 13.sp)),
+              style: TextStyle(color: context.textSecondary, fontSize: 13.sp)),
         ),
-        Expanded(child: Divider(color: _kDivider, thickness: 1)),
+        Expanded(child: Divider(color: context.dividerColor, thickness: 1)),
       ],
     );
   }
@@ -542,9 +537,9 @@ class _SocialButtonState extends State<_SocialButton> {
           width: double.infinity,
           height: 52.h,
           decoration: BoxDecoration(
-            color: _kSurface,
+            color: context.inputSurface,
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: _kBorder, width: 1),
+            border: Border.all(color: context.inputBorderColor, width: 1),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -553,7 +548,7 @@ class _SocialButtonState extends State<_SocialButton> {
               SizedBox(width: 10.w),
               Text(widget.label,
                   style: TextStyle(
-                      color: _kTextPrimary,
+                      color: context.textPrimary,
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w500)),
             ],

@@ -1,8 +1,8 @@
 // ignore_for_file: deprecated_member_use, unused_field, unused_element
 
-import 'package:app_tact/colors.dart';
 import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/subscription_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/widgets/tact_paywall_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -133,8 +133,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         (_profileData?['subscriptionRenewal'] as String?)?.trim() ?? '—';
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
+      decoration: BoxDecoration(
+        gradient: context.screenGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -143,14 +143,14 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white, size: 20),
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                color: context.textPrimary, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             AppLocalizations.of(context).subTitle,
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -197,7 +197,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           Text(
                             AppLocalizations.of(context).subSectionManage,
                             style: TextStyle(
-                              color: const Color(0xFF8A8A8E),
+                              color: context.textSecondary,
                               fontSize: 11.sp,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1.5,
@@ -247,12 +247,12 @@ class _PlanStatusCard extends StatelessWidget {
       margin: EdgeInsets.only(top: 16.h),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: context.cardSurface,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
           color: isActive
               ? const Color(0xFF7C6BFF).withOpacity(0.5)
-              : const Color(0x1FFFFFFF),
+              : context.borderColor,
           width: 1,
         ),
       ),
@@ -283,7 +283,7 @@ class _PlanStatusCard extends StatelessWidget {
                   Text(
                     plan,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.textPrimary,
                       fontSize: 20.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -320,7 +320,7 @@ class _PlanStatusCard extends StatelessWidget {
             SizedBox(height: 16.h),
             Container(
               height: 1,
-              color: const Color(0x1FFFFFFF),
+              color: context.borderColor,
             ),
             SizedBox(height: 16.h),
             Row(
@@ -329,14 +329,14 @@ class _PlanStatusCard extends StatelessWidget {
                 Text(
                   AppLocalizations.of(context).subRenews,
                   style: TextStyle(
-                    color: const Color(0xFF8A8A8E),
+                    color: context.textSecondary,
                     fontSize: 13.sp,
                   ),
                 ),
                 Text(
                   renewal,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.textPrimary,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -419,9 +419,9 @@ class _SubActionRow extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: context.cardSurface,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0x1FFFFFFF), width: 1),
+        border: Border.all(color: context.borderColor, width: 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -450,14 +450,14 @@ class _SubActionRow extends StatelessWidget {
                   child: Text(
                     label,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.textPrimary,
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
                 Icon(Icons.chevron_right_rounded,
-                    color: const Color(0xFF8A8A8E), size: 20.sp),
+                    color: context.textSecondary, size: 20.sp),
               ],
             ),
           ),

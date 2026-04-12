@@ -1,12 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:math' as math;
+
+import 'package:app_tact/services/subscription_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:app_tact/colors.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
-import 'package:app_tact/services/subscription_service.dart';
 
 class TactPaywallPage extends StatefulWidget {
   const TactPaywallPage({super.key, this.paywallMaxHeight});
@@ -72,8 +73,8 @@ class _TactPaywallPageState extends State<TactPaywallPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
+      decoration: BoxDecoration(
+        gradient: context.screenGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -88,7 +89,7 @@ class _TactPaywallPageState extends State<TactPaywallPage> {
                       child: Text(
                         'Offering "Tact" not available right now.',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: context.textPrimary,
                           fontSize: 14.sp,
                         ),
                         textAlign: TextAlign.center,

@@ -1,14 +1,11 @@
-import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/common/about_feature_item.dart';
 import 'package:app_tact/l10n/app_localizations.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
+// ── Design tokens ────────────────────────────────────────────────────
 const _kAccent = Color(0xFF7C6BFF);
-const _kSurface = Color(0xFF1A1A1A);
-const _kBorder = Color(0x1FFFFFFF);
-const _kSub = Color(0xFF8A8A8E);
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -16,8 +13,8 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
+      decoration: BoxDecoration(
+        gradient: context.screenGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -26,14 +23,14 @@ class AboutScreen extends StatelessWidget {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white, size: 20),
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                color: context.textPrimary, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             AppLocalizations.of(context).aboutTitle,
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -73,7 +70,7 @@ class AboutScreen extends StatelessWidget {
                 Text(
                   'Tact',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.textPrimary,
                     fontSize: 28.sp,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
@@ -101,7 +98,10 @@ class AboutScreen extends StatelessWidget {
                 SizedBox(height: 12.h),
                 Text(
                   AppLocalizations.of(context).aboutAppSubtitle,
-                  style: TextStyle(color: _kSub, fontSize: 14.sp, height: 1.5),
+                  style: TextStyle(
+                      color: context.textSecondary,
+                      fontSize: 14.sp,
+                      height: 1.5),
                   textAlign: TextAlign.center,
                 ),
 
@@ -112,9 +112,9 @@ class AboutScreen extends StatelessWidget {
                   width: double.infinity,
                   padding: EdgeInsets.all(18.w),
                   decoration: BoxDecoration(
-                    color: _kSurface,
+                    color: context.cardSurface,
                     borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: _kBorder, width: 1),
+                    border: Border.all(color: context.borderColor, width: 1),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +137,7 @@ class AboutScreen extends StatelessWidget {
                           Text(
                             AppLocalizations.of(context).aboutCardTitle,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: context.textPrimary,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w700,
                             ),
@@ -148,7 +148,7 @@ class AboutScreen extends StatelessWidget {
                       Text(
                         AppLocalizations.of(context).aboutCardBody,
                         style: TextStyle(
-                          color: _kSub,
+                          color: context.textSecondary,
                           fontSize: 13.sp,
                           height: 1.65,
                         ),
@@ -178,7 +178,7 @@ class AboutScreen extends StatelessWidget {
                         Text(
                           AppLocalizations.of(context).aboutSectionFeatures,
                           style: TextStyle(
-                            color: _kSub,
+                            color: context.textSecondary,
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.5,
@@ -218,9 +218,9 @@ class AboutScreen extends StatelessWidget {
                   padding:
                       EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
                   decoration: BoxDecoration(
-                    color: _kSurface,
+                    color: context.cardSurface,
                     borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: _kBorder, width: 1),
+                    border: Border.all(color: context.borderColor, width: 1),
                   ),
                   child: Column(
                     children: [
@@ -247,7 +247,8 @@ class AboutScreen extends StatelessWidget {
                 SizedBox(height: 28.h),
                 Text(
                   AppLocalizations.of(context).aboutCopyright,
-                  style: TextStyle(color: _kSub, fontSize: 12.sp),
+                  style:
+                      TextStyle(color: context.textSecondary, fontSize: 12.sp),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 40.h),
@@ -272,10 +273,11 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: _kSub, fontSize: 13.sp)),
+          Text(label,
+              style: TextStyle(color: context.textSecondary, fontSize: 13.sp)),
           Text(value,
               style: TextStyle(
-                  color: Colors.white,
+                  color: context.textPrimary,
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600)),
         ],
@@ -286,5 +288,6 @@ class _InfoRow extends StatelessWidget {
 
 class _Divider extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Container(height: 1, color: _kBorder);
+  Widget build(BuildContext context) =>
+      Container(height: 1, color: context.borderColor);
 }

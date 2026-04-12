@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/notification_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/widgets/links.dart';
 import 'package:app_tact/widgets/profiles.dart';
 import 'package:app_tact/widgets/settings.dart';
@@ -124,21 +125,33 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
     return Stack(
       children: [
         // ── Layer 1: shared base gradient (unified across all screens) ──
         Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF1A1333), // soft purple-black (top)
-                Color(0xFF130E24), // deep violet (mid)
-                Color(0xFF0F0B1F), // near-black (bottom)
-              ],
-              stops: [0.0, 0.45, 1.0],
-            ),
+          decoration: BoxDecoration(
+            gradient: isDark
+                ? const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFF1A1333), // soft purple-black (top)
+                      Color(0xFF130E24), // deep violet (mid)
+                      Color(0xFF0F0B1F), // near-black (bottom)
+                    ],
+                    stops: [0.0, 0.45, 1.0],
+                  )
+                : const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFFF8F7FF), // soft lavender-white (top)
+                      Color(0xFFF2EFFF), // gentle violet tint (mid)
+                      Color(0xFFEDE9FF), // light lavender (bottom)
+                    ],
+                    stops: [0.0, 0.45, 1.0],
+                  ),
           ),
         ),
 
@@ -150,13 +163,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           child: IgnorePointer(
             child: Container(
               height: 460,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: RadialGradient(
                   center: Alignment.topCenter,
                   radius: 0.8,
                   colors: [
-                    Color(0x2B6C5CE7), // ~17 % violet
-                    Color(0x006C5CE7),
+                    isDark
+                        ? const Color(0x2B6C5CE7) // ~17 % violet
+                        : const Color(0x186C5CE7), // ~10 % violet (lighter)
+                    const Color(0x006C5CE7),
                   ],
                 ),
               ),
@@ -172,13 +187,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           child: IgnorePointer(
             child: Container(
               height: 340,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: RadialGradient(
                   center: Alignment(0.35, 0.6),
                   radius: 0.75,
                   colors: [
-                    Color(0x12A29BFE), // ~7 % lavender
-                    Color(0x00A29BFE),
+                    isDark
+                        ? const Color(0x12A29BFE) // ~7 % lavender
+                        : const Color(0x18A29BFE), // ~10 % lavender
+                    const Color(0x00A29BFE),
                   ],
                 ),
               ),
@@ -235,11 +252,12 @@ class _GlassTabBar extends StatelessWidget {
   });
 
   static const _activeColor = Color(0xFF7C6BFF);
-  static const _inactiveColor = Color(0xFFA0A0A0);
   static const _activeBg = Color(0x1F7C6BFF); // ~12 % violet pill
 
   @override
   Widget build(BuildContext context) {
+    final inactiveColor =
+        context.isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B);
     final l = AppLocalizations.of(context);
     final items = [
       (icon: Icons.link_rounded, label: l.tabLinks),
@@ -253,12 +271,11 @@ class _GlassTabBar extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
-          decoration: const BoxDecoration(
-            // neutral dark translucent — rgba(39,39,39, 0.58)
-            color: Color(0x94272727),
+          decoration: BoxDecoration(
+            color: context.tabBarBg,
             border: Border(
               top: BorderSide(
-                color: Color(0x1AA29BFE), // rgba(162,155,254, 0.10)
+                color: context.tabBarTopBorder,
                 width: 1,
               ),
             ),
@@ -276,7 +293,7 @@ class _GlassTabBar extends StatelessWidget {
                   selected: selectedIndex == i,
                   onTap: () => onTap(i),
                   activeColor: _activeColor,
-                  inactiveColor: _inactiveColor,
+                  inactiveColor: inactiveColor,
                   activeBg: _activeBg,
                 ),
             ],
@@ -382,11 +399,11 @@ class _NotificationPermissionSheetState
         child: Container(
           decoration: BoxDecoration(
             // Glassmorphism: very subtle white tint over the blurred background
-            color: const Color(0xFF1C1828).withOpacity(0.92),
+            color: context.notifSheetBg,
             borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
             border: Border(
               top: BorderSide(
-                color: Colors.white.withOpacity(0.08),
+                color: context.sheetBorder,
                 width: 1,
               ),
             ),
@@ -402,7 +419,7 @@ class _NotificationPermissionSheetState
                   width: 36.w,
                   height: 4.h,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
+                    color: context.sheetHandleColor,
                     borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
@@ -430,7 +447,7 @@ class _NotificationPermissionSheetState
               Text(
                 l.notifPermTitle,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.textPrimary,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                   letterSpacing: -0.3,
@@ -442,7 +459,7 @@ class _NotificationPermissionSheetState
               Text(
                 l.notifPermBody,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.52),
+                  color: context.textSecondary,
                   fontSize: 14.sp,
                   height: 1.5,
                 ),
@@ -501,7 +518,7 @@ class _NotificationPermissionSheetState
                     child: Text(
                       l.notifPermNotNow,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.40),
+                        color: context.textSecondary,
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w500,
                       ),

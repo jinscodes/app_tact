@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:app_tact/colors.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/widgets/password_change/verify_current_password_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -75,14 +75,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
+        decoration: BoxDecoration(
+          gradient: context.screenGradient,
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(Color(0xFF7C6BFF)),
             ),
           ),
         ),
@@ -91,8 +92,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     if (_lastPasswordChangeDate != null) {
       return Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
+        decoration: BoxDecoration(
+          gradient: context.screenGradient,
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,
@@ -100,13 +101,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
+              icon: Icon(Icons.arrow_back, color: context.textPrimary),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
               'Change Password',
               style: TextStyle(
-                color: Colors.white,
+                color: context.textPrimary,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -128,7 +129,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   Text(
                     'Password Change Restricted',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.textPrimary,
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -138,7 +139,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   Text(
                     'You changed your password on $_lastPasswordChangeDate.\n\nFor security reasons, you can only change your password once every 30 days.',
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: context.textSecondary,
                       fontSize: 16.sp,
                     ),
                     textAlign: TextAlign.center,

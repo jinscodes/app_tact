@@ -1,10 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/common/custom_list_tile.dart';
 import 'package:app_tact/components/common/faq_item.dart';
 import 'package:app_tact/components/common/section_title.dart';
 import 'package:app_tact/l10n/app_localizations.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,10 +38,10 @@ class HelpSupportScreen extends StatelessWidget {
             child: Container(
               width: 360.w,
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1A1A),
+                color: context.cardSurface,
                 borderRadius: BorderRadius.circular(18.r),
                 border: Border.all(
-                  color: const Color(0x1FFFFFFF),
+                  color: context.borderColor,
                   width: 1,
                 ),
               ),
@@ -56,7 +56,7 @@ class HelpSupportScreen extends StatelessWidget {
                       child: Text(
                         AppLocalizations.of(context).helpBugDialogTitle,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: context.textPrimary,
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
                         ),
@@ -66,7 +66,7 @@ class HelpSupportScreen extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context).helpBugTitleLabel,
                       style: TextStyle(
-                        color: const Color(0xFF8A8A8E),
+                        color: context.textSecondary,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.8,
@@ -76,23 +76,23 @@ class HelpSupportScreen extends StatelessWidget {
                     TextField(
                       controller: titleController,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.textPrimary,
                         fontSize: 14.sp,
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: const Color(0xFF262626),
+                        fillColor: context.inputSurface,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: const BorderSide(
-                            color: Color(0x1FFFFFFF),
+                          borderSide: BorderSide(
+                            color: context.borderColor,
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: const BorderSide(
-                            color: Color(0x1FFFFFFF),
+                          borderSide: BorderSide(
+                            color: context.borderColor,
                             width: 1,
                           ),
                         ),
@@ -113,7 +113,7 @@ class HelpSupportScreen extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context).helpDescriptionLabel,
                       style: TextStyle(
-                        color: const Color(0xFF8A8A8E),
+                        color: context.textSecondary,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.8,
@@ -124,23 +124,23 @@ class HelpSupportScreen extends StatelessWidget {
                       controller: descriptionController,
                       maxLines: 4,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.textPrimary,
                         fontSize: 14.sp,
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: const Color(0xFF262626),
+                        fillColor: context.inputSurface,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: const BorderSide(
-                            color: Color(0x1FFFFFFF),
+                          borderSide: BorderSide(
+                            color: context.borderColor,
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: const BorderSide(
-                            color: Color(0x1FFFFFFF),
+                          borderSide: BorderSide(
+                            color: context.borderColor,
                             width: 1,
                           ),
                         ),
@@ -166,9 +166,9 @@ class HelpSupportScreen extends StatelessWidget {
                               Navigator.of(context).pop();
                             },
                             style: OutlinedButton.styleFrom(
-                              backgroundColor: const Color(0xFF262626),
-                              side: const BorderSide(
-                                color: Color(0x1FFFFFFF),
+                              backgroundColor: context.inputSurface,
+                              side: BorderSide(
+                                color: context.borderColor,
                                 width: 1,
                               ),
                               shape: RoundedRectangleBorder(
@@ -179,7 +179,7 @@ class HelpSupportScreen extends StatelessWidget {
                             child: Text(
                               AppLocalizations.of(context).helpCancel,
                               style: TextStyle(
-                                color: Colors.white,
+                                color: context.textPrimary,
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -260,10 +260,10 @@ class HelpSupportScreen extends StatelessWidget {
             child: Container(
               width: 360.w,
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1A1A),
+                color: context.cardSurface,
                 borderRadius: BorderRadius.circular(18.r),
                 border: Border.all(
-                  color: const Color(0x1FFFFFFF),
+                  color: context.borderColor,
                   width: 1,
                 ),
               ),
@@ -278,7 +278,7 @@ class HelpSupportScreen extends StatelessWidget {
                       child: Text(
                         AppLocalizations.of(context).helpFeatureDialogTitle,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: context.textPrimary,
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
                         ),
@@ -288,7 +288,7 @@ class HelpSupportScreen extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context).helpFeatureTitleLabel,
                       style: TextStyle(
-                        color: const Color(0xFF8A8A8E),
+                        color: context.textSecondary,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.8,
@@ -298,23 +298,23 @@ class HelpSupportScreen extends StatelessWidget {
                     TextField(
                       controller: titleController,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.textPrimary,
                         fontSize: 14.sp,
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: const Color(0xFF262626),
+                        fillColor: context.inputSurface,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: const BorderSide(
-                            color: Color(0x1FFFFFFF),
+                          borderSide: BorderSide(
+                            color: context.borderColor,
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: const BorderSide(
-                            color: Color(0x1FFFFFFF),
+                          borderSide: BorderSide(
+                            color: context.borderColor,
                             width: 1,
                           ),
                         ),
@@ -335,7 +335,7 @@ class HelpSupportScreen extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context).helpDescriptionLabel,
                       style: TextStyle(
-                        color: const Color(0xFF8A8A8E),
+                        color: context.textSecondary,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.8,
@@ -346,23 +346,23 @@ class HelpSupportScreen extends StatelessWidget {
                       controller: descriptionController,
                       maxLines: 4,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.textPrimary,
                         fontSize: 14.sp,
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: const Color(0xFF262626),
+                        fillColor: context.inputSurface,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: const BorderSide(
-                            color: Color(0x1FFFFFFF),
+                          borderSide: BorderSide(
+                            color: context.borderColor,
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
-                          borderSide: const BorderSide(
-                            color: Color(0x1FFFFFFF),
+                          borderSide: BorderSide(
+                            color: context.borderColor,
                             width: 1,
                           ),
                         ),
@@ -388,9 +388,9 @@ class HelpSupportScreen extends StatelessWidget {
                               Navigator.of(context).pop();
                             },
                             style: OutlinedButton.styleFrom(
-                              backgroundColor: const Color(0xFF262626),
-                              side: const BorderSide(
-                                color: Color(0x1FFFFFFF),
+                              backgroundColor: context.inputSurface,
+                              side: BorderSide(
+                                color: context.borderColor,
                                 width: 1,
                               ),
                               shape: RoundedRectangleBorder(
@@ -401,7 +401,7 @@ class HelpSupportScreen extends StatelessWidget {
                             child: Text(
                               AppLocalizations.of(context).helpCancel,
                               style: TextStyle(
-                                color: Colors.white,
+                                color: context.textPrimary,
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -461,8 +461,8 @@ class HelpSupportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
+      decoration: BoxDecoration(
+        gradient: context.screenGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -471,14 +471,14 @@ class HelpSupportScreen extends StatelessWidget {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white, size: 20),
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                color: context.textPrimary, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             l.helpTitle,
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),

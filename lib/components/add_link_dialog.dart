@@ -2,6 +2,7 @@
 
 import 'package:app_tact/components/sheet_theme.dart';
 import 'package:app_tact/services/links_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -132,15 +133,16 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
                 controller: _titleController,
                 focusNode: _titleFocus,
                 enabled: !_isLoading,
-                style: const TextStyle(
-                  color: kTextPrimary,
+                style: TextStyle(
+                  color: context.sheetText,
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) =>
                     FocusScope.of(context).requestFocus(_urlFocus),
-                decoration: sheetInputDecoration(placeholder: 'Title'),
+                decoration: sheetInputDecoration(
+                    context: context, placeholder: 'Title'),
               ),
             ),
             const SizedBox(height: kSheetItemSpacing),
@@ -152,8 +154,8 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
                 controller: _urlController,
                 focusNode: _urlFocus,
                 enabled: !_isLoading,
-                style: const TextStyle(
-                  color: kTextPrimary,
+                style: TextStyle(
+                  color: context.sheetText,
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
@@ -162,7 +164,8 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) =>
                     FocusScope.of(context).requestFocus(_descriptionFocus),
-                decoration: sheetInputDecoration(placeholder: 'URL'),
+                decoration:
+                    sheetInputDecoration(context: context, placeholder: 'URL'),
               ),
             ),
 
@@ -176,8 +179,8 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
               controller: _descriptionController,
               focusNode: _descriptionFocus,
               enabled: !_isLoading,
-              style: const TextStyle(
-                color: kTextPrimary,
+              style: TextStyle(
+                color: context.sheetText,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
                 height: 1.45,
@@ -187,6 +190,7 @@ class _AddLinkDialogState extends State<AddLinkDialog> {
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => FocusScope.of(context).unfocus(),
               decoration: sheetInputDecoration(
+                context: context,
                 placeholder: 'Add notes (optional)',
               ).copyWith(
                 contentPadding: const EdgeInsets.symmetric(

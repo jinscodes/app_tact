@@ -3,18 +3,14 @@
 import 'dart:async';
 
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ─── Design tokens (matches login/signup) ────────────────────────────────────
-const _kBg = Color(0xFF0F0F0F);
 const _kAccent = Color(0xFF7C6BFF);
-const _kSurface = Color(0xFF1A1A1A);
-const _kBorder = Color(0x1FFFFFFF);
-const _kTextPrimary = Colors.white;
-const Color _kTextSecondary = Color(0xFF8A8A8E);
 
 /// Cooldown between resend attempts (seconds).
 const int _kResendCooldown = 60;
@@ -245,9 +241,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: context.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: _kBg,
+        backgroundColor: context.screenSurface,
         body: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -261,9 +257,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   width: 80.r,
                   height: 80.r,
                   decoration: BoxDecoration(
-                    color: _kSurface,
+                    color: context.cardSurface,
                     shape: BoxShape.circle,
-                    border: Border.all(color: _kBorder),
+                    border: Border.all(color: context.borderColor),
                   ),
                   child: Icon(
                     Icons.mark_email_unread_outlined,
@@ -279,7 +275,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   style: TextStyle(
                     fontSize: 26.sp,
                     fontWeight: FontWeight.w700,
-                    color: _kTextPrimary,
+                    color: context.textPrimary,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -288,7 +284,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 // ─ Sub-copy ─
                 Text(
                   'We sent a verification link to',
-                  style: TextStyle(fontSize: 14.sp, color: _kTextSecondary),
+                  style: TextStyle(fontSize: 14.sp, color: context.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 4.h),
@@ -297,7 +293,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
-                    color: _kTextPrimary,
+                    color: context.textPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -306,7 +302,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   'Tap the link in the email, then come back\nand tap the button below.',
                   style: TextStyle(
                     fontSize: 13.sp,
-                    color: _kTextSecondary,
+                    color: context.textSecondary,
                     height: 1.6,
                   ),
                   textAlign: TextAlign.center,
@@ -379,9 +375,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       'Use a different account',
                       style: TextStyle(
                         fontSize: 13.sp,
-                        color: _kTextSecondary,
+                        color: context.textSecondary,
                         decoration: TextDecoration.underline,
-                        decorationColor: _kTextSecondary,
+                        decorationColor: context.textSecondary,
                       ),
                     ),
                   ),

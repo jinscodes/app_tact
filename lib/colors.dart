@@ -50,7 +50,7 @@ class AppColors {
   /// Card shadow — rgba(0,0,0, 30 %) neutral depth
   static const Color cardShadow = Color(0x4D000000);
 
-  // Background / gradient base colors
+  // Background / gradient base colors (dark mode)
   static const Color gradientDarkBlue =
       Color(0xFF07041A); // near-black indigo (top)
   static const Color gradientDarkBlue2 =
@@ -59,11 +59,24 @@ class AppColors {
       Color(0xFF1C0E3A); // deep rich violet (bottom)
   static const Color gradientMagenta = Color(0xFF9B59B6);
 
-  /// 3-stop deep background — use for standalone screens pushed over main nav
+  /// 3-stop deep dark background — for pushed sub-screens (dark mode)
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [gradientDarkBlue, gradientDarkBlue2, gradientPurple],
+    stops: [0.0, 0.42, 1.0],
+  );
+
+  // Background / gradient base colors (light mode)
+  static const Color gradientLightStart = Color(0xFFF3F1FF); // soft lavender
+  static const Color gradientLightMid = Color(0xFFF0EEFF); // lighter lavender
+  static const Color gradientLightEnd = Color(0xFFEDE9FF); // gentle violet tint
+
+  /// 3-stop light background — for pushed sub-screens (light mode)
+  static const LinearGradient backgroundGradientLight = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [gradientLightStart, gradientLightMid, gradientLightEnd],
     stops: [0.0, 0.42, 1.0],
   );
 

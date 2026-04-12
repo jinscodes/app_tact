@@ -1,3 +1,4 @@
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -23,7 +24,7 @@ class SectionTitle extends StatelessWidget {
           Text(
             title.toUpperCase(),
             style: TextStyle(
-              color: const Color(0xFF8A8A8E),
+              color: context.textSecondary,
               fontSize: 11.sp,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.5,

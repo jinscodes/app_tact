@@ -3,7 +3,10 @@
 import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/services/language_service.dart';
+import 'package:app_tact/services/theme_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/widgets/about_screen.dart';
+import 'package:app_tact/widgets/appearance_screen.dart';
 import 'package:app_tact/widgets/help_support_screen.dart';
 import 'package:app_tact/widgets/notifications_screen.dart';
 import 'package:app_tact/widgets/privacy_security_screen.dart';
@@ -27,6 +30,7 @@ class _SettingsState extends State<Settings> {
     super.initState();
     // Rebuild when the app language changes so the value label updates.
     LanguageService.locale.addListener(_onLocaleChanged);
+    ThemeService.themeMode.addListener(_onLocaleChanged);
   }
 
   void _onLocaleChanged() => setState(() {});
@@ -34,6 +38,7 @@ class _SettingsState extends State<Settings> {
   @override
   void dispose() {
     LanguageService.locale.removeListener(_onLocaleChanged);
+    ThemeService.themeMode.removeListener(_onLocaleChanged);
     super.dispose();
   }
 
@@ -90,7 +95,7 @@ class _SettingsState extends State<Settings> {
         child: Text(
           l.settingsTitle,
           style: TextStyle(
-            color: Colors.white,
+            color: context.textPrimary,
             fontSize: 20.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.4,
@@ -107,7 +112,7 @@ class _SettingsState extends State<Settings> {
         child: Text(
           label.toUpperCase(),
           style: TextStyle(
-            color: Colors.white.withOpacity(0.38),
+            color: context.labelColor,
             fontSize: 11.sp,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.9,
@@ -133,7 +138,11 @@ class _SettingsState extends State<Settings> {
           icon: Icons.palette_outlined,
           iconColor: const Color(0xFFAA8AFF),
           title: l.rowAppearance,
-          onTap: () {},
+          valueLabel: _themeModeLabel(l),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AppearanceScreen()),
+          ),
         ),
         _SettingRow(
           icon: Icons.language_rounded,
@@ -207,6 +216,19 @@ class _SettingsState extends State<Settings> {
     );
   }
 
+  // ─── Helpers ──────────────────────────────────────────────────────────────
+
+  String _themeModeLabel(AppLocalizations l) {
+    switch (ThemeService.themeMode.value) {
+      case ThemeMode.light:
+        return l.appearanceLight;
+      case ThemeMode.dark:
+        return l.appearanceDark;
+      case ThemeMode.system:
+        return l.appearanceSystem;
+    }
+  }
+
   // ─── Language picker ───────────────────────────────────────────────────
 
   void _showLanguagePicker() {
@@ -252,9 +274,9 @@ class _SettingGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF252535),
+        color: context.cardSurface,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
+        border: Border.all(color: context.borderColor, width: 1),
         boxShadow: const [
           BoxShadow(
             color: Color(0x28000000),
@@ -280,7 +302,7 @@ class _SettingGroup extends StatelessWidget {
                 Divider(
                   height: 1,
                   thickness: 1,
-                  color: Colors.white.withOpacity(0.05),
+                  color: context.dividerColor,
                   indent: 56.w,
                 ),
             ],
@@ -330,7 +352,9 @@ class _SettingRowState extends State<_SettingRow> {
       onTap: widget.onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 80),
-        color: _pressed ? Colors.white.withOpacity(0.04) : Colors.transparent,
+        color: _pressed
+            ? context.textPrimary.withOpacity(0.04)
+            : Colors.transparent,
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
         child: Row(
           children: [
@@ -350,7 +374,7 @@ class _SettingRowState extends State<_SettingRow> {
               child: Text(
                 widget.title,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.textPrimary,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                   letterSpacing: -0.1,
@@ -362,7 +386,7 @@ class _SettingRowState extends State<_SettingRow> {
               Text(
                 widget.valueLabel!,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.38),
+                  color: context.labelColor,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w400,
                 ),
@@ -370,7 +394,7 @@ class _SettingRowState extends State<_SettingRow> {
               SizedBox(width: 4.w),
             ],
             Icon(Icons.chevron_right_rounded,
-                size: 18.sp, color: Colors.white.withOpacity(0.25)),
+                size: 18.sp, color: context.rowChevron),
           ],
         ),
       ),
@@ -449,10 +473,10 @@ class _LanguagePickerSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C1E),
+        color: context.settingsLangBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
         border: Border(
-          top: BorderSide(color: Colors.white.withOpacity(0.08), width: 1),
+          top: BorderSide(color: context.borderColor, width: 1),
         ),
       ),
       padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 32.h),
@@ -464,7 +488,7 @@ class _LanguagePickerSheet extends StatelessWidget {
             width: 36.w,
             height: 4.h,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: context.borderColor,
               borderRadius: BorderRadius.circular(2.r),
             ),
           ),
@@ -474,7 +498,7 @@ class _LanguagePickerSheet extends StatelessWidget {
           Text(
             AppLocalizations.of(context).langPickerTitle,
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 17.sp,
               fontWeight: FontWeight.w700,
             ),
@@ -483,7 +507,7 @@ class _LanguagePickerSheet extends StatelessWidget {
           Text(
             AppLocalizations.of(context).langPickerSubtitle,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.45),
+              color: context.textSecondary,
               fontSize: 13.sp,
             ),
           ),
@@ -501,12 +525,12 @@ class _LanguagePickerSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? const Color(0xFF7C6BFF).withOpacity(0.15)
-                      : const Color(0xFF252535),
+                      : context.cardSurface,
                   borderRadius: BorderRadius.circular(14.r),
                   border: Border.all(
                     color: isSelected
                         ? const Color(0xFF7C6BFF).withOpacity(0.55)
-                        : Colors.white.withOpacity(0.06),
+                        : context.borderColor,
                     width: 1,
                   ),
                 ),
@@ -521,7 +545,7 @@ class _LanguagePickerSheet extends StatelessWidget {
                           Text(
                             lang.nativeLabel,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: context.textPrimary,
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w600,
                             ),
@@ -530,7 +554,7 @@ class _LanguagePickerSheet extends StatelessWidget {
                           Text(
                             lang.label,
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.4),
+                              color: context.textSecondary,
                               fontSize: 12.sp,
                             ),
                           ),
@@ -560,7 +584,7 @@ class _LanguagePickerSheet extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
+                            color: context.textSecondary.withOpacity(0.35),
                             width: 1.5,
                           ),
                         ),

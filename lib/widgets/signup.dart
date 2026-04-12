@@ -3,6 +3,7 @@
 import 'dart:ui';
 
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,14 +12,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
-const _kBg = Color(0xFF0F0F0F);
 const _kAccent = Color(0xFF7C6BFF);
 const _kSurface = Color(0xFF1A1A1A);
 const _kBorder = Color(0x1FFFFFFF); // 12 % white
 const _kBorderFocused = _kAccent;
-const _kTextPrimary = Colors.white;
-const Color _kTextSecondary = Color(0xFF8A8A8E);
-const _kDivider = Color(0x14FFFFFF); // 8 % white
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -399,9 +396,9 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: context.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: _kBg,
+        backgroundColor: context.screenSurface,
         resizeToAvoidBottomInset: true,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -415,7 +412,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     children: [
                       IconButton(
                         icon: Icon(Icons.arrow_back_ios_new_rounded,
-                            color: Colors.white, size: 18.sp),
+                            color: context.textPrimary, size: 18.sp),
                         onPressed: _goBack,
                         splashRadius: 20,
                       ),
@@ -456,7 +453,7 @@ class _SignupScreenState extends State<SignupScreen> {
         children: [
           Text('Create your\naccount',
               style: TextStyle(
-                color: _kTextPrimary,
+                color: context.textPrimary,
                 fontSize: 32.sp,
                 fontWeight: FontWeight.w700,
                 height: 1.15,
@@ -465,7 +462,7 @@ class _SignupScreenState extends State<SignupScreen> {
           SizedBox(height: 10.h),
           Text('Start organizing your links in seconds.',
               style: TextStyle(
-                  color: _kTextSecondary, fontSize: 15.sp, height: 1.4)),
+                  color: context.textSecondary, fontSize: 15.sp, height: 1.4)),
           SizedBox(height: 40.h),
 
           // Name
@@ -531,7 +528,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   children: [
                     TextSpan(
                         text: 'Already have an account? ',
-                        style: TextStyle(color: _kTextSecondary)),
+                        style: TextStyle(color: context.textSecondary)),
                     TextSpan(
                         text: 'Log in',
                         style: TextStyle(
@@ -556,7 +553,7 @@ class _SignupScreenState extends State<SignupScreen> {
         children: [
           Text('Set your\npassword',
               style: TextStyle(
-                color: _kTextPrimary,
+                color: context.textPrimary,
                 fontSize: 32.sp,
                 fontWeight: FontWeight.w700,
                 height: 1.15,
@@ -565,7 +562,7 @@ class _SignupScreenState extends State<SignupScreen> {
           SizedBox(height: 10.h),
           Text("Choose something you won't forget.",
               style: TextStyle(
-                  color: _kTextSecondary, fontSize: 15.sp, height: 1.4)),
+                  color: context.textSecondary, fontSize: 15.sp, height: 1.4)),
           SizedBox(height: 40.h),
 
           // Password
@@ -580,7 +577,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 _passwordVisible
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: _kTextSecondary,
+                color: context.textSecondary,
                 size: 18.sp,
               ),
               onPressed: () =>
@@ -612,7 +609,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 _confirmVisible
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: _kTextSecondary,
+                color: context.textSecondary,
                 size: 18.sp,
               ),
               onPressed: () =>
@@ -633,7 +630,7 @@ class _SignupScreenState extends State<SignupScreen> {
               'By continuing, you agree to our Terms of Service\nand Privacy Policy.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                  color: _kTextSecondary, fontSize: 12.sp, height: 1.5),
+                  color: context.textSecondary, fontSize: 12.sp, height: 1.5),
             ),
           ),
         ],
@@ -657,7 +654,7 @@ class _StepDot extends StatelessWidget {
       width: active ? 20.w : 6.w,
       height: 6.h,
       decoration: BoxDecoration(
-        color: active ? _kAccent : Colors.white.withOpacity(0.20),
+        color: active ? _kAccent : context.textSecondary.withOpacity(0.30),
         borderRadius: BorderRadius.circular(3.r),
       ),
     );
@@ -712,7 +709,7 @@ class _AuthInputState extends State<_AuthInput> {
         ? const Color(0xFFFF453A)
         : _focused
             ? _kBorderFocused
-            : _kBorder;
+            : context.inputBorderColor;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -720,7 +717,7 @@ class _AuthInputState extends State<_AuthInput> {
         Text(
           widget.label,
           style: TextStyle(
-            color: _focused ? _kAccent : _kTextSecondary,
+            color: _focused ? _kAccent : context.textSecondary,
             fontSize: 12.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.4,
@@ -741,14 +738,14 @@ class _AuthInputState extends State<_AuthInput> {
             obscureText: widget.obscure,
             textCapitalization: widget.textCapitalization,
             style: TextStyle(
-              color: _kTextPrimary,
+              color: context.textPrimary,
               fontSize: 16.sp,
               fontWeight: FontWeight.w400,
             ),
             decoration: InputDecoration(
               hintText: widget.placeholder,
               hintStyle: TextStyle(
-                  color: Colors.white.withOpacity(0.22), fontSize: 16.sp),
+                  color: context.textSecondary.withOpacity(0.55), fontSize: 16.sp),
               border: InputBorder.none,
               contentPadding:
                   EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
@@ -846,13 +843,13 @@ class _OrDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Divider(color: _kDivider, thickness: 1)),
+        Expanded(child: Divider(color: context.dividerColor, thickness: 1)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Text('or',
-              style: TextStyle(color: _kTextSecondary, fontSize: 13.sp)),
+              style: TextStyle(color: context.textSecondary, fontSize: 13.sp)),
         ),
-        Expanded(child: Divider(color: _kDivider, thickness: 1)),
+        Expanded(child: Divider(color: context.dividerColor, thickness: 1)),
       ],
     );
   }
@@ -908,7 +905,7 @@ class _SocialButtonState extends State<_SocialButton> {
               Text(
                 widget.label,
                 style: TextStyle(
-                  color: _kTextPrimary,
+                  color: context.textPrimary,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -935,7 +932,7 @@ class _StrengthBar extends StatelessWidget {
             margin: EdgeInsets.only(right: i < 3 ? 4.w : 0),
             height: 3.h,
             decoration: BoxDecoration(
-              color: i < strength ? color : Colors.white.withOpacity(0.10),
+              color: i < strength ? color : context.borderColor,
               borderRadius: BorderRadius.circular(2.r),
             ),
           ),
@@ -1015,10 +1012,10 @@ class _ProviderConflictSheetState extends State<_ProviderConflictSheet> {
         filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1828).withOpacity(0.92),
+            color: context.notifSheetBg,
             borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
             border: Border(
-              top: BorderSide(color: Colors.white.withOpacity(0.08)),
+              top: BorderSide(color: context.sheetBorder),
             ),
           ),
           padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 40.h),
@@ -1032,7 +1029,7 @@ class _ProviderConflictSheetState extends State<_ProviderConflictSheet> {
                   width: 36.w,
                   height: 4.h,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
+                    color: context.sheetHandleColor,
                     borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
@@ -1063,7 +1060,7 @@ class _ProviderConflictSheetState extends State<_ProviderConflictSheet> {
               Text(
                 _headline,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.textPrimary,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                   letterSpacing: -0.3,
@@ -1076,7 +1073,7 @@ class _ProviderConflictSheetState extends State<_ProviderConflictSheet> {
               Text(
                 _body,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.52),
+                  color: context.textSecondary,
                   fontSize: 13.sp,
                   height: 1.5,
                 ),
@@ -1141,7 +1138,7 @@ class _ProviderConflictSheetState extends State<_ProviderConflictSheet> {
                       child: Text(
                         'Go to Login',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.40),
+                          color: context.textSecondary,
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w500,
                         ),

@@ -1,4 +1,5 @@
 import 'package:app_tact/colors.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -8,8 +9,8 @@ class TermsOfServiceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
+      decoration: BoxDecoration(
+        gradient: context.screenGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -17,13 +18,13 @@ class TermsOfServiceScreen extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(Icons.arrow_back, color: context.textPrimary),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             'Terms of Service',
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -39,17 +40,19 @@ class TermsOfServiceScreen extends StatelessWidget {
                 Text(
                   'Last Updated: November 30, 2025',
                   style: TextStyle(
-                    color: AppColors.textMedium,
+                    color: context.textSecondary,
                     fontSize: 13.sp,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
                 SizedBox(height: 24.h),
                 _buildSection(
+                  context,
                   'Agreement to Terms',
                   'By accessing or using Tact, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this app.',
                 ),
                 _buildSection(
+                  context,
                   'Description of Service',
                   'Tact is a link organization and management application that allows users to:\n\n'
                       '• Create and manage categories for organizing links\n'
@@ -59,6 +62,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                       '• Customize their organizational system',
                 ),
                 _buildSection(
+                  context,
                   'Account Registration',
                   'To use certain features of the app, you must register for an account. You agree to:\n\n'
                       '• Provide accurate and complete registration information\n'
@@ -68,6 +72,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                       '• Not share your account with others',
                 ),
                 _buildSection(
+                  context,
                   'User Responsibilities',
                   'You are responsible for:\n\n'
                       '• All content you store or share through the app\n'
@@ -77,6 +82,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                       '• Not attempting to compromise the security of the service',
                 ),
                 _buildSection(
+                  context,
                   'Prohibited Activities',
                   'You agree not to:\n\n'
                       '• Use the app for any illegal purpose\n'
@@ -89,6 +95,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                       '• Use automated systems to access the service',
                 ),
                 _buildSection(
+                  context,
                   'Content Ownership',
                   'You retain all rights to the content you store in Tact. By using our service, you grant us a license to:\n\n'
                       '• Store and process your content to provide the service\n'
@@ -97,10 +104,12 @@ class TermsOfServiceScreen extends StatelessWidget {
                       'This license ends when you delete your content or account.',
                 ),
                 _buildSection(
+                  context,
                   'Intellectual Property',
                   'The app, including its design, features, code, and content (excluding user content), is owned by Tact and protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, or create derivative works without our express permission.',
                 ),
                 _buildSection(
+                  context,
                   'Service Availability',
                   'We strive to provide reliable service but do not guarantee:\n\n'
                       '• Uninterrupted access to the service\n'
@@ -110,14 +119,17 @@ class TermsOfServiceScreen extends StatelessWidget {
                       'We reserve the right to modify, suspend, or discontinue the service at any time.',
                 ),
                 _buildSection(
+                  context,
                   'Data Backup and Loss',
                   'While we implement backup systems, we recommend maintaining your own backups of important data. We are not liable for any data loss, corruption, or deletion that may occur.',
                 ),
                 _buildSection(
+                  context,
                   'Third-Party Services',
                   'Our app integrates with third-party services (Google, GitHub, Firebase). Your use of these services is subject to their respective terms and privacy policies. We are not responsible for third-party service failures or changes.',
                 ),
                 _buildSection(
+                  context,
                   'Limitation of Liability',
                   'To the maximum extent permitted by law, Tact shall not be liable for:\n\n'
                       '• Any indirect, incidental, or consequential damages\n'
@@ -127,6 +139,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                       'Our total liability shall not exceed the amount you paid for the service in the past 12 months.',
                 ),
                 _buildSection(
+                  context,
                   'Termination',
                   'We reserve the right to terminate or suspend your account if you:\n\n'
                       '• Violate these Terms of Service\n'
@@ -136,10 +149,12 @@ class TermsOfServiceScreen extends StatelessWidget {
                       'You may terminate your account at any time through the app settings.',
                 ),
                 _buildSection(
+                  context,
                   'Privacy',
                   'Your use of Tact is also governed by our Privacy Policy. By using the service, you consent to our collection and use of information as described in the Privacy Policy.',
                 ),
                 _buildSection(
+                  context,
                   'Changes to Terms',
                   'We may update these Terms of Service from time to time. We will notify you of material changes by:\n\n'
                       '• Posting the updated terms in the app\n'
@@ -148,10 +163,12 @@ class TermsOfServiceScreen extends StatelessWidget {
                       'Continued use of the service after changes constitutes acceptance of the new terms.',
                 ),
                 _buildSection(
+                  context,
                   'Governing Law',
                   'These Terms of Service shall be governed by and construed in accordance with the laws of the jurisdiction in which our company is registered, without regard to its conflict of law provisions.',
                 ),
                 _buildSection(
+                  context,
                   'Dispute Resolution',
                   'Any disputes arising from these terms or your use of the service shall be resolved through:\n\n'
                       '1. Good faith negotiation between the parties\n'
@@ -159,6 +176,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                       '3. Binding arbitration if mediation is unsuccessful',
                 ),
                 _buildSection(
+                  context,
                   'Contact Information',
                   'If you have questions about these Terms of Service, please contact us:\n\n'
                       'Email: jayhan0215@gmail.com\n'
@@ -175,7 +193,7 @@ class TermsOfServiceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title, String content) {
+  Widget _buildSection(BuildContext context, String title, String content) {
     return Padding(
       padding: EdgeInsets.only(bottom: 24.h),
       child: Column(
@@ -193,7 +211,7 @@ class TermsOfServiceScreen extends StatelessWidget {
           Text(
             content,
             style: TextStyle(
-              color: AppColors.textLight,
+              color: context.textPrimary,
               fontSize: 14.sp,
               height: 1.6,
             ),
