@@ -2,6 +2,8 @@ import 'package:app_tact/colors.dart';
 import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/language_service.dart';
 import 'package:app_tact/services/subscription_service.dart';
+import 'package:app_tact/services/theme_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/widgets/email_verification_screen.dart';
 import 'package:app_tact/widgets/home.dart';
 import 'package:app_tact/widgets/links.dart';
@@ -34,6 +36,7 @@ void main() async {
     );
   } catch (_) {}
   await LanguageService.init();
+  await ThemeService.init();
   runApp(const MyApp());
 }
 
@@ -54,18 +57,25 @@ class SwipePageRouteBuilder<T> extends PageRouteBuilder<T> {
               builder: (context, child) {
                 final slideValue = animation.value;
                 final screenWidth = MediaQuery.of(context).size.width;
+                final isDark = Theme.of(context).brightness == Brightness.dark;
 
                 return Transform.translate(
                   offset: Offset((1.0 - slideValue) * screenWidth, 0),
                   child: Container(
                     width: screenWidth,
                     height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
-                      ),
+                    decoration: BoxDecoration(
+                      gradient: isDark
+                          ? const LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
+                            )
+                          : const LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [Color(0xFFF3F1FF), Color(0xFFEDE9FF)],
+                            ),
                     ),
                     child: child,
                   ),
@@ -229,50 +239,66 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return ValueListenableBuilder<Locale>(
-          valueListenable: LanguageService.locale,
-          builder: (context, locale, _) => MaterialApp(
-            debugShowCheckedModeBanner: false,
-            locale: locale,
-            supportedLocales: const [Locale('en'), Locale('ko')],
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            themeMode: ThemeMode.system,
-            theme: ThemeData(
-              useMaterial3: true,
-              colorSchemeSeed: AppColors.baseBlack,
-              brightness: Brightness.light,
-              scaffoldBackgroundColor: Colors.transparent,
-              textTheme: GoogleFonts.interTextTheme(),
-              fontFamily: GoogleFonts.inter().fontFamily,
-              pageTransitionsTheme: const PageTransitionsTheme(
-                builders: {
-                  TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-                  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-                },
-              ),
-            ),
-            title: 'Sticker Note App',
-            builder: (context, child) {
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                    colors: [Color(0xFF0B0E1D), Color(0xFF2E2939)],
-                  ),
+        return ValueListenableBuilder<ThemeMode>(
+          valueListenable: ThemeService.themeMode,
+          builder: (context, themeMode, _) =>
+              ValueListenableBuilder<Locale>(
+            valueListenable: LanguageService.locale,
+            builder: (context, locale, _) => MaterialApp(
+              debugShowCheckedModeBanner: false,
+              locale: locale,
+              supportedLocales: const [Locale('en'), Locale('ko')],
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              themeMode: themeMode,
+              theme: ThemeData(
+                useMaterial3: true,
+                colorSchemeSeed: AppColors.accentPurple,
+                brightness: Brightness.light,
+                scaffoldBackgroundColor: Colors.transparent,
+                textTheme: GoogleFonts.interTextTheme(
+                    ThemeData.light().textTheme),
+                fontFamily: GoogleFonts.inter().fontFamily,
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: {
+                    TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                  },
                 ),
-                child: child,
-              );
-            },
-            home: const SplashScreen(),
-            onGenerateRoute: (RouteSettings settings) {
-              return _createSmoothRoute(settings);
-            },
+              ),
+              darkTheme: ThemeData(
+                useMaterial3: true,
+                colorSchemeSeed: AppColors.accentPurple,
+                brightness: Brightness.dark,
+                scaffoldBackgroundColor: Colors.transparent,
+                textTheme:
+                    GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+                fontFamily: GoogleFonts.inter().fontFamily,
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: {
+                    TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                  },
+                ),
+              ),
+              title: 'Sticker Note App',
+              builder: (context, child) {
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: context.appBackgroundGradient,
+                  ),
+                  child: child,
+                );
+              },
+              home: const SplashScreen(),
+              onGenerateRoute: (RouteSettings settings) {
+                return _createSmoothRoute(settings);
+              },
+            ),
           ),
         );
       },

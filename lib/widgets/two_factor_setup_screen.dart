@@ -2,6 +2,7 @@
 
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/models/two_factor_auth.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/input_utils.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
@@ -125,13 +126,13 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
   Widget build(BuildContext context) {
     if (_isCheckingExisting) {
       return Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
+        decoration: BoxDecoration(
+          gradient: context.screenGradient,
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: Center(
-            child: CircularProgressIndicator(color: Colors.white),
+            child: CircularProgressIndicator(color: const Color(0xFF7C6BFF)),
           ),
         ),
       );
@@ -161,8 +162,8 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
     }
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
+      decoration: BoxDecoration(
+        gradient: context.screenGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -170,13 +171,13 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(Icons.arrow_back, color: context.textPrimary),
             onPressed: () => Navigator.pop(context, false),
           ),
           title: Text(
             'Setup 2FA',
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -204,7 +205,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.textPrimary,
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -214,7 +215,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                   Text(
                     description,
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: context.textSecondary,
                       fontSize: 14.sp,
                     ),
                     textAlign: TextAlign.center,
@@ -227,7 +228,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                             ? 'Enter your 6-digit password:'
                             : 'Confirm your password:'),
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.textPrimary,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -246,25 +247,25 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                           textAlign: TextAlign.center,
                           maxLength: 1,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: context.textPrimary,
                             fontSize: 24.sp,
                             fontWeight: FontWeight.bold,
                           ),
                           decoration: InputDecoration(
                             counterText: '',
                             filled: true,
-                            fillColor: Colors.white.withOpacity(0.1),
+                            fillColor: context.inputSurface,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.r),
                               borderSide: BorderSide(
-                                color: Colors.white.withOpacity(0.3),
+                                color: context.inputBorderColor,
                                 width: 1,
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.r),
                               borderSide: BorderSide(
-                                color: Colors.white.withOpacity(0.3),
+                                color: context.inputBorderColor,
                                 width: 1,
                               ),
                             ),
@@ -293,7 +294,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                     child: Text(
                       stepText,
                       style: TextStyle(
-                        color: Colors.white70,
+                        color: context.textSecondary,
                         fontSize: 16.sp,
                       ),
                     ),

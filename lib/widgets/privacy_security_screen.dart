@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use, avoid_print, use_build_context_synchronously
 
-import 'package:app_tact/colors.dart';
 import 'package:app_tact/components/common/custom_list_tile.dart';
 import 'package:app_tact/components/common/custom_switch_tile.dart';
 import 'package:app_tact/components/common/section_title.dart';
@@ -10,6 +9,7 @@ import 'package:app_tact/components/dialogs/reauthentication_dialog.dart';
 import 'package:app_tact/components/dialogs/two_factor_required_dialog.dart';
 import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/models/two_factor_auth.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/password_change/verify_current_password_screen.dart';
 import 'package:app_tact/widgets/privacy_policy_screen.dart';
@@ -219,8 +219,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
+      decoration: BoxDecoration(
+        gradient: context.screenGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -229,14 +229,14 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white, size: 20),
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                color: context.textPrimary, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             AppLocalizations.of(context).privSecTitle,
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),

@@ -4,6 +4,7 @@ import 'package:app_tact/components/sheet_theme.dart';
 import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -101,7 +102,7 @@ class _LinksState extends State<Links> {
         title: Text(
           AppLocalizations.of(context).linksTitle,
           style: TextStyle(
-            color: Colors.white,
+            color: context.textPrimary,
             fontSize: 18.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -120,7 +121,7 @@ class _LinksState extends State<Links> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(
-                          color: Colors.white,
+                          color: Color(0xFF7C6BFF),
                         ),
                       );
                     }

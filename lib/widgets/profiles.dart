@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/auth_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/date_utils.dart' as AppDateUtils;
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -69,7 +70,7 @@ class _ProfilesState extends State<Profiles> {
                 Text(
                   l.profileOpeningGallery,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.textPrimary,
                     fontSize: 14.sp,
                   ),
                 ),
@@ -121,7 +122,7 @@ class _ProfilesState extends State<Profiles> {
                 Text(
                   l.profileUploadingImage,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.textPrimary,
                     fontSize: 14.sp,
                   ),
                 ),
@@ -192,10 +193,10 @@ class _ProfilesState extends State<Profiles> {
         child: Container(
           padding: EdgeInsets.all(24.w),
           decoration: BoxDecoration(
-            color: Color(0xFF2E2939),
+            color: context.cardSurface,
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: context.borderColor,
               width: 1,
             ),
           ),
@@ -206,7 +207,7 @@ class _ProfilesState extends State<Profiles> {
               Text(
                 l.profileEditName,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.textPrimary,
                   fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
                 ),
@@ -215,27 +216,27 @@ class _ProfilesState extends State<Profiles> {
               TextField(
                 controller: nameController,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.textPrimary,
                   fontSize: 16.sp,
                 ),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.white.withOpacity(0.1),
+                  fillColor: context.inputSurface,
                   hintText: l.profileEnterNameHint,
                   hintStyle: TextStyle(
-                    color: Colors.grey[500],
+                    color: context.textSecondary,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
                     borderSide: BorderSide(
-                      color: Colors.white.withOpacity(0.3),
+                      color: context.borderColor,
                       width: 1,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
                     borderSide: BorderSide(
-                      color: Colors.white.withOpacity(0.3),
+                      color: context.borderColor,
                       width: 1,
                     ),
                   ),
@@ -255,9 +256,9 @@ class _ProfilesState extends State<Profiles> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.05),
+                        backgroundColor: context.inputSurface,
                         side: BorderSide(
-                          color: Colors.white.withOpacity(0.3),
+                          color: context.borderColor,
                           width: 1,
                         ),
                         shape: RoundedRectangleBorder(
@@ -268,7 +269,7 @@ class _ProfilesState extends State<Profiles> {
                       child: Text(
                         l.profileCancel,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: context.textPrimary,
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -469,7 +470,7 @@ class _ProfilesState extends State<Profiles> {
                 Text(
                   name,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.textPrimary,
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w600,
                     letterSpacing: -0.3,
@@ -487,7 +488,7 @@ class _ProfilesState extends State<Profiles> {
           Text(
             email,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.50),
+              color: context.textSecondary,
               fontSize: 14.sp,
               letterSpacing: -0.1,
             ),
@@ -508,7 +509,7 @@ class _ProfilesState extends State<Profiles> {
         child: Text(
           label.toUpperCase(),
           style: TextStyle(
-            color: Colors.white.withOpacity(0.38),
+            color: context.labelColor,
             fontSize: 11.sp,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.9,
@@ -552,7 +553,7 @@ class _ProfilesState extends State<Profiles> {
             }
           },
           trailing: Icon(Icons.copy_rounded,
-              size: 15.sp, color: Colors.white.withOpacity(0.22)),
+              size: 15.sp, color: context.textSecondary.withOpacity(0.55)),
         ),
       ],
     );
@@ -629,7 +630,7 @@ class _ProfilesState extends State<Profiles> {
           onTap: () =>
               MessageUtils.showSuccessMessage(context, l.profileComingSoon),
           trailing: Icon(Icons.chevron_right_rounded,
-              size: 18.sp, color: Colors.white.withOpacity(0.25)),
+              size: 18.sp, color: context.rowChevron),
         ),
         _ProfileRow(
           icon: Icons.info_outline_rounded,
@@ -639,7 +640,7 @@ class _ProfilesState extends State<Profiles> {
           onTap: () =>
               MessageUtils.showSuccessMessage(context, l.profileComingSoon),
           trailing: Icon(Icons.chevron_right_rounded,
-              size: 18.sp, color: Colors.white.withOpacity(0.25)),
+              size: 18.sp, color: context.rowChevron),
         ),
       ],
     );
@@ -672,9 +673,9 @@ class _ProfileGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF252535),
+        color: context.cardSurface,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
+        border: Border.all(color: context.borderColor, width: 1),
         boxShadow: const [
           BoxShadow(
             color: Color(0x28000000),
@@ -700,7 +701,7 @@ class _ProfileGroup extends StatelessWidget {
                 Divider(
                   height: 1,
                   thickness: 1,
-                  color: Colors.white.withOpacity(0.05),
+                  color: context.dividerColor,
                   indent: 56.w,
                 ),
             ],
@@ -749,7 +750,9 @@ class _ProfileRowState extends State<_ProfileRow> {
       onTap: widget.onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 80),
-        color: _pressed ? Colors.white.withOpacity(0.04) : Colors.transparent,
+        color: _pressed
+            ? context.textPrimary.withOpacity(0.04)
+            : Colors.transparent,
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 13.h),
         child: Row(
           children: [
@@ -773,7 +776,7 @@ class _ProfileRowState extends State<_ProfileRow> {
                   Text(
                     widget.label,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.48),
+                      color: context.textSecondary,
                       fontSize: 11.sp,
                       fontWeight: FontWeight.w500,
                       height: 1.1,
@@ -783,7 +786,7 @@ class _ProfileRowState extends State<_ProfileRow> {
                   Text(
                     widget.value,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.textPrimary,
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w500,
                       height: 1.2,

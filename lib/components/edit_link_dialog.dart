@@ -3,6 +3,7 @@
 import 'package:app_tact/components/sheet_theme.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class EditLinkDialog extends StatefulWidget {
@@ -102,8 +103,8 @@ class _EditLinkDialogState extends State<EditLinkDialog> {
   }
 
   // Shared field decoration
-  InputDecoration _field(String label) =>
-      sheetInputDecoration(placeholder: label);
+  InputDecoration _field(BuildContext context, String label) =>
+      sheetInputDecoration(context: context, placeholder: label);
 
   @override
   Widget build(BuildContext context) {
@@ -129,13 +130,13 @@ class _EditLinkDialogState extends State<EditLinkDialog> {
               child: TextField(
                 controller: titleController,
                 enabled: !_isLoading,
-                style: const TextStyle(
-                  color: kTextPrimary,
+                style: TextStyle(
+                  color: context.sheetText,
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
                 textInputAction: TextInputAction.next,
-                decoration: _field('Title'),
+                decoration: _field(context, 'Title'),
               ),
             ),
 
@@ -149,15 +150,15 @@ class _EditLinkDialogState extends State<EditLinkDialog> {
               child: TextField(
                 controller: urlController,
                 enabled: !_isLoading,
-                style: const TextStyle(
-                  color: kTextPrimary,
+                style: TextStyle(
+                  color: context.sheetText,
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
                 keyboardType: TextInputType.url,
                 autocorrect: false,
                 textInputAction: TextInputAction.next,
-                decoration: _field('URL'),
+                decoration: _field(context, 'URL'),
               ),
             ),
 
@@ -169,15 +170,15 @@ class _EditLinkDialogState extends State<EditLinkDialog> {
             TextField(
               controller: descriptionController,
               enabled: !_isLoading,
-              style: const TextStyle(
-                color: kTextPrimary,
+              style: TextStyle(
+                color: context.sheetText,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
                 height: 1.45,
               ),
               maxLines: 3,
               textInputAction: TextInputAction.done,
-              decoration: _field('Description (optional)').copyWith(
+              decoration: _field(context, 'Description (optional)').copyWith(
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,

@@ -2,6 +2,7 @@
 
 import 'package:app_tact/components/sheet_theme.dart';
 import 'package:app_tact/services/links_service.dart';
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -77,13 +78,13 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
               child: TextField(
                 controller: _categoryController,
                 autofocus: true,
-                style: const TextStyle(
-                  color: kTextPrimary,
+                style: TextStyle(
+                  color: context.sheetText,
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
-                decoration:
-                    sheetInputDecoration(placeholder: 'e.g. Work, Personal…'),
+                decoration: sheetInputDecoration(
+                    context: context, placeholder: 'e.g. Work, Personal…'),
               ),
             ),
             const SizedBox(height: kSheetSectionSpacing),

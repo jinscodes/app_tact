@@ -1,11 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 const _kAccent = Color(0xFF7C6BFF);
-const _kSurface = Color(0xFF1A1A1A);
-const _kBorder = Color(0x1FFFFFFF);
 
 class CustomSwitchTile extends StatelessWidget {
   final IconData icon;
@@ -28,14 +27,15 @@ class CustomSwitchTile extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
-        color: _kSurface,
+        color: context.inputSurface,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: _kBorder, width: 1),
+        border: Border.all(color: context.inputBorderColor, width: 1),
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
         child: Row(
-          children: [
+          children:
+          [
             Container(
               width: 36.r,
               height: 36.r,
@@ -53,7 +53,7 @@ class CustomSwitchTile extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.textPrimary,
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -62,7 +62,7 @@ class CustomSwitchTile extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: const Color(0xFF8A8A8E),
+                      color: context.textSecondary,
                       fontSize: 13.sp,
                     ),
                   ),
@@ -73,7 +73,7 @@ class CustomSwitchTile extends StatelessWidget {
               value: value,
               onChanged: onChanged,
               activeTrackColor: _kAccent,
-              inactiveTrackColor: const Color(0xFF2C2C2E),
+              inactiveTrackColor: context.switchTrackOff,
               thumbColor: WidgetStateProperty.all(Colors.white),
               trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
             ),

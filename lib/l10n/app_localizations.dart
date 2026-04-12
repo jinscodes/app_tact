@@ -42,6 +42,11 @@ class AppLocalizations {
       'logOut': 'Log Out',
       'langPickerTitle': 'Language',
       'langPickerSubtitle': 'Choose your preferred language',
+      'appearanceTitle': 'Appearance',
+      'appearanceSubtitle': 'Choose your preferred look',
+      'appearanceSystem': 'System Default',
+      'appearanceLight': 'Light',
+      'appearanceDark': 'Dark',
 
       // ── Notifications ─────────────────────────────────────────────────────
       'notifSectionGeneral': 'General',
@@ -240,6 +245,11 @@ class AppLocalizations {
       'logOut': '로그아웃',
       'langPickerTitle': '언어',
       'langPickerSubtitle': '원하는 언어를 선택하세요',
+      'appearanceTitle': '디자인',
+      'appearanceSubtitle': '원하는 화면 모드를 선택하세요',
+      'appearanceSystem': '시스템 기본값',
+      'appearanceLight': '라이트',
+      'appearanceDark': '다크',
 
       // ── Notifications ─────────────────────────────────────────────────────
       'notifSectionGeneral': '일반',
@@ -435,6 +445,11 @@ class AppLocalizations {
   String get logOut => _t('logOut');
   String get langPickerTitle => _t('langPickerTitle');
   String get langPickerSubtitle => _t('langPickerSubtitle');
+  String get appearanceTitle => _t('appearanceTitle');
+  String get appearanceSubtitle => _t('appearanceSubtitle');
+  String get appearanceSystem => _t('appearanceSystem');
+  String get appearanceLight => _t('appearanceLight');
+  String get appearanceDark => _t('appearanceDark');
 
   // ── Notifications ────────────────────────────────────────────────────────────
   String get notifSectionGeneral => _t('notifSectionGeneral');

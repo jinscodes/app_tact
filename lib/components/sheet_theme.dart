@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -115,14 +116,14 @@ class AppSheetScaffold extends StatelessWidget {
         child: Container(
           constraints: BoxConstraints(maxHeight: screenH * maxHeightFactor),
           decoration: BoxDecoration(
-            color: kSheetBg,
+            color: context.sheetBg,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(kSheetRadius),
             ),
-            border: const Border(
-              top: BorderSide(color: kSheetBorder, width: 1),
-              left: BorderSide(color: kSheetBorder, width: 1),
-              right: BorderSide(color: kSheetBorder, width: 1),
+            border: Border(
+              top: BorderSide(color: context.sheetBorder, width: 1),
+              left: BorderSide(color: context.sheetBorder, width: 1),
+              right: BorderSide(color: context.sheetBorder, width: 1),
             ),
             boxShadow: [
               BoxShadow(
@@ -173,7 +174,7 @@ class _DragHandle extends StatelessWidget {
           width: 36,
           height: 4,
           decoration: BoxDecoration(
-            color: kSheetBorder,
+            color: context.sheetHandleColor,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -194,8 +195,8 @@ class _TitleRow extends StatelessWidget {
       child: Center(
         child: Text(
           title,
-          style: const TextStyle(
-            color: kTextPrimary,
+          style: TextStyle(
+            color: context.sheetText,
             fontSize: 17,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.3,
@@ -211,7 +212,7 @@ class _SheetDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(color: kDivider, height: 1, thickness: 0.5);
+    return Divider(color: context.sheetDivider, height: 1, thickness: 0.5);
   }
 }
 
@@ -224,8 +225,8 @@ class SheetSectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
-        color: kTextSecondary,
+      style: TextStyle(
+        color: context.sheetTextSec,
         fontSize: 12,
         fontWeight: FontWeight.w500,
         letterSpacing: 0.6,
@@ -236,27 +237,28 @@ class SheetSectionLabel extends StatelessWidget {
 
 /// Field decoration factory — use for every text input inside sheets
 InputDecoration sheetInputDecoration({
+  required BuildContext context,
   required String placeholder,
   bool hasFocus = false,
 }) {
   return InputDecoration(
     hintText: placeholder,
-    hintStyle: const TextStyle(
-      color: kTextSecondary,
+    hintStyle: TextStyle(
+      color: context.sheetTextSec,
       fontSize: 15,
       fontWeight: FontWeight.w400,
     ),
     filled: true,
-    fillColor: kInputBg,
+    fillColor: context.sheetInputBg,
     isDense: true,
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(kSheetFieldRadius),
-      borderSide: const BorderSide(color: kInputBorder, width: 1),
+      borderSide: BorderSide(color: context.sheetInputBorder, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(kSheetFieldRadius),
-      borderSide: const BorderSide(color: kInputBorder, width: 1),
+      borderSide: BorderSide(color: context.sheetInputBorder, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(kSheetFieldRadius),
@@ -265,7 +267,7 @@ InputDecoration sheetInputDecoration({
     disabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(kSheetFieldRadius),
       borderSide: BorderSide(
-        color: kInputBorder.withOpacity(0.4),
+        color: context.sheetInputBorder.withOpacity(0.4),
         width: 1,
       ),
     ),
@@ -300,8 +302,8 @@ class SheetPrimaryButton extends StatelessWidget {
             ? kPrimaryGradient
             : LinearGradient(
                 colors: [
-                  kSheetBorder.withOpacity(0.5),
-                  kSheetBorder.withOpacity(0.5),
+                  context.sheetBorder.withOpacity(0.5),
+                  context.sheetBorder.withOpacity(0.5),
                 ],
               ),
         borderRadius: BorderRadius.circular(kSheetBtnRadius),
@@ -341,7 +343,7 @@ class SheetPrimaryButton extends StatelessWidget {
               : Text(
                   label,
                   style: TextStyle(
-                    color: active ? kTextPrimary : kTextSecondary,
+                    color: active ? context.sheetText : context.sheetTextSec,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     letterSpacing: -0.2,
@@ -370,14 +372,14 @@ class SheetSecondaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isDestructive ? const Color(0xFFFF6B6B) : kTextSecondary;
     final borderColor =
-        isDestructive ? const Color(0xFF7A3030) : kSecondaryBorder;
+        isDestructive ? const Color(0xFF7A3030) : context.sheetSecBorder;
     return SizedBox(
       width: double.infinity,
       height: kSheetBtnHeight,
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          backgroundColor: kSecondaryBg,
+          backgroundColor: context.sheetSecBg,
           side: BorderSide(color: borderColor, width: 1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(kSheetBtnRadius),
@@ -407,7 +409,7 @@ class SheetFooter extends StatelessWidget {
     final safeBottom = MediaQuery.of(context).padding.bottom;
     final keyboardH = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-      color: kSheetBg,
+      color: context.sheetBg,
       padding: EdgeInsets.fromLTRB(
         kSheetHPad,
         12,
