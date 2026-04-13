@@ -5,7 +5,10 @@ import 'package:app_tact/services/notification_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/widgets/links.dart';
 import 'package:app_tact/widgets/profiles.dart';
-import 'package:app_tact/widgets/settings.dart';
+import 'package:app_tact/widgets/settings.dart' as app_settings;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -27,7 +30,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   List<Widget> _buildScreens() {
     return [
       const Links(),
-      Settings(
+      app_settings.Settings(
         onNavigateToProfile: () => _onItemTapped(2),
       ),
       const Profiles(),
@@ -42,7 +45,60 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       vsync: this,
     );
     _updateAnimations();
+    _ensureProfileExists();
     _checkFirstTimeNotification();
+  }
+
+  Future<void> _ensureProfileExists() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      // Only create if the profile fields are missing
+      if (!doc.exists || !(doc.data()?.containsKey('userId') ?? false)) {
+        final signupType = user.providerData.isNotEmpty
+            ? (user.providerData.first.providerId == 'google.com'
+                ? 'google'
+                : user.providerData.first.providerId == 'github.com'
+                    ? 'github'
+                    : 'email')
+            : 'email';
+
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'userId': user.uid,
+          'name': user.displayName ?? '',
+          'email': user.email ?? '',
+          'photoURL': user.photoURL ?? '',
+          'signupType': signupType,
+          'isEmailVerified': user.emailVerified,
+          'createdAt': FieldValue.serverTimestamp(),
+          'memberSince': FieldValue.serverTimestamp(),
+          'lastLoginAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+          'platform': defaultTargetPlatform.name.toLowerCase(),
+          'language': PlatformDispatcher.instance.locale.toString(),
+          'accountStatus': 'active',
+          'onboardingCompleted': false,
+          'totalLinks': 0,
+          'totalCategories': 0,
+        }, SetOptions(merge: true));
+      } else {
+        // Profile exists — just update lastLoginAt
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({
+          'lastLoginAt': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (e) {
+      debugPrint('[Profile] _ensureProfileExists error: $e');
+    }
   }
 
   Future<void> _checkFirstTimeNotification() async {

@@ -40,8 +40,6 @@ class _ProfilesState extends State<Profiles> {
       final doc = await FirebaseFirestore.instance
           .collection('users')
           .doc(_user!.uid)
-          .collection('profile')
-          .doc('info')
           .get();
 
       if (doc.exists && mounted) {
@@ -144,8 +142,6 @@ class _ProfilesState extends State<Profiles> {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(_user!.uid)
-          .collection('profile')
-          .doc('info')
           .update({'profileImageUrl': downloadUrl});
 
       await _loadProfileData();
@@ -302,8 +298,6 @@ class _ProfilesState extends State<Profiles> {
                                 await FirebaseFirestore.instance
                                     .collection('users')
                                     .doc(_user!.uid)
-                                    .collection('profile')
-                                    .doc('info')
                                     .update({'name': newName});
 
                                 await _user!.updateDisplayName(newName);

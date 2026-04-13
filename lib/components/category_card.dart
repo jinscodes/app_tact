@@ -205,16 +205,12 @@ class _CategoryCardState extends State<CategoryCard> {
           collapsedBackgroundColor: Colors.transparent,
           iconColor: context.textPrimary,
           collapsedIconColor: context.textPrimary,
-          trailing: InkWell(
-            onTap: _handleLockToggle,
-            borderRadius: BorderRadius.circular(20.r),
-            child: Padding(
-              padding: EdgeInsets.all(4.w),
-              child: Icon(
-                _isLocked ? Icons.lock : Icons.lock_outline,
-                color: _isLocked ? Colors.red : Colors.grey[400],
-                size: 20.sp,
-              ),
+          trailing: IconButton(
+            onPressed: _handleLockToggle,
+            icon: Icon(
+              _isLocked ? Icons.lock : Icons.lock_outline,
+              color: _isLocked ? Colors.red : Colors.grey[400],
+              size: 20.sp,
             ),
           ),
           leading: Container(

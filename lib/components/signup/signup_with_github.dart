@@ -48,13 +48,10 @@ class _SignupWithGithubState extends State<SignupWithGithub> {
           }
 
           // Check if profile already exists
-          print(
-              '🔵 Checking if profile exists at: users/${user.uid}/profile/info');
+          print('🔵 Checking if profile exists at: users/${user.uid}');
           final profileDoc = await FirebaseFirestore.instance
               .collection('users')
               .doc(user.uid)
-              .collection('profile')
-              .doc('info')
               .get();
 
           print('🔵 Profile exists: ${profileDoc.exists}');
@@ -74,8 +71,6 @@ class _SignupWithGithubState extends State<SignupWithGithub> {
             await FirebaseFirestore.instance
                 .collection('users')
                 .doc(user.uid)
-                .collection('profile')
-                .doc('info')
                 .set(profileData);
             print('✅ GitHub profile created successfully!');
 
@@ -83,8 +78,6 @@ class _SignupWithGithubState extends State<SignupWithGithub> {
             final verifyDoc = await FirebaseFirestore.instance
                 .collection('users')
                 .doc(user.uid)
-                .collection('profile')
-                .doc('info')
                 .get();
             print(
                 '🔵 Verification - Profile exists: ${verifyDoc.exists}, Data: ${verifyDoc.data()}');
