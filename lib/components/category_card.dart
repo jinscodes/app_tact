@@ -9,7 +9,7 @@ import 'package:app_tact/components/category_card/category_locked_overlay.dart';
 import 'package:app_tact/components/delete_category_dialog.dart';
 import 'package:app_tact/components/edit_link_dialog.dart';
 import 'package:app_tact/components/link_item_card.dart';
-import 'package:app_tact/components/sheet_theme.dart';
+import 'package:app_tact/components/undo_banner.dart';
 import 'package:app_tact/models/make_category.dart';
 import 'package:app_tact/services/links_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
@@ -108,37 +108,16 @@ class _CategoryCardState extends State<CategoryCard> {
 
     if (!context.mounted) return;
 
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'Link deleted',
-          style: TextStyle(
-            color: kTextPrimary,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        duration: const Duration(seconds: 4),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: kInputBg,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: kSheetBorder, width: 0.5),
-        ),
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        action: SnackBarAction(
-          label: 'Undo',
-          textColor: kAccentEnd,
-          onPressed: () async {
-            try {
-              await widget.linksService.restoreLinkItem(link);
-            } catch (e) {
-              widget.onError('Error restoring link: $e');
-            }
-          },
-        ),
-      ),
+    showUndoBanner(
+      context: context,
+      message: 'Link deleted',
+      onUndo: () async {
+        try {
+          await widget.linksService.restoreLinkItem(link);
+        } catch (e) {
+          widget.onError('Error restoring link: $e');
+        }
+      },
     );
   }
 
@@ -153,6 +132,7 @@ class _CategoryCardState extends State<CategoryCard> {
     Widget content = Column(
       children: [
         ...links.map((link) => LinkItemCard(
+              key: ValueKey(link.id),
               link: link,
               onTap: widget.onLinkTap,
               onEdit: () => _showEditLinkDialog(context, link),

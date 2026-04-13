@@ -5,9 +5,7 @@ import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/services/language_service.dart';
 import 'package:app_tact/services/theme_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
-import 'package:app_tact/widgets/about_screen.dart';
 import 'package:app_tact/widgets/appearance_screen.dart';
-import 'package:app_tact/widgets/help_support_screen.dart';
 import 'package:app_tact/widgets/notifications_screen.dart';
 import 'package:app_tact/widgets/privacy_security_screen.dart';
 import 'package:app_tact/widgets/subscription_screen.dart';
@@ -197,20 +195,14 @@ class _SettingsState extends State<Settings> {
           icon: Icons.help_outline_rounded,
           iconColor: const Color(0xFF5E9BFF),
           title: l.rowHelpSupport,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
-          ),
+          onTap: () => Navigator.pushNamed(context, '/help-support'),
         ),
         _SettingRow(
           icon: Icons.info_outline_rounded,
           iconColor: const Color(0xFF34C759),
           title: l.rowAbout,
           valueLabel: l.rowVersionLabel,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AboutScreen()),
-          ),
+          onTap: () => Navigator.pushNamed(context, '/about'),
         ),
       ],
     );

@@ -4,7 +4,9 @@ import 'package:app_tact/services/language_service.dart';
 import 'package:app_tact/services/subscription_service.dart';
 import 'package:app_tact/services/theme_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
+import 'package:app_tact/widgets/about_screen.dart';
 import 'package:app_tact/widgets/email_verification_screen.dart';
+import 'package:app_tact/widgets/help_support_screen.dart';
 import 'package:app_tact/widgets/home.dart';
 import 'package:app_tact/widgets/links.dart';
 import 'package:app_tact/widgets/login.dart';
@@ -225,6 +227,12 @@ class MyApp extends StatelessWidget {
         break;
       case '/theme-picker':
         page = const ThemePickerScreen();
+        break;
+      case '/help-support':
+        page = const HelpSupportScreen();
+        break;
+      case '/about':
+        page = const AboutScreen();
         break;
       default:
         return null;

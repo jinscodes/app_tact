@@ -75,6 +75,10 @@ class LinksService {
         'isPlaceholder': true,
       });
 
+      batch.update(_firestore.collection('users').doc(userId), {
+        'totalCategories': FieldValue.increment(1),
+      });
+
       await batch.commit();
 
       return categoryRef.id;
@@ -197,6 +201,10 @@ class LinksService {
       }
 
       batch.delete(_getCategoryCollection().doc(categoryId));
+
+      batch.update(_firestore.collection('users').doc(userId), {
+        'totalCategories': FieldValue.increment(-1),
+      });
 
       await batch.commit();
     } catch (e) {
