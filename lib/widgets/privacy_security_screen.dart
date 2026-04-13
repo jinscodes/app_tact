@@ -21,7 +21,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:local_auth/local_auth.dart';
 
 class PrivacySecurityScreen extends StatefulWidget {
-  const PrivacySecurityScreen({super.key});
+  final bool highlightSetup;
+  const PrivacySecurityScreen({super.key, this.highlightSetup = false});
 
   @override
   State<PrivacySecurityScreen> createState() => _PrivacySecurityScreenState();
@@ -31,11 +32,40 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   bool _biometricEnabled = false;
   bool _twoFactorEnabled = false;
   final LocalAuthentication _localAuth = LocalAuthentication();
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _twoFactorSetupKey = GlobalKey();
+  bool _highlight2fa = false;
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
+    if (widget.highlightSetup) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // Wait for the push-navigation slide animation to complete
+        await Future.delayed(const Duration(milliseconds: 400));
+        if (!mounted) return;
+        final ctx = _twoFactorSetupKey.currentContext;
+        if (ctx != null) {
+          await Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeInOut,
+            alignment: 0.25,
+          );
+        }
+        if (!mounted) return;
+        setState(() => _highlight2fa = true);
+        await Future.delayed(const Duration(milliseconds: 1600));
+        if (mounted) setState(() => _highlight2fa = false);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSettings() async {
@@ -131,6 +161,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         if (mounted) {
           await TwoFactorRequiredDialog.show(context);
         }
+        // Re-check: user may have just completed setup inside the dialog
+        if (!mounted) return;
+        final newPassword = await TwoFactorAuth.check2fa();
+        if (newPassword == null) return; // still not set up
+        // Fall through to enable the toggle
+        await TwoFactorAuth.updateTwoFactorSetting(true);
+        if (mounted) setState(() => _twoFactorEnabled = true);
         return;
       }
 
@@ -245,6 +282,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         ),
         body: SafeArea(
           child: ListView(
+            controller: _scrollController,
             padding: EdgeInsets.all(20.w),
             children: [
               SectionTitle(AppLocalizations.of(context).privSecSectionAuth),
@@ -262,19 +300,35 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 value: _twoFactorEnabled,
                 onChanged: _handleTwoFactorToggle,
               ),
-              CustomSettingTile(
-                icon: Icons.pin_outlined,
-                title: AppLocalizations.of(context).privSecSetTwoFactorTitle,
-                subtitle:
-                    AppLocalizations.of(context).privSecSetTwoFactorSubtitle,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const TwoFactorSetupScreen(),
-                    ),
-                  );
-                },
+              AnimatedContainer(
+                key: _twoFactorSetupKey,
+                duration: const Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  color: _highlight2fa
+                      ? const Color(0xFF7C6BFF).withOpacity(0.10)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: CustomSettingTile(
+                  icon: Icons.pin_outlined,
+                  title: AppLocalizations.of(context).privSecSetTwoFactorTitle,
+                  subtitle:
+                      AppLocalizations.of(context).privSecSetTwoFactorSubtitle,
+                  onTap: () async {
+                    final result = await Navigator.push<dynamic>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TwoFactorSetupScreen(),
+                      ),
+                    );
+                    // TwoFactorSetupScreen pops with the password string on success
+                    if (!mounted) return;
+                    if (result != null && result != false) {
+                      await TwoFactorAuth.updateTwoFactorSetting(true);
+                      setState(() => _twoFactorEnabled = true);
+                    }
+                  },
+                ),
               ),
               SizedBox(height: 20.h),
               SectionTitle(AppLocalizations.of(context).privSecSectionPassword),

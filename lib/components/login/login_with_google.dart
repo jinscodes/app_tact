@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
-import 'package:app_tact/services/auth_service.dart';
 import 'package:app_tact/components/loading_spinner.dart';
+import 'package:app_tact/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,8 +36,6 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
           final profileDoc = await FirebaseFirestore.instance
               .collection('users')
               .doc(result.user!.uid)
-              .collection('profile')
-              .doc('info')
               .get();
 
           print('🔵 Profile exists: ${profileDoc.exists}');
@@ -56,8 +54,6 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
             await FirebaseFirestore.instance
                 .collection('users')
                 .doc(result.user!.uid)
-                .collection('profile')
-                .doc('info')
                 .set(profileData);
             print('✅ Profile created successfully for Google login!');
           } else {

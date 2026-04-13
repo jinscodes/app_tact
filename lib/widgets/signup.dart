@@ -7,6 +7,7 @@ import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -210,18 +211,29 @@ class _SignupScreenState extends State<SignupScreen> {
         // Sending here AND in the screen caused the double-send / too-many-requests
         // error that was observed previously.
 
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .collection('profile')
-            .doc('info')
-            .set({
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          // Identity
+          'userId': user.uid,
           'name': _nameController.text.trim(),
           'email': _emailController.text.trim(),
-          'userId': user.uid,
-          'memberSince': FieldValue.serverTimestamp(),
-          'createdAt': FieldValue.serverTimestamp(),
+          'photoURL': user.photoURL ?? '',
+          // Auth
           'signupType': 'email',
+          'isEmailVerified': user.emailVerified,
+          // Timestamps
+          'createdAt': FieldValue.serverTimestamp(),
+          'memberSince': FieldValue.serverTimestamp(),
+          'lastLoginAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+          // Device & locale
+          'platform': defaultTargetPlatform.name.toLowerCase(),
+          'language': PlatformDispatcher.instance.locale.toString(),
+          // Account state
+          'accountStatus': 'active',
+          'onboardingCompleted': false,
+          // Usage counters
+          'totalLinks': 0,
+          'totalCategories': 0,
         });
 
         // Keep the user signed in and send them to the verification screen.
@@ -272,23 +284,35 @@ class _SignupScreenState extends State<SignupScreen> {
         final doc = await FirebaseFirestore.instance
             .collection('users')
             .doc(fresh.uid)
-            .collection('profile')
-            .doc('info')
             .get();
 
         if (!doc.exists) {
           await FirebaseFirestore.instance
               .collection('users')
               .doc(fresh.uid)
-              .collection('profile')
-              .doc('info')
               .set({
-            'name': fresh.displayName ?? 'User',
-            'email': fresh.email,
+            // Identity
             'userId': fresh.uid,
-            'memberSince': FieldValue.serverTimestamp(),
-            'createdAt': FieldValue.serverTimestamp(),
+            'name': fresh.displayName ?? 'User',
+            'email': fresh.email ?? '',
+            'photoURL': fresh.photoURL ?? '',
+            // Auth
             'signupType': 'google',
+            'isEmailVerified': fresh.emailVerified,
+            // Timestamps
+            'createdAt': FieldValue.serverTimestamp(),
+            'memberSince': FieldValue.serverTimestamp(),
+            'lastLoginAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+            // Device & locale
+            'platform': defaultTargetPlatform.name.toLowerCase(),
+            'language': PlatformDispatcher.instance.locale.toString(),
+            // Account state
+            'accountStatus': 'active',
+            'onboardingCompleted': false,
+            // Usage counters
+            'totalLinks': 0,
+            'totalCategories': 0,
           });
         }
 
@@ -396,7 +420,9 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: context.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      value: context.isDark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: context.screenSurface,
         resizeToAvoidBottomInset: true,
@@ -745,7 +771,8 @@ class _AuthInputState extends State<_AuthInput> {
             decoration: InputDecoration(
               hintText: widget.placeholder,
               hintStyle: TextStyle(
-                  color: context.textSecondary.withOpacity(0.55), fontSize: 16.sp),
+                  color: context.textSecondary.withOpacity(0.55),
+                  fontSize: 16.sp),
               border: InputBorder.none,
               contentPadding:
                   EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
