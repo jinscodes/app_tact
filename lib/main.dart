@@ -4,7 +4,9 @@ import 'package:app_tact/services/language_service.dart';
 import 'package:app_tact/services/subscription_service.dart';
 import 'package:app_tact/services/theme_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
+import 'package:app_tact/widgets/about_screen.dart';
 import 'package:app_tact/widgets/email_verification_screen.dart';
+import 'package:app_tact/widgets/help_support_screen.dart';
 import 'package:app_tact/widgets/home.dart';
 import 'package:app_tact/widgets/links.dart';
 import 'package:app_tact/widgets/login.dart';
@@ -226,6 +228,12 @@ class MyApp extends StatelessWidget {
       case '/theme-picker':
         page = const ThemePickerScreen();
         break;
+      case '/help-support':
+        page = const HelpSupportScreen();
+        break;
+      case '/about':
+        page = const AboutScreen();
+        break;
       default:
         return null;
     }
@@ -245,8 +253,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return ValueListenableBuilder<ThemeMode>(
           valueListenable: ThemeService.themeMode,
-          builder: (context, themeMode, _) =>
-              ValueListenableBuilder<Locale>(
+          builder: (context, themeMode, _) => ValueListenableBuilder<Locale>(
             valueListenable: LanguageService.locale,
             builder: (context, locale, _) => MaterialApp(
               debugShowCheckedModeBanner: false,
@@ -264,8 +271,8 @@ class MyApp extends StatelessWidget {
                 colorSchemeSeed: AppColors.accentPurple,
                 brightness: Brightness.light,
                 scaffoldBackgroundColor: Colors.transparent,
-                textTheme: GoogleFonts.interTextTheme(
-                    ThemeData.light().textTheme),
+                textTheme:
+                    GoogleFonts.interTextTheme(ThemeData.light().textTheme),
                 fontFamily: GoogleFonts.inter().fontFamily,
                 pageTransitionsTheme: const PageTransitionsTheme(
                   builders: {
