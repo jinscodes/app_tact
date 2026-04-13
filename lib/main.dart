@@ -253,8 +253,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return ValueListenableBuilder<ThemeMode>(
           valueListenable: ThemeService.themeMode,
-          builder: (context, themeMode, _) =>
-              ValueListenableBuilder<Locale>(
+          builder: (context, themeMode, _) => ValueListenableBuilder<Locale>(
             valueListenable: LanguageService.locale,
             builder: (context, locale, _) => MaterialApp(
               debugShowCheckedModeBanner: false,
@@ -272,8 +271,8 @@ class MyApp extends StatelessWidget {
                 colorSchemeSeed: AppColors.accentPurple,
                 brightness: Brightness.light,
                 scaffoldBackgroundColor: Colors.transparent,
-                textTheme: GoogleFonts.interTextTheme(
-                    ThemeData.light().textTheme),
+                textTheme:
+                    GoogleFonts.interTextTheme(ThemeData.light().textTheme),
                 fontFamily: GoogleFonts.inter().fontFamily,
                 pageTransitionsTheme: const PageTransitionsTheme(
                   builders: {
