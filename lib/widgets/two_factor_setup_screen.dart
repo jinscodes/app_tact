@@ -367,8 +367,7 @@ class _PinDotState extends State<_PinDot> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 220),
     );
-    _scaleAnim =
-        CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack);
+    _scaleAnim = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack);
     // If pre-filled (e.g. after step change with restored value), snap to full
     if (widget.filled) _ctrl.value = 1.0;
   }
