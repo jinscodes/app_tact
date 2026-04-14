@@ -8,6 +8,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
+/// Shows a lightweight floating toast with no undo action.
+/// Auto-dismisses after [duration]. Replaces any existing banner.
+void showToast({
+  required BuildContext context,
+  required String message,
+  IconData icon = Icons.check_circle_outline_rounded,
+  Duration duration = const Duration(milliseconds: 2000),
+}) {
+  _UndoBannerController._instance?.dismiss();
+  _UndoBannerController._instance =
+      _UndoBannerController._showToast(context, message, icon, duration);
+}
+
 /// Shows a floating undo banner at the bottom of the screen.
 /// Cancels any existing banner first. Auto-dismisses after [duration].
 /// If [onUndo] is pressed the timer is cancelled and the callback fires.
@@ -32,6 +45,31 @@ class _UndoBannerController {
   Timer? _timer;
 
   _UndoBannerController._(this._entry, this._state);
+
+  static _UndoBannerController _showToast(
+    BuildContext context,
+    String message,
+    IconData icon,
+    Duration duration,
+  ) {
+    late _UndoBannerController ctrl;
+    final state = _BannerState();
+    final entry = OverlayEntry(
+      builder: (_) => _ToastWidget(
+        message: message,
+        icon: icon,
+        state: state,
+        onDismissed: () {
+          ctrl._entry.remove();
+          if (_instance == ctrl) _instance = null;
+        },
+      ),
+    );
+    Overlay.of(context).insert(entry);
+    ctrl = _UndoBannerController._(entry, state);
+    ctrl._timer = Timer(duration, ctrl.dismiss);
+    return ctrl;
+  }
 
   static _UndoBannerController _show(
     BuildContext context,
@@ -148,14 +186,146 @@ class _UndoBannerWidgetState extends State<_UndoBannerWidget>
 
   @override
   Widget build(BuildContext context) {
+    return _BannerShell(
+      opacity: _opacity,
+      slide: _slide,
+      child: Row(
+        children: [
+          const Icon(Icons.delete_outline_rounded,
+              color: kTextSecondary, size: 18),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Text(
+              widget.message,
+              style: TextStyle(
+                color: kTextPrimary,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          GestureDetector(
+            onTap: widget.onUndo,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+              child: Text(
+                'Undo',
+                style: TextStyle(
+                  color: const Color(0xFFB93CFF),
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Toast widget (icon + message, no undo) ───────────────────────────────────
+
+class _ToastWidget extends StatefulWidget {
+  final String message;
+  final IconData icon;
+  final _BannerState state;
+  final VoidCallback onDismissed;
+
+  const _ToastWidget({
+    required this.message,
+    required this.icon,
+    required this.state,
+    required this.onDismissed,
+  });
+
+  @override
+  State<_ToastWidget> createState() => _ToastWidgetState();
+}
+
+class _ToastWidgetState extends State<_ToastWidget>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+    );
+    _opacity = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+    _ctrl.forward();
+    widget.state.addListener(_onStateChanged);
+  }
+
+  void _onStateChanged() {
+    if (!widget.state.visible) {
+      _ctrl.reverse().whenComplete(widget.onDismissed);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.state.removeListener(_onStateChanged);
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _BannerShell(
+      opacity: _opacity,
+      slide: _slide,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(widget.icon, color: const Color(0xFF7C6BFF), size: 16),
+          SizedBox(width: 8.w),
+          Text(
+            widget.message,
+            style: TextStyle(
+              color: kTextPrimary,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Shared animated shell ────────────────────────────────────────────────────
+
+class _BannerShell extends StatelessWidget {
+  final Animation<double> opacity;
+  final Animation<Offset> slide;
+  final Widget child;
+
+  const _BannerShell({
+    required this.opacity,
+    required this.slide,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Positioned(
       left: 16,
       right: 16,
       bottom: MediaQuery.of(context).padding.bottom + 16,
       child: FadeTransition(
-        opacity: _opacity,
+        opacity: opacity,
         child: SlideTransition(
-          position: _slide,
+          position: slide,
           child: Material(
             color: Colors.transparent,
             child: Container(
@@ -172,39 +342,7 @@ class _UndoBannerWidgetState extends State<_UndoBannerWidget>
                   ),
                 ],
               ),
-              child: Row(
-                children: [
-                  const Icon(Icons.delete_outline_rounded,
-                      color: kTextSecondary, size: 18),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: Text(
-                      widget.message,
-                      style: TextStyle(
-                        color: kTextPrimary,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  GestureDetector(
-                    onTap: widget.onUndo,
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                      child: Text(
-                        'Undo',
-                        style: TextStyle(
-                          color: const Color(0xFFB93CFF),
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              child: child,
             ),
           ),
         ),

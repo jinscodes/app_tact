@@ -187,10 +187,18 @@ class _CategoryCardState extends State<CategoryCard> {
           collapsedIconColor: context.textPrimary,
           trailing: IconButton(
             onPressed: _handleLockToggle,
-            icon: Icon(
-              _isLocked ? Icons.lock : Icons.lock_outline,
-              color: _isLocked ? Colors.red : Colors.grey[400],
-              size: 20.sp,
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 260),
+              switchInCurve: Curves.easeOutBack,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, anim) =>
+                  ScaleTransition(scale: anim, child: child),
+              child: Icon(
+                _isLocked ? Icons.lock_rounded : Icons.lock_open_outlined,
+                key: ValueKey(_isLocked),
+                color: _isLocked ? Colors.red : Colors.grey[400],
+                size: 20.sp,
+              ),
             ),
           ),
           leading: Container(
