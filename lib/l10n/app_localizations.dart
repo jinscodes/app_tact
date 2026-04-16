@@ -107,9 +107,24 @@ class AppLocalizations {
       // ── Help & Support ────────────────────────────────────────────────────
       'helpTitle': 'Help & Support',
       'helpSectionContactUs': 'Contact Us',
-      'helpEmailSupportTitle': 'Email Support',
-      'helpReportBugTitle': 'Report a Bug',
-      'helpReportBugSubtitle': 'Help us improve Tact',
+      'helpEmailSupportTitle': 'Contact Support',
+      'helpEmailSupportSubtitle': 'Get help or contact us',
+      'helpReportBugTitle': 'Send Feedback',
+      'helpReportBugSubtitle': 'Help us improve the app',
+      'helpContactSheetTitle': 'Contact Support',
+      'helpContactEmailLabel': 'Your email',
+      'helpContactMessageLabel': 'How can we help?',
+      'helpContactMessageHint': 'Describe your issue or question...',
+      'helpContactSubmitted': 'Message sent. We\'ll get back to you soon.',
+      'helpFeedbackSheetTitle': 'Send Feedback',
+      'helpFeedbackCategoryBug': 'Bug',
+      'helpFeedbackCategorySuggestion': 'Suggestion',
+      'helpFeedbackMessageLabel': 'Tell us more',
+      'helpFeedbackMessageHint': 'Describe the issue or your idea...',
+      'helpFeedbackSubmitted': 'Thanks for your feedback!',
+      'helpFeedbackSend': 'Send',
+      'helpFeedbackDeviceInfo': 'Device info will be attached automatically.',
+      'helpSubmitFailed': 'Failed to send. Please try again.',
       'helpSectionFAQ': 'Frequently Asked Questions',
       'helpFAQ1Q': 'How do I create a category?',
       'helpFAQ1A':
@@ -152,6 +167,25 @@ class AppLocalizations {
       'helpOpeningUserGuide': 'Opening user guide...',
       'helpOpeningVideoTutorials': 'Opening video tutorials...',
       'helpOpeningBlog': 'Opening blog...',
+      'guideTitle': 'Getting Started',
+      'guideWelcomeTitle': 'Welcome',
+      'guideWelcomeDescription':
+          'Organize your links, keep them secure, and access them anytime.',
+      'guideCreateCategoriesTitle': 'Create Categories',
+      'guideCreateCategoriesDescription':
+          'Tap the + button to create categories and organize your links.',
+      'guideAddLinksTitle': 'Add Links',
+      'guideAddLinksDescription':
+          'Open a category and add links to keep everything in one place.',
+      'guideLockCategoriesTitle': 'Lock with 2FA',
+      'guideLockCategoriesDescription':
+          'Protect private categories with a 6-digit security code.',
+      'guideManageSettingsTitle': 'Manage Settings',
+      'guideManageSettingsDescription':
+          'Update your account, privacy, and security preferences.',
+      'guideDontShowAgain': 'Don\'t show again',
+      'guideGotIt': 'Got it',
+      'guideSaved': 'User guide preference saved.',
 
       // ── About ─────────────────────────────────────────────────────────────
       'aboutTitle': 'About',
@@ -310,9 +344,24 @@ class AppLocalizations {
       // ── Help & Support ────────────────────────────────────────────────────
       'helpTitle': '도움말 및 지원',
       'helpSectionContactUs': '문의하기',
-      'helpEmailSupportTitle': '이메일 지원',
-      'helpReportBugTitle': '버그 신고',
-      'helpReportBugSubtitle': 'Tact 개선을 도와주세요',
+      'helpEmailSupportTitle': '고객 지원',
+      'helpEmailSupportSubtitle': '도움받기 또는 문의하기',
+      'helpReportBugTitle': '피드백 보내기',
+      'helpReportBugSubtitle': '앱 개선을 도와주세요',
+      'helpContactSheetTitle': '고객 지원',
+      'helpContactEmailLabel': '이메일 주소',
+      'helpContactMessageLabel': '무엇을 도와드릴까요?',
+      'helpContactMessageHint': '문제나 질문을 설명해주세요...',
+      'helpContactSubmitted': '메시지가 전송되었습니다. 곧 답변 드리겠습니다.',
+      'helpFeedbackSheetTitle': '피드백 보내기',
+      'helpFeedbackCategoryBug': '버그',
+      'helpFeedbackCategorySuggestion': '제안',
+      'helpFeedbackMessageLabel': '자세히 알려주세요',
+      'helpFeedbackMessageHint': '문제나 아이디어를 설명해주세요...',
+      'helpFeedbackSubmitted': '피드백 감사합니다!',
+      'helpFeedbackSend': '보내기',
+      'helpFeedbackDeviceInfo': '기기 정보가 자동으로 첨부됩니다.',
+      'helpSubmitFailed': '전송에 실패했습니다. 다시 시도해 주세요.',
       'helpSectionFAQ': '자주 묻는 질문',
       'helpFAQ1Q': '카테고리를 어떻게 만드나요?',
       'helpFAQ1A': '메인 화면에서 + 버튼을 탭하고, 카테고리 이름과 이모지를 입력한 후 만들기를 탭하세요.',
@@ -350,6 +399,20 @@ class AppLocalizations {
       'helpOpeningUserGuide': '사용 가이드 열기...',
       'helpOpeningVideoTutorials': '동영상 튜토리얼 열기...',
       'helpOpeningBlog': '블로그 열기...',
+      'guideTitle': '시작하기',
+      'guideWelcomeTitle': '환영합니다',
+      'guideWelcomeDescription': '링크를 정리하고, 안전하게 보호하며, 언제든지 빠르게 접근하세요.',
+      'guideCreateCategoriesTitle': '카테고리 만들기',
+      'guideCreateCategoriesDescription': '+ 버튼을 눌러 카테고리를 만들고 링크를 체계적으로 정리하세요.',
+      'guideAddLinksTitle': '링크 추가하기',
+      'guideAddLinksDescription': '카테고리를 열고 링크를 추가해 모든 것을 한곳에 모아두세요.',
+      'guideLockCategoriesTitle': '2FA로 잠그기',
+      'guideLockCategoriesDescription': '개인 카테고리를 6자리 보안 코드로 보호하세요.',
+      'guideManageSettingsTitle': '설정 관리',
+      'guideManageSettingsDescription': '계정, 개인정보, 보안 환경설정을 업데이트하세요.',
+      'guideDontShowAgain': '다시 보지 않기',
+      'guideGotIt': '확인',
+      'guideSaved': '사용 가이드 설정이 저장되었습니다.',
 
       // ── About ─────────────────────────────────────────────────────────────
       'aboutTitle': '앱 정보',
@@ -512,8 +575,24 @@ class AppLocalizations {
   String get helpTitle => _t('helpTitle');
   String get helpSectionContactUs => _t('helpSectionContactUs');
   String get helpEmailSupportTitle => _t('helpEmailSupportTitle');
+  String get helpEmailSupportSubtitle => _t('helpEmailSupportSubtitle');
   String get helpReportBugTitle => _t('helpReportBugTitle');
   String get helpReportBugSubtitle => _t('helpReportBugSubtitle');
+  String get helpContactSheetTitle => _t('helpContactSheetTitle');
+  String get helpContactEmailLabel => _t('helpContactEmailLabel');
+  String get helpContactMessageLabel => _t('helpContactMessageLabel');
+  String get helpContactMessageHint => _t('helpContactMessageHint');
+  String get helpContactSubmitted => _t('helpContactSubmitted');
+  String get helpFeedbackSheetTitle => _t('helpFeedbackSheetTitle');
+  String get helpFeedbackCategoryBug => _t('helpFeedbackCategoryBug');
+  String get helpFeedbackCategorySuggestion =>
+      _t('helpFeedbackCategorySuggestion');
+  String get helpFeedbackMessageLabel => _t('helpFeedbackMessageLabel');
+  String get helpFeedbackMessageHint => _t('helpFeedbackMessageHint');
+  String get helpFeedbackSubmitted => _t('helpFeedbackSubmitted');
+  String get helpFeedbackSend => _t('helpFeedbackSend');
+  String get helpFeedbackDeviceInfo => _t('helpFeedbackDeviceInfo');
+  String get helpSubmitFailed => _t('helpSubmitFailed');
   String get helpSectionFAQ => _t('helpSectionFAQ');
   String get helpFAQ1Q => _t('helpFAQ1Q');
   String get helpFAQ1A => _t('helpFAQ1A');
@@ -550,6 +629,23 @@ class AppLocalizations {
   String get helpOpeningUserGuide => _t('helpOpeningUserGuide');
   String get helpOpeningVideoTutorials => _t('helpOpeningVideoTutorials');
   String get helpOpeningBlog => _t('helpOpeningBlog');
+  String get guideTitle => _t('guideTitle');
+  String get guideWelcomeTitle => _t('guideWelcomeTitle');
+  String get guideWelcomeDescription => _t('guideWelcomeDescription');
+  String get guideCreateCategoriesTitle => _t('guideCreateCategoriesTitle');
+  String get guideCreateCategoriesDescription =>
+      _t('guideCreateCategoriesDescription');
+  String get guideAddLinksTitle => _t('guideAddLinksTitle');
+  String get guideAddLinksDescription => _t('guideAddLinksDescription');
+  String get guideLockCategoriesTitle => _t('guideLockCategoriesTitle');
+  String get guideLockCategoriesDescription =>
+      _t('guideLockCategoriesDescription');
+  String get guideManageSettingsTitle => _t('guideManageSettingsTitle');
+  String get guideManageSettingsDescription =>
+      _t('guideManageSettingsDescription');
+  String get guideDontShowAgain => _t('guideDontShowAgain');
+  String get guideGotIt => _t('guideGotIt');
+  String get guideSaved => _t('guideSaved');
 
   // ── About ────────────────────────────────────────────────────────────────────
   String get aboutTitle => _t('aboutTitle');
