@@ -3,8 +3,8 @@
 import 'package:app_tact/components/sheet_theme.dart';
 import 'package:app_tact/components/undo_banner.dart';
 import 'package:app_tact/models/two_factor_auth.dart';
+import 'package:app_tact/services/biometric_auth_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
-import 'package:app_tact/utils/message_utils.dart';
 import 'package:app_tact/widgets/privacy_security_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,55 +54,33 @@ class CategoryLockHandler {
     }
 
     // ── 2FA is present — proceed with biometric lock/unlock ──────────────────
-    try {
-      bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
-      bool isDeviceSupported = await _localAuth.isDeviceSupported();
+    final authenticated = await BiometricAuthService.authenticate(
+      context: context,
+      localAuth: _localAuth,
+      localizedReason: currentLockState
+          ? 'Authenticate to unlock category'
+          : 'Authenticate to lock category',
+      unavailableMessage: 'Face ID is not available.',
+      notEnrolledMessage:
+          'No biometric authentication is set up on this device.',
+    );
 
-      if (!canCheckBiometrics || !isDeviceSupported) {
-        if (context.mounted) {
-          MessageUtils.showErrorMessage(
-            context,
-            'Biometric authentication is not available on this device',
-          );
-        }
-        return false;
-      }
-
-      bool authenticated = await _localAuth.authenticate(
-        localizedReason: currentLockState
-            ? 'Authenticate to unlock category'
-            : 'Authenticate to lock category',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
+    if (authenticated && context.mounted) {
+      final newLockState = !currentLockState;
+      HapticFeedback.lightImpact();
+      await onLockChanged(newLockState);
+      if (!context.mounted) return false;
+      showToast(
+        context: context,
+        message: newLockState ? 'Category locked' : 'Category unlocked',
+        icon: newLockState
+            ? Icons.lock_outline_rounded
+            : Icons.lock_open_outlined,
       );
-
-      if (authenticated && context.mounted) {
-        final newLockState = !currentLockState;
-        HapticFeedback.lightImpact();
-        await onLockChanged(newLockState);
-        if (!context.mounted) return false;
-        showToast(
-          context: context,
-          message: newLockState ? 'Category locked' : 'Category unlocked',
-          icon: newLockState
-              ? Icons.lock_outline_rounded
-              : Icons.lock_open_outlined,
-        );
-        return true;
-      }
-
-      return false;
-    } catch (e) {
-      if (context.mounted) {
-        MessageUtils.showErrorMessage(
-          context,
-          'Failed to authenticate: ${e.toString()}',
-        );
-      }
-      return false;
+      return true;
     }
+
+    return false;
   }
 
   /// Returns true if the user has a 2FA password registered.

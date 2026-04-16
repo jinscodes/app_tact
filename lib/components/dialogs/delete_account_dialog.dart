@@ -2,6 +2,7 @@
 
 import 'package:app_tact/colors.dart';
 import 'package:app_tact/services/account_deletion_service.dart';
+import 'package:app_tact/services/biometric_auth_service.dart';
 import 'package:app_tact/utils/message_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -66,25 +67,13 @@ class DeleteAccountDialog extends StatelessWidget {
             Navigator.pop(context);
 
             try {
-              bool canCheckBiometrics = await localAuth.canCheckBiometrics;
-              bool isDeviceSupported = await localAuth.isDeviceSupported();
-
-              if (!canCheckBiometrics || !isDeviceSupported) {
-                if (context.mounted) {
-                  MessageUtils.showErrorMessage(
-                    context,
-                    'Biometric authentication is required to delete account',
-                  );
-                }
-                return;
-              }
-
-              bool authenticated = await localAuth.authenticate(
+              final authenticated = await BiometricAuthService.authenticate(
+                context: context,
+                localAuth: localAuth,
                 localizedReason: 'Authenticate to delete your account',
-                options: const AuthenticationOptions(
-                  stickyAuth: true,
-                  biometricOnly: true,
-                ),
+                unavailableMessage: 'Face ID is not available.',
+                notEnrolledMessage:
+                    'No biometric authentication is set up on this device.',
               );
 
               if (!authenticated) {
