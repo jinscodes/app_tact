@@ -1,8 +1,10 @@
 import 'dart:ui';
 
 import 'package:app_tact/l10n/app_localizations.dart';
+import 'package:app_tact/services/biometric_auth_service.dart';
 import 'package:app_tact/services/notification_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
+import 'package:app_tact/widgets/biometric_blocking_overlay.dart';
 import 'package:app_tact/widgets/links.dart';
 import 'package:app_tact/widgets/profiles.dart';
 import 'package:app_tact/widgets/settings.dart' as app_settings;
@@ -290,6 +292,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             selectedIndex: _selectedIndex,
             onTap: _onItemTapped,
           ),
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: BiometricAuthService.isAuthenticating,
+          builder: (context, isAuthenticating, _) {
+            return BiometricBlockingOverlay(isVisible: isAuthenticating);
+          },
         ),
       ], // Stack children
     );

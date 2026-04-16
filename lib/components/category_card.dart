@@ -18,7 +18,7 @@ import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CategoryCard extends StatelessWidget {
+class CategoryCard extends StatefulWidget {
   final Category category;
   final LinksService linksService;
   final Function(String) onLinkTap;
@@ -34,23 +34,45 @@ class CategoryCard extends StatelessWidget {
     required this.onError,
   });
 
+  @override
+  State<CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<CategoryCard> {
   final CategoryLockHandler _lockHandler = CategoryLockHandler();
+  bool _isAuthenticating = false;
 
-  Future<void> _handleLockToggle(BuildContext context) async {
-    final isLocked = category.isLocked;
-    final success = await _lockHandler.toggleLock(
-      context: context,
-      currentLockState: isLocked,
-      onLockChanged: (newState) async {
-        await linksService.updateCategoryLockStatus(
-          category.id,
-          newState,
-        );
-      },
-    );
-
-    if (!success) {
+  Future<void> _handleCategoryLockTap(BuildContext context) async {
+    if (_isAuthenticating) {
       return;
+    }
+
+    setState(() => _isAuthenticating = true);
+
+    try {
+      final isLocked = widget.category.isLocked;
+      await _lockHandler.toggleLock(
+        context: context,
+        currentLockState: isLocked,
+        onLockChanged: (newState) async {
+          await widget.linksService.updateCategoryLockStatus(
+            widget.category.id,
+            newState,
+          );
+        },
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isAuthenticating = false);
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CategoryCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.category.id != widget.category.id && _isAuthenticating) {
+      _isAuthenticating = false;
     }
   }
 
@@ -58,10 +80,10 @@ class CategoryCard extends StatelessWidget {
     AddLinkDialog.show(
       context,
       categoryId: categoryId,
-      linksService: linksService,
+      linksService: widget.linksService,
       onSuccess: () =>
           MessageUtils.showSuccessAnimation(context, message: 'Link Added!'),
-      onError: onError,
+      onError: widget.onError,
     );
   }
 
@@ -69,9 +91,9 @@ class CategoryCard extends StatelessWidget {
     DeleteCategoryDialog.show(
       context,
       category: category,
-      linksService: linksService,
+      linksService: widget.linksService,
       onSuccess: () {},
-      onError: onError,
+      onError: widget.onError,
     );
   }
 
@@ -79,17 +101,17 @@ class CategoryCard extends StatelessWidget {
     EditLinkDialog.show(
       context,
       link: link,
-      linksService: linksService,
+      linksService: widget.linksService,
       onSuccess: () {},
-      onError: onError,
+      onError: widget.onError,
     );
   }
 
   Future<void> _deleteLinkWithUndo(BuildContext context, LinkItem link) async {
     try {
-      await linksService.deleteLinkItem(link.categoryId, link.id);
+      await widget.linksService.deleteLinkItem(link.categoryId, link.id);
     } catch (e) {
-      onError('Error deleting link: $e');
+      widget.onError('Error deleting link: $e');
       return;
     }
 
@@ -100,9 +122,9 @@ class CategoryCard extends StatelessWidget {
       message: 'Link deleted',
       onUndo: () async {
         try {
-          await linksService.restoreLinkItem(link);
+          await widget.linksService.restoreLinkItem(link);
         } catch (e) {
-          onError('Error restoring link: $e');
+          widget.onError('Error restoring link: $e');
         }
       },
     );
@@ -110,33 +132,37 @@ class CategoryCard extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     return CategoryEmptyState(
-      onAddLink: () => _showAddLinkDialog(context, category.id),
-      onDelete: () => _showDeleteCategoryDialog(context, category),
+      onAddLink: () => _showAddLinkDialog(context, widget.category.id),
+      onDelete: () => _showDeleteCategoryDialog(context, widget.category),
     );
   }
 
   Widget _buildLinksState(BuildContext context, List<LinkItem> links) {
-    final isLocked = category.isLocked;
+    final isLocked = widget.category.isLocked;
     Widget content = Column(
       children: [
         ...links.map((link) => LinkItemCard(
               key: ValueKey(link.id),
               link: link,
-              onTap: onLinkTap,
+              onTap: widget.onLinkTap,
               onEdit: () => _showEditLinkDialog(context, link),
               onDelete: () => _deleteLinkWithUndo(context, link),
             )),
         SizedBox(height: 8.h),
         CategoryActionButtons(
-          onAddLink: () => _showAddLinkDialog(context, category.id),
-          onDelete: () => _showDeleteCategoryDialog(context, category),
+          onAddLink: () => _showAddLinkDialog(context, widget.category.id),
+          onDelete: () => _showDeleteCategoryDialog(context, widget.category),
         ),
         SizedBox(height: 16.h),
       ],
     );
 
     if (isLocked) {
-      return CategoryLockedOverlay(child: content);
+      return CategoryLockedOverlay(
+        onTap: _isAuthenticating ? null : () => _handleCategoryLockTap(context),
+        isAuthenticating: _isAuthenticating,
+        child: content,
+      );
     }
 
     return content;
@@ -144,7 +170,7 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLocked = category.isLocked;
+    final isLocked = widget.category.isLocked;
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
@@ -168,7 +194,7 @@ class CategoryCard extends StatelessWidget {
           dividerColor: Colors.transparent,
         ),
         child: ExpansionTile(
-          key: PageStorageKey(category.id),
+          key: PageStorageKey(widget.category.id),
           tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           childrenPadding: EdgeInsets.symmetric(horizontal: 16.w),
           backgroundColor: Colors.transparent,
@@ -176,19 +202,33 @@ class CategoryCard extends StatelessWidget {
           iconColor: context.textPrimary,
           collapsedIconColor: context.textPrimary,
           trailing: IconButton(
-            onPressed: () => _handleLockToggle(context),
+            onPressed: _isAuthenticating
+                ? null
+                : () => _handleCategoryLockTap(context),
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: 260),
               switchInCurve: Curves.easeOutBack,
               switchOutCurve: Curves.easeIn,
               transitionBuilder: (child, anim) =>
                   ScaleTransition(scale: anim, child: child),
-              child: Icon(
-                isLocked ? Icons.lock_rounded : Icons.lock_open_outlined,
-                key: ValueKey(isLocked),
-                color: isLocked ? Colors.red : Colors.grey[400],
-                size: 20.sp,
-              ),
+              child: _isAuthenticating
+                  ? SizedBox(
+                      key: const ValueKey('auth-loading'),
+                      width: 20.sp,
+                      height: 20.sp,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          context.textSecondary,
+                        ),
+                      ),
+                    )
+                  : Icon(
+                      isLocked ? Icons.lock_rounded : Icons.lock_open_outlined,
+                      key: ValueKey(isLocked),
+                      color: isLocked ? Colors.red : Colors.grey[400],
+                      size: 20.sp,
+                    ),
             ),
           ),
           leading: Container(
@@ -204,7 +244,7 @@ class CategoryCard extends StatelessWidget {
             ),
           ),
           title: Text(
-            category.name,
+            widget.category.name,
             style: TextStyle(
               color: context.textPrimary,
               fontSize: 16.sp,
@@ -212,7 +252,7 @@ class CategoryCard extends StatelessWidget {
             ),
           ),
           subtitle: Text(
-            '${category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(category.createdAt)}',
+            '${widget.category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(widget.category.createdAt)}',
             style: TextStyle(
               color: context.textSecondary,
               fontSize: 12.sp,
@@ -220,7 +260,8 @@ class CategoryCard extends StatelessWidget {
           ),
           children: [
             StreamBuilder<List<LinkItem>>(
-              stream: linksService.getLinksByCategoryStream(category.id),
+              stream: widget.linksService
+                  .getLinksByCategoryStream(widget.category.id),
               builder: (context, linkSnapshot) {
                 if (linkSnapshot.connectionState == ConnectionState.waiting) {
                   return Padding(
