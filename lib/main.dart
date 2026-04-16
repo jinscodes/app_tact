@@ -13,6 +13,7 @@ import 'package:app_tact/widgets/login.dart';
 import 'package:app_tact/widgets/signup.dart';
 import 'package:app_tact/widgets/splash_screen.dart';
 import 'package:app_tact/widgets/theme_picker_screen.dart';
+import 'package:app_tact/widgets/user_guide_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -230,6 +231,9 @@ class MyApp extends StatelessWidget {
         break;
       case '/help-support':
         page = const HelpSupportScreen();
+        break;
+      case '/user-guide':
+        page = const UserGuideScreen();
         break;
       case '/about':
         page = const AboutScreen();

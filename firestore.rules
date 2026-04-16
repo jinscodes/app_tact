@@ -4,33 +4,45 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      
+
       match /links/{document=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-      
+
       match /categories/{document=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-      
+
       match /profile/{document=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-      
+
       match /notification/{document=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
-    
+
     // Allow users to save their data to deletedUsers before account deletion
     match /deletedUsers/{userId} {
       allow write: if request.auth != null && request.auth.uid == userId;
-      
+
       match /profile/{document=**} {
         allow write: if request.auth != null && request.auth.uid == userId;
       }
     }
-    
+
+    match /contact_support_submissions/{docId} {
+      allow create: if request.auth != null;
+      allow read: if false;
+      allow update, delete: if false;
+    }
+
+    match /feedback_submissions/{docId} {
+      allow create: if request.auth != null;
+      allow read: if false;
+      allow update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false; // Deny all other access
     }
