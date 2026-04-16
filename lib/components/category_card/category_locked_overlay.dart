@@ -21,9 +21,12 @@ class CategoryLockedOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: child,
+        AbsorbPointer(
+          absorbing: true,
+          child: ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: child,
+          ),
         ),
         Positioned.fill(
           child: Center(

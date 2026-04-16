@@ -41,6 +41,9 @@ class CategoryCard extends StatefulWidget {
 class _CategoryCardState extends State<CategoryCard> {
   final CategoryLockHandler _lockHandler = CategoryLockHandler();
   bool _isAuthenticating = false;
+  bool? _lockStateOverride;
+
+  bool get _isLocked => _lockStateOverride ?? widget.category.isLocked;
 
   Future<void> _handleCategoryLockTap(BuildContext context) async {
     if (_isAuthenticating) {
@@ -50,17 +53,21 @@ class _CategoryCardState extends State<CategoryCard> {
     setState(() => _isAuthenticating = true);
 
     try {
-      final isLocked = widget.category.isLocked;
-      await _lockHandler.toggleLock(
+      final isLocked = _isLocked;
+      final didAuthenticate = await _lockHandler.authenticateForLockChange(
         context: context,
         currentLockState: isLocked,
-        onLockChanged: (newState) async {
-          await widget.linksService.updateCategoryLockStatus(
-            widget.category.id,
-            newState,
-          );
-        },
       );
+
+      if (!didAuthenticate) {
+        return;
+      }
+
+      if (isLocked) {
+        await _unlockCategory(widget.category, context);
+      } else {
+        await _lockCategory(widget.category, context);
+      }
     } finally {
       if (mounted) {
         setState(() => _isAuthenticating = false);
@@ -68,11 +75,66 @@ class _CategoryCardState extends State<CategoryCard> {
     }
   }
 
+  Future<void> _unlockCategory(Category category, BuildContext context) async {
+    debugPrint('Unlocking category: ${category.id}');
+
+    if (mounted) {
+      setState(() => _lockStateOverride = false);
+    }
+
+    try {
+      await widget.linksService.updateCategoryLockStatus(category.id, false);
+      debugPrint('Firestore unlock update success');
+      if (!mounted) return;
+      showToast(
+        context: context,
+        message: 'Category unlocked',
+        icon: Icons.lock_open_outlined,
+      );
+    } catch (error) {
+      debugPrint('Firestore unlock update failed: $error');
+      if (!mounted) return;
+      setState(() => _lockStateOverride = null);
+      widget.onError('Failed to unlock category. Please try again.');
+    }
+  }
+
+  Future<void> _lockCategory(Category category, BuildContext context) async {
+    debugPrint('Locking category: ${category.id}');
+
+    if (mounted) {
+      setState(() => _lockStateOverride = true);
+    }
+
+    try {
+      await widget.linksService.updateCategoryLockStatus(category.id, true);
+      debugPrint('Firestore lock update success');
+      if (!mounted) return;
+      showToast(
+        context: context,
+        message: 'Category locked',
+        icon: Icons.lock_outline_rounded,
+      );
+    } catch (error) {
+      debugPrint('Firestore lock update failed: $error');
+      if (!mounted) return;
+      setState(() => _lockStateOverride = null);
+      widget.onError('Failed to update category lock. Please try again.');
+    }
+  }
+
   @override
   void didUpdateWidget(covariant CategoryCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.category.id != widget.category.id && _isAuthenticating) {
+    if (oldWidget.category.id != widget.category.id) {
       _isAuthenticating = false;
+      _lockStateOverride = null;
+      return;
+    }
+
+    if (_lockStateOverride != null &&
+        widget.category.isLocked == _lockStateOverride) {
+      _lockStateOverride = null;
     }
   }
 
@@ -138,7 +200,7 @@ class _CategoryCardState extends State<CategoryCard> {
   }
 
   Widget _buildLinksState(BuildContext context, List<LinkItem> links) {
-    final isLocked = widget.category.isLocked;
+    final isLocked = _isLocked;
     Widget content = Column(
       children: [
         ...links.map((link) => LinkItemCard(
@@ -170,7 +232,7 @@ class _CategoryCardState extends State<CategoryCard> {
 
   @override
   Widget build(BuildContext context) {
-    final isLocked = widget.category.isLocked;
+    final isLocked = _isLocked;
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(

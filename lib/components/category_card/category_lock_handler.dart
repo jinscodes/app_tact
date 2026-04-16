@@ -1,23 +1,20 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:app_tact/components/sheet_theme.dart';
-import 'package:app_tact/components/undo_banner.dart';
 import 'package:app_tact/models/two_factor_auth.dart';
 import 'package:app_tact/services/biometric_auth_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
 import 'package:app_tact/widgets/privacy_security_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:local_auth/local_auth.dart';
 
 class CategoryLockHandler {
   final LocalAuthentication _localAuth = LocalAuthentication();
 
-  Future<bool> toggleLock({
+  Future<bool> authenticateForLockChange({
     required BuildContext context,
     required bool currentLockState,
-    required Future<void> Function(bool newState) onLockChanged,
   }) async {
     // Check if 2FA is registered before allowing lock/unlock
     if (!await _has2fa()) {
@@ -65,22 +62,9 @@ class CategoryLockHandler {
           'No biometric authentication is set up on this device.',
     );
 
-    if (authenticated && context.mounted) {
-      final newLockState = !currentLockState;
-      HapticFeedback.lightImpact();
-      await onLockChanged(newLockState);
-      if (!context.mounted) return false;
-      showToast(
-        context: context,
-        message: newLockState ? 'Category locked' : 'Category unlocked',
-        icon: newLockState
-            ? Icons.lock_outline_rounded
-            : Icons.lock_open_outlined,
-      );
-      return true;
-    }
+    debugPrint('Face ID result: $authenticated');
 
-    return false;
+    return authenticated;
   }
 
   /// Returns true if the user has a 2FA password registered.
