@@ -186,20 +186,23 @@ class _LinksState extends State<Links> {
                       );
                     }
 
-                    return ListView.builder(
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        final category = categories[index];
-                        return CategoryCard(
-                          category: category,
-                          linksService: _linksService,
-                          onLinkTap: _launchURL,
-                          onSuccess: (message) =>
-                              MessageUtils.showSuccessMessage(context, message),
-                          onError: (message) =>
-                              MessageUtils.showErrorMessage(context, message),
-                        );
-                      },
+                    return ListView(
+                      children: categories
+                          .map(
+                            (category) => CategoryCard(
+                              key: ValueKey(category.id),
+                              category: category,
+                              linksService: _linksService,
+                              onLinkTap: _launchURL,
+                              onSuccess: (message) =>
+                                  MessageUtils.showSuccessMessage(
+                                      context, message),
+                              onError: (message) =>
+                                  MessageUtils.showErrorMessage(
+                                      context, message),
+                            ),
+                          )
+                          .toList(),
                     );
                   },
                 ),

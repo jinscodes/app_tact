@@ -18,14 +18,14 @@ import 'package:app_tact/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CategoryCard extends StatefulWidget {
+class CategoryCard extends StatelessWidget {
   final Category category;
   final LinksService linksService;
   final Function(String) onLinkTap;
   final Function(String) onSuccess;
   final Function(String) onError;
 
-  const CategoryCard({
+  CategoryCard({
     super.key,
     required this.category,
     required this.linksService,
@@ -34,36 +34,23 @@ class CategoryCard extends StatefulWidget {
     required this.onError,
   });
 
-  @override
-  State<CategoryCard> createState() => _CategoryCardState();
-}
-
-class _CategoryCardState extends State<CategoryCard> {
   final CategoryLockHandler _lockHandler = CategoryLockHandler();
-  late bool _isLocked;
 
-  @override
-  void initState() {
-    super.initState();
-    _isLocked = widget.category.isLocked;
-  }
-
-  Future<void> _handleLockToggle() async {
+  Future<void> _handleLockToggle(BuildContext context) async {
+    final isLocked = category.isLocked;
     final success = await _lockHandler.toggleLock(
       context: context,
-      currentLockState: _isLocked,
+      currentLockState: isLocked,
       onLockChanged: (newState) async {
-        await widget.linksService.updateCategoryLockStatus(
-          widget.category.id,
+        await linksService.updateCategoryLockStatus(
+          category.id,
           newState,
         );
       },
     );
 
-    if (success && mounted) {
-      setState(() {
-        _isLocked = !_isLocked;
-      });
+    if (!success) {
+      return;
     }
   }
 
@@ -71,10 +58,10 @@ class _CategoryCardState extends State<CategoryCard> {
     AddLinkDialog.show(
       context,
       categoryId: categoryId,
-      linksService: widget.linksService,
+      linksService: linksService,
       onSuccess: () =>
           MessageUtils.showSuccessAnimation(context, message: 'Link Added!'),
-      onError: widget.onError,
+      onError: onError,
     );
   }
 
@@ -82,9 +69,9 @@ class _CategoryCardState extends State<CategoryCard> {
     DeleteCategoryDialog.show(
       context,
       category: category,
-      linksService: widget.linksService,
+      linksService: linksService,
       onSuccess: () {},
-      onError: widget.onError,
+      onError: onError,
     );
   }
 
@@ -92,17 +79,17 @@ class _CategoryCardState extends State<CategoryCard> {
     EditLinkDialog.show(
       context,
       link: link,
-      linksService: widget.linksService,
+      linksService: linksService,
       onSuccess: () {},
-      onError: widget.onError,
+      onError: onError,
     );
   }
 
   Future<void> _deleteLinkWithUndo(BuildContext context, LinkItem link) async {
     try {
-      await widget.linksService.deleteLinkItem(link.categoryId, link.id);
+      await linksService.deleteLinkItem(link.categoryId, link.id);
     } catch (e) {
-      widget.onError('Error deleting link: $e');
+      onError('Error deleting link: $e');
       return;
     }
 
@@ -113,9 +100,9 @@ class _CategoryCardState extends State<CategoryCard> {
       message: 'Link deleted',
       onUndo: () async {
         try {
-          await widget.linksService.restoreLinkItem(link);
+          await linksService.restoreLinkItem(link);
         } catch (e) {
-          widget.onError('Error restoring link: $e');
+          onError('Error restoring link: $e');
         }
       },
     );
@@ -123,31 +110,32 @@ class _CategoryCardState extends State<CategoryCard> {
 
   Widget _buildEmptyState(BuildContext context) {
     return CategoryEmptyState(
-      onAddLink: () => _showAddLinkDialog(context, widget.category.id),
-      onDelete: () => _showDeleteCategoryDialog(context, widget.category),
+      onAddLink: () => _showAddLinkDialog(context, category.id),
+      onDelete: () => _showDeleteCategoryDialog(context, category),
     );
   }
 
   Widget _buildLinksState(BuildContext context, List<LinkItem> links) {
+    final isLocked = category.isLocked;
     Widget content = Column(
       children: [
         ...links.map((link) => LinkItemCard(
               key: ValueKey(link.id),
               link: link,
-              onTap: widget.onLinkTap,
+              onTap: onLinkTap,
               onEdit: () => _showEditLinkDialog(context, link),
               onDelete: () => _deleteLinkWithUndo(context, link),
             )),
         SizedBox(height: 8.h),
         CategoryActionButtons(
-          onAddLink: () => _showAddLinkDialog(context, widget.category.id),
-          onDelete: () => _showDeleteCategoryDialog(context, widget.category),
+          onAddLink: () => _showAddLinkDialog(context, category.id),
+          onDelete: () => _showDeleteCategoryDialog(context, category),
         ),
         SizedBox(height: 16.h),
       ],
     );
 
-    if (_isLocked) {
+    if (isLocked) {
       return CategoryLockedOverlay(child: content);
     }
 
@@ -156,6 +144,7 @@ class _CategoryCardState extends State<CategoryCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isLocked = category.isLocked;
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
@@ -179,6 +168,7 @@ class _CategoryCardState extends State<CategoryCard> {
           dividerColor: Colors.transparent,
         ),
         child: ExpansionTile(
+          key: PageStorageKey(category.id),
           tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           childrenPadding: EdgeInsets.symmetric(horizontal: 16.w),
           backgroundColor: Colors.transparent,
@@ -186,7 +176,7 @@ class _CategoryCardState extends State<CategoryCard> {
           iconColor: context.textPrimary,
           collapsedIconColor: context.textPrimary,
           trailing: IconButton(
-            onPressed: _handleLockToggle,
+            onPressed: () => _handleLockToggle(context),
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: 260),
               switchInCurve: Curves.easeOutBack,
@@ -194,9 +184,9 @@ class _CategoryCardState extends State<CategoryCard> {
               transitionBuilder: (child, anim) =>
                   ScaleTransition(scale: anim, child: child),
               child: Icon(
-                _isLocked ? Icons.lock_rounded : Icons.lock_open_outlined,
-                key: ValueKey(_isLocked),
-                color: _isLocked ? Colors.red : Colors.grey[400],
+                isLocked ? Icons.lock_rounded : Icons.lock_open_outlined,
+                key: ValueKey(isLocked),
+                color: isLocked ? Colors.red : Colors.grey[400],
                 size: 20.sp,
               ),
             ),
@@ -214,7 +204,7 @@ class _CategoryCardState extends State<CategoryCard> {
             ),
           ),
           title: Text(
-            widget.category.name,
+            category.name,
             style: TextStyle(
               color: context.textPrimary,
               fontSize: 16.sp,
@@ -222,7 +212,7 @@ class _CategoryCardState extends State<CategoryCard> {
             ),
           ),
           subtitle: Text(
-            '${widget.category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(widget.category.createdAt)}',
+            '${category.linkCount} links • Created ${AppDateUtils.DateUtils.formatDate(category.createdAt)}',
             style: TextStyle(
               color: context.textSecondary,
               fontSize: 12.sp,
@@ -230,8 +220,7 @@ class _CategoryCardState extends State<CategoryCard> {
           ),
           children: [
             StreamBuilder<List<LinkItem>>(
-              stream: widget.linksService
-                  .getLinksByCategoryStream(widget.category.id),
+              stream: linksService.getLinksByCategoryStream(category.id),
               builder: (context, linkSnapshot) {
                 if (linkSnapshot.connectionState == ConnectionState.waiting) {
                   return Padding(
