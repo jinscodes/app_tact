@@ -9,6 +9,9 @@ class BiometricAuthService {
   static final ValueNotifier<bool> isAuthenticating =
       ValueNotifier<bool>(false);
 
+  /// Internal guard to block re-entrant calls before [isAuthenticating] is set.
+  static bool _authInProgress = false;
+
   static const Set<String> _silentCancellationCodes = {
     'usercanceled',
     'usercancelled',
@@ -36,11 +39,12 @@ class BiometricAuthService {
       biometricOnly: true,
     ),
   }) async {
-    if (isAuthenticating.value) {
+    // Use a plain bool for the early guard so we don't trigger ValueNotifier
+    // listeners (and a full rebuild) before the system dialog is ready.
+    if (_authInProgress) {
       return false;
     }
-
-    isAuthenticating.value = true;
+    _authInProgress = true;
 
     try {
       final canCheckBiometrics = await localAuth.canCheckBiometrics;
@@ -53,6 +57,9 @@ class BiometricAuthService {
         return false;
       }
 
+      // Set the notifier RIGHT before the system dialog so the overlay and
+      // the Face ID prompt appear in the same visual frame — no flicker.
+      isAuthenticating.value = true;
       return await localAuth.authenticate(
         localizedReason: localizedReason,
         options: options,
@@ -88,6 +95,7 @@ class BiometricAuthService {
       }
       return false;
     } finally {
+      _authInProgress = false;
       isAuthenticating.value = false;
     }
   }

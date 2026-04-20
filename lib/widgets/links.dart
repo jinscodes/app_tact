@@ -103,155 +103,159 @@ class _LinksState extends State<Links> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: BiometricAuthService.isAuthenticating,
-      builder: (context, isAuthenticating, _) {
-        return Stack(
-          children: [
-            Scaffold(
-              backgroundColor: Colors.transparent,
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                title: Text(
-                  AppLocalizations.of(context).linksTitle,
-                  style: TextStyle(
-                    color: context.textPrimary,
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                centerTitle: true,
-              ),
-              body: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: StreamBuilder<List<Category>>(
-                          stream: _categoriesStream,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  color: Color(0xFF7C6BFF),
-                                ),
-                              );
-                            }
-
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.error_outline,
-                                      color: Colors.red[400],
-                                      size: 80.sp,
-                                    ),
-                                    SizedBox(height: 20.h),
-                                    Text(
-                                      AppLocalizations.of(context)
-                                          .linksErrorLoading,
-                                      style: TextStyle(
-                                        color: Colors.red[400],
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-
-                            final categories = snapshot.data ?? [];
-
-                            if (categories.isEmpty) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.link_off,
-                                      color: Colors.grey[400],
-                                      size: 80.sp,
-                                    ),
-                                    SizedBox(height: 20.h),
-                                    Text(
-                                      AppLocalizations.of(context)
-                                          .linksNoCategoriesTitle,
-                                      style: TextStyle(
-                                        color: Colors.grey[400],
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8.h),
-                                    Text(
-                                      AppLocalizations.of(context)
-                                          .linksNoCategoriesSubtitle,
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 14.sp,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-
-                            return ListView(
-                              children: categories
-                                  .map(
-                                    (category) => CategoryCard(
-                                      key: ValueKey(category.id),
-                                      category: category,
-                                      linksService: _linksService,
-                                      onLinkTap: _launchURL,
-                                      isTemporarilyUnlocked:
-                                          _temporarilyUnlockedIds
-                                              .contains(category.id),
-                                      onTemporarilyUnlock: () {
-                                        setState(() {
-                                          _temporarilyUnlockedIds
-                                              .add(category.id);
-                                        });
-                                      },
-                                      onSuccess: (message) =>
-                                          MessageUtils.showSuccessMessage(
-                                              context, message),
-                                      onError: (message) =>
-                                          MessageUtils.showErrorMessage(
-                                              context, message),
-                                    ),
-                                  )
-                                  .toList(),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              floatingActionButton: _AddFab(
-                isEnabled: !isAuthenticating,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  AddCategoryDialog.show(
-                    context,
-                    onCategoryAdded: (categoryName) {},
-                  );
-                },
+    // Stack is stable — only _AddFab and BiometricBlockingOverlay rebuild when
+    // isAuthenticating changes, so CategoryCards and Scaffold never flicker.
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            title: Text(
+              AppLocalizations.of(context).linksTitle,
+              style: TextStyle(
+                color: context.textPrimary,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            BiometricBlockingOverlay(isVisible: isAuthenticating),
-          ],
-        );
-      },
+            centerTitle: true,
+          ),
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: StreamBuilder<List<Category>>(
+                      stream: _categoriesStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF7C6BFF),
+                            ),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  color: Colors.red[400],
+                                  size: 80.sp,
+                                ),
+                                SizedBox(height: 20.h),
+                                Text(
+                                  AppLocalizations.of(context)
+                                      .linksErrorLoading,
+                                  style: TextStyle(
+                                    color: Colors.red[400],
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        final categories = snapshot.data ?? [];
+
+                        if (categories.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.link_off,
+                                  color: Colors.grey[400],
+                                  size: 80.sp,
+                                ),
+                                SizedBox(height: 20.h),
+                                Text(
+                                  AppLocalizations.of(context)
+                                      .linksNoCategoriesTitle,
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  AppLocalizations.of(context)
+                                      .linksNoCategoriesSubtitle,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return ListView(
+                          children: categories
+                              .map(
+                                (category) => CategoryCard(
+                                  key: ValueKey(category.id),
+                                  category: category,
+                                  linksService: _linksService,
+                                  onLinkTap: _launchURL,
+                                  isTemporarilyUnlocked:
+                                      _temporarilyUnlockedIds
+                                          .contains(category.id),
+                                  onTemporarilyUnlock: () {
+                                    setState(() {
+                                      _temporarilyUnlockedIds
+                                          .add(category.id);
+                                    });
+                                  },
+                                  onSuccess: (message) =>
+                                      MessageUtils.showSuccessMessage(
+                                          context, message),
+                                  onError: (message) =>
+                                      MessageUtils.showErrorMessage(
+                                          context, message),
+                                ),
+                              )
+                              .toList(),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          floatingActionButton: ValueListenableBuilder<bool>(
+            valueListenable: BiometricAuthService.isAuthenticating,
+            builder: (_, isAuthenticating, __) => _AddFab(
+              isEnabled: !isAuthenticating,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                AddCategoryDialog.show(
+                  context,
+                  onCategoryAdded: (categoryName) {},
+                );
+              },
+            ),
+          ),
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: BiometricAuthService.isAuthenticating,
+          builder: (_, isAuthenticating, __) =>
+              BiometricBlockingOverlay(isVisible: isAuthenticating),
+        ),
+      ],
     );
   }
 }
