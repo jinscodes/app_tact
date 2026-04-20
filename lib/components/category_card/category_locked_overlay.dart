@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -46,15 +44,15 @@ class CategoryLockedOverlay extends StatelessWidget {
                     child: InkWell(
                       onTap: onTap,
                       borderRadius: BorderRadius.circular(12.r),
-                      splashColor: Colors.white.withOpacity(0.12),
-                      highlightColor: Colors.white.withOpacity(0.05),
+                      splashColor: Colors.white.withValues(alpha: 0.12),
+                      highlightColor: Colors.white.withValues(alpha: 0.05),
                       child: Ink(
                         padding: EdgeInsets.symmetric(
                           horizontal: 20.w,
                           vertical: 12.h,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
+                          color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(12.r),
                         ),
                         child: Row(

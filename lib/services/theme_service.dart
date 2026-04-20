@@ -1,61 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Single-source-of-truth for the app's theme mode (light / dark / system).
-///
-/// Usage:
-///   await ThemeService.init();   // call once before runApp
-///   ThemeService.setMode(ThemeMode.dark);
-///   ValueListenableBuilder<ThemeMode>(
-///     valueListenable: ThemeService.themeMode, ...)
-class ThemeService {
-  ThemeService._();
+class ThemeController extends ChangeNotifier {
+  ThemeController();
 
   static const _kPrefKey = 'app_theme';
 
-  // ── Current theme mode (observable) ──────────────────────────────────────
-  static final ValueNotifier<ThemeMode> themeMode =
-      ValueNotifier<ThemeMode>(ThemeMode.system);
+  ThemeMode _themeMode = ThemeMode.system;
+  bool _hasPicked = false;
 
-  /// True once the user has explicitly chosen a theme (light or dark).
-  /// False on first launch — used to trigger the theme-picker screen.
-  static bool hasPicked = false;
+  ThemeMode get themeMode => _themeMode;
+  bool get hasPicked => _hasPicked;
 
-  // ── Initialise once before runApp() ──────────────────────────────────────
-  static Future<void> init() async {
+  Future<void> loadTheme() async {
     SharedPreferences? prefs;
     try {
       prefs = await SharedPreferences.getInstance();
     } catch (e) {
-      debugPrint('[ThemeService] SharedPreferences init failed: $e');
+      debugPrint('[ThemeController] SharedPreferences init failed: $e');
     }
+
+    ThemeMode nextMode = ThemeMode.system;
+    bool nextHasPicked = false;
 
     if (prefs != null) {
       final saved = prefs.getString(_kPrefKey);
       if (saved != null) {
-        themeMode.value = _fromString(saved);
-        hasPicked = true;
-        return;
+        nextMode = _fromString(saved);
+        nextHasPicked = true;
       }
     }
-    themeMode.value = ThemeMode.system;
-    hasPicked = false;
-  }
 
-  // ── Set & persist theme mode ──────────────────────────────────────────────
-  static Future<void> setMode(ThemeMode mode) async {
-    themeMode.value = mode;
-    hasPicked = true;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_kPrefKey, _toString(mode));
-    } catch (e) {
-      debugPrint('[ThemeService] Failed to persist theme mode: $e');
+    final changed = _themeMode != nextMode || _hasPicked != nextHasPicked;
+    _themeMode = nextMode;
+    _hasPicked = nextHasPicked;
+    if (changed) {
+      notifyListeners();
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-  static ThemeMode _fromString(String value) {
+  bool setTheme(ThemeMode mode) {
+    if (_themeMode == mode) {
+      return false;
+    }
+    _themeMode = mode;
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> persistThemeSelection() async {
+    if (!_hasPicked) {
+      _hasPicked = true;
+      notifyListeners();
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kPrefKey, _toString(_themeMode));
+    } catch (e) {
+      debugPrint('[ThemeController] Failed to persist theme mode: $e');
+    }
+  }
+
+  ThemeMode _fromString(String value) {
     switch (value) {
       case 'light':
         return ThemeMode.light;
@@ -66,7 +72,7 @@ class ThemeService {
     }
   }
 
-  static String _toString(ThemeMode mode) {
+  String _toString(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.light:
         return 'light';
@@ -75,5 +81,22 @@ class ThemeService {
       case ThemeMode.system:
         return 'system';
     }
+  }
+}
+
+final ThemeController appThemeController = ThemeController();
+
+class ThemeControllerScope extends InheritedNotifier<ThemeController> {
+  const ThemeControllerScope({
+    super.key,
+    required ThemeController controller,
+    required super.child,
+  }) : super(notifier: controller);
+
+  static ThemeController of(BuildContext context) {
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<ThemeControllerScope>();
+    assert(scope != null, 'ThemeControllerScope not found in context');
+    return scope!.notifier!;
   }
 }
