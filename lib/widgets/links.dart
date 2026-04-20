@@ -210,13 +210,11 @@ class _LinksState extends State<Links> {
                                   category: category,
                                   linksService: _linksService,
                                   onLinkTap: _launchURL,
-                                  isTemporarilyUnlocked:
-                                      _temporarilyUnlockedIds
-                                          .contains(category.id),
+                                  isTemporarilyUnlocked: _temporarilyUnlockedIds
+                                      .contains(category.id),
                                   onTemporarilyUnlock: () {
                                     setState(() {
-                                      _temporarilyUnlockedIds
-                                          .add(category.id);
+                                      _temporarilyUnlockedIds.add(category.id);
                                     });
                                   },
                                   onSuccess: (message) =>
