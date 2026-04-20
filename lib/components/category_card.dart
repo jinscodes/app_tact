@@ -68,8 +68,8 @@ class _CategoryCardState extends State<CategoryCard> {
   /// Lock icon tap → permanent unlock / lock (persists to Firestore).
   Future<void> _handleCategoryLockTap(BuildContext context) async {
     if (_isAuthenticating) return;
-
-    setState(() => _isAuthenticating = true);
+    // Do NOT setState here — avoid a pre-auth rebuild that causes flicker.
+    _isAuthenticating = true;
 
     try {
       final isLocked = _isLocked;
@@ -94,8 +94,8 @@ class _CategoryCardState extends State<CategoryCard> {
   /// Overlay tap → temporary unlock (local state only, no Firestore update).
   Future<void> _handleTemporaryUnlock(BuildContext context) async {
     if (_isAuthenticating) return;
-
-    setState(() => _isAuthenticating = true);
+    // Do NOT setState here — avoid a pre-auth rebuild that causes flicker.
+    _isAuthenticating = true;
 
     final didAuthenticate =
         await _lockHandler.authenticateForTemporaryAccess(context: context);
@@ -104,10 +104,8 @@ class _CategoryCardState extends State<CategoryCard> {
 
     if (didAuthenticate) {
       widget.onTemporarilyUnlock?.call();
-      setState(() => _isAuthenticating = false);
-    } else {
-      setState(() => _isAuthenticating = false);
     }
+    setState(() => _isAuthenticating = false);
   }
 
   Future<void> _unlockCategory(Category category, BuildContext context) async {
