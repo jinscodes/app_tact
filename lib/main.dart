@@ -40,8 +40,13 @@ void main() async {
     );
   } catch (_) {}
   await LanguageService.init();
-  await ThemeService.init();
-  runApp(const MyApp());
+  await appThemeController.loadTheme();
+  runApp(
+    ThemeControllerScope(
+      controller: appThemeController,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class SwipePageRouteBuilder<T> extends PageRouteBuilder<T> {
@@ -250,70 +255,70 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeController = ThemeControllerScope.of(context);
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return ValueListenableBuilder<ThemeMode>(
-          valueListenable: ThemeService.themeMode,
-          builder: (context, themeMode, _) => ValueListenableBuilder<Locale>(
-            valueListenable: LanguageService.locale,
-            builder: (context, locale, _) => MaterialApp(
-              debugShowCheckedModeBanner: false,
-              locale: locale,
-              supportedLocales: const [Locale('en'), Locale('ko')],
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              themeMode: themeMode,
-              theme: ThemeData(
-                useMaterial3: true,
-                colorSchemeSeed: AppColors.accentPurple,
-                brightness: Brightness.light,
-                scaffoldBackgroundColor: Colors.transparent,
-                textTheme:
-                    GoogleFonts.interTextTheme(ThemeData.light().textTheme),
-                fontFamily: GoogleFonts.inter().fontFamily,
-                pageTransitionsTheme: const PageTransitionsTheme(
-                  builders: {
-                    TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-                    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-                  },
-                ),
+        return AnimatedBuilder(
+          animation:
+              Listenable.merge([themeController, LanguageService.locale]),
+          builder: (context, _) => MaterialApp(
+            debugShowCheckedModeBanner: false,
+            locale: LanguageService.locale.value,
+            supportedLocales: const [Locale('en'), Locale('ko')],
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            themeMode: themeController.themeMode,
+            themeAnimationDuration: const Duration(milliseconds: 200),
+            themeAnimationCurve: Curves.easeOutCubic,
+            theme: ThemeData(
+              useMaterial3: true,
+              colorSchemeSeed: AppColors.accentPurple,
+              brightness: Brightness.light,
+              scaffoldBackgroundColor: Colors.transparent,
+              textTheme:
+                  GoogleFonts.interTextTheme(ThemeData.light().textTheme),
+              fontFamily: GoogleFonts.inter().fontFamily,
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                },
               ),
-              darkTheme: ThemeData(
-                useMaterial3: true,
-                colorSchemeSeed: AppColors.accentPurple,
-                brightness: Brightness.dark,
-                scaffoldBackgroundColor: Colors.transparent,
-                textTheme:
-                    GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-                fontFamily: GoogleFonts.inter().fontFamily,
-                pageTransitionsTheme: const PageTransitionsTheme(
-                  builders: {
-                    TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-                    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-                  },
-                ),
-              ),
-              title: 'Sticker Note App',
-              builder: (context, child) {
-                return Container(
-                  decoration: BoxDecoration(
-                    gradient: context.appBackgroundGradient,
-                  ),
-                  child: child,
-                );
-              },
-              home: const SplashScreen(),
-              onGenerateRoute: (RouteSettings settings) {
-                return _createSmoothRoute(settings);
-              },
             ),
+            darkTheme: ThemeData(
+              useMaterial3: true,
+              colorSchemeSeed: AppColors.accentPurple,
+              brightness: Brightness.dark,
+              scaffoldBackgroundColor: Colors.transparent,
+              textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+              fontFamily: GoogleFonts.inter().fontFamily,
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                },
+              ),
+            ),
+            title: 'Sticker Note App',
+            builder: (context, child) {
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: context.appBackgroundGradient,
+                ),
+                child: child,
+              );
+            },
+            home: const SplashScreen(),
+            onGenerateRoute: (RouteSettings settings) {
+              return _createSmoothRoute(settings);
+            },
           ),
         );
       },

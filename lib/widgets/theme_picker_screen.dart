@@ -1,12 +1,14 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:app_tact/services/theme_service.dart';
-import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ThemePickerScreen extends StatefulWidget {
-  const ThemePickerScreen({super.key});
+  const ThemePickerScreen({
+    super.key,
+    this.returnSelectionOnConfirm = false,
+  });
+
+  final bool returnSelectionOnConfirm;
 
   @override
   State<ThemePickerScreen> createState() => _ThemePickerScreenState();
@@ -14,7 +16,6 @@ class ThemePickerScreen extends StatefulWidget {
 
 class _ThemePickerScreenState extends State<ThemePickerScreen>
     with SingleTickerProviderStateMixin {
-  ThemeMode? _selected;
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
@@ -41,118 +42,137 @@ class _ThemePickerScreenState extends State<ThemePickerScreen>
   }
 
   Future<void> _confirm() async {
-    if (_selected == null) return;
-    await ThemeService.setMode(_selected!);
+    final controller = ThemeControllerScope.of(context);
+    if (!_isSelectableTheme(controller.themeMode)) return;
+    await controller.persistThemeSelection();
+    if (widget.returnSelectionOnConfirm) {
+      if (mounted) {
+        Navigator.pop(context, controller.themeMode);
+      }
+      return;
+    }
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/home', (_) => false);
     }
   }
 
+  void _previewTheme(ThemeMode mode) {
+    ThemeControllerScope.of(context).setTheme(mode);
+  }
+
+  bool _isSelectableTheme(ThemeMode mode) {
+    return mode == ThemeMode.light || mode == ThemeMode.dark;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: context.appBackgroundGradient,
-      ),
+    final controller = ThemeControllerScope.of(context);
+    final selectedMode = controller.themeMode;
+    final canContinue = _isSelectableTheme(selectedMode);
+
+    return PopScope(
+      canPop: !widget.returnSelectionOnConfirm,
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFFF8F8F6),
         body: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnim,
             child: SlideTransition(
               position: _slideAnim,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 28.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(height: 60.h),
-
-                    // ── Header ────────────────────────────────────────────
-                    Text(
-                      'Choose your look',
-                      style: TextStyle(
-                        color: context.textPrimary,
-                        fontSize: 28.sp,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2,
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    Text(
-                      'Pick a theme to get started. You can always change it later in Settings.',
-                      style: TextStyle(
-                        color: context.textSecondary,
-                        fontSize: 15.sp,
-                        height: 1.5,
-                      ),
-                    ),
-
-                    SizedBox(height: 48.h),
-
-                    // ── Light option ──────────────────────────────────────
-                    _ThemeCard(
-                      mode: ThemeMode.light,
-                      label: 'Light',
-                      description: 'Clean and bright',
-                      icon: Icons.light_mode_rounded,
-                      previewColors: const [
-                        Color(0xFFF3F1FF),
-                        Color(0xFFEDE9FF)
-                      ],
-                      selected: _selected == ThemeMode.light,
-                      onTap: () => setState(() => _selected = ThemeMode.light),
-                    ),
-
-                    SizedBox(height: 16.h),
-
-                    // ── Dark option ───────────────────────────────────────
-                    _ThemeCard(
-                      mode: ThemeMode.dark,
-                      label: 'Dark',
-                      description: 'Easy on the eyes',
-                      icon: Icons.dark_mode_rounded,
-                      previewColors: const [
-                        Color(0xFF0B0E1D),
-                        Color(0xFF2E2939)
-                      ],
-                      selected: _selected == ThemeMode.dark,
-                      onTap: () => setState(() => _selected = ThemeMode.dark),
-                    ),
-
-                    const Spacer(),
-
-                    // ── Confirm button ────────────────────────────────────
-                    AnimatedOpacity(
-                      duration: const Duration(milliseconds: 200),
-                      opacity: _selected != null ? 1.0 : 0.45,
-                      child: GestureDetector(
-                        onTap: _selected != null ? _confirm : null,
-                        child: Container(
-                          height: 54.h,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE)],
-                            ),
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Continue',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(24.w, 22.h, 24.w, 24.h),
+                      child: ConstrainedBox(
+                        constraints:
+                            BoxConstraints(minHeight: constraints.maxHeight),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.palette_outlined,
+                                size: 28,
+                                color: Color(0xFF111111),
                               ),
-                            ),
+                              SizedBox(height: 18.h),
+                              Text(
+                                'Choose your look',
+                                style: TextStyle(
+                                  color: const Color(0xFF111111),
+                                  fontSize: 34.sp,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.05,
+                                  letterSpacing: -0.9,
+                                ),
+                              ),
+                              SizedBox(height: 12.h),
+                              Text(
+                                'Pick the theme that feels best for your day-to-day use.',
+                                style: TextStyle(
+                                  color: const Color(0xFF6E6E73),
+                                  fontSize: 16.sp,
+                                  height: 1.45,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                              SizedBox(height: 10.h),
+                              Text(
+                                'Your choice previews instantly, and you can always change it later in Settings.',
+                                style: TextStyle(
+                                  color: const Color(0xFF6E6E73),
+                                  fontSize: 16.sp,
+                                  height: 1.45,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                              SizedBox(height: 34.h),
+                              _ThemeCard(
+                                mode: ThemeMode.light,
+                                label: 'Light',
+                                description: 'Bright, clear, and airy',
+                                icon: Icons.light_mode_rounded,
+                                previewColors: const [
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFFF1F1F4),
+                                ],
+                                selected: selectedMode == ThemeMode.light,
+                                onTap: () => _previewTheme(ThemeMode.light),
+                              ),
+                              SizedBox(height: 12.h),
+                              _ThemeCard(
+                                mode: ThemeMode.dark,
+                                label: 'Dark',
+                                description:
+                                    'Calm, focused, and easy on the eyes',
+                                icon: Icons.dark_mode_rounded,
+                                previewColors: const [
+                                  Color(0xFF151515),
+                                  Color(0xFF2A2A2E),
+                                ],
+                                selected: selectedMode == ThemeMode.dark,
+                                onTap: () => _previewTheme(ThemeMode.dark),
+                              ),
+                              const Spacer(),
+                              SizedBox(height: 48.h),
+                              AnimatedOpacity(
+                                duration: const Duration(milliseconds: 200),
+                                opacity: canContinue ? 1.0 : 0.45,
+                                child: _IosPrimaryButton(
+                                  label: 'Continue',
+                                  onTap: canContinue ? _confirm : null,
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                            ],
                           ),
                         ),
                       ),
                     ),
-
-                    SizedBox(height: 32.h),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ),
@@ -185,114 +205,159 @@ class _ThemeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accent = Color(0xFF7C6BFF);
+    const accent = Color(0xFF111111);
     final isDarkCard = mode == ThemeMode.dark;
 
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
+        padding: EdgeInsets.all(18.w),
         decoration: BoxDecoration(
-          color: context.cardSurface,
-          borderRadius: BorderRadius.circular(18.r),
+          color: Colors.white.withValues(alpha: isDarkCard ? 0.0 : 0.8),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
-            color: selected ? accent : context.borderColor,
-            width: selected ? 2 : 1,
+            color: selected ? accent : const Color(0xFFE3E3E8),
+            width: selected ? 1.5 : 1,
           ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: accent.withOpacity(0.20),
-                    blurRadius: 20,
-                    offset: const Offset(0, 6),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0C000000),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 54.r,
+              height: 54.r,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: previewColors,
+                ),
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(
+                  color: const Color(0x11000000),
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                icon,
+                size: 23.sp,
+                color: isDarkCard
+                    ? Colors.white.withValues(alpha: 0.88)
+                    : const Color(0xFF111111),
+              ),
+            ),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: const Color(0xFF111111),
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                  SizedBox(height: 4.h),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      color: const Color(0xFF6E6E73),
+                      fontSize: 13.sp,
+                      height: 1.35,
+                    ),
                   ),
                 ],
+              ),
+            ),
+            SizedBox(width: 12.w),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 24.r,
+              height: 24.r,
+              decoration: BoxDecoration(
+                color: selected ? accent : Colors.transparent,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? accent : const Color(0xFFD1D1D6),
+                  width: 1.8,
+                ),
+              ),
+              child: selected
+                  ? Icon(Icons.check_rounded, color: Colors.white, size: 14.sp)
+                  : null,
+            ),
+          ],
         ),
-        child: Padding(
-          padding: EdgeInsets.all(18.w),
-          child: Row(
-            children: [
-              // Mini preview swatch
-              Container(
-                width: 56.r,
-                height: 56.r,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: previewColors,
-                  ),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: Colors.black.withOpacity(0.06),
-                    width: 1,
-                  ),
-                ),
-                child: Icon(
-                  icon,
-                  size: 24.sp,
-                  color: isDarkCard
-                      ? Colors.white.withOpacity(0.85)
-                      : const Color(0xFF6C5CE7),
-                ),
-              ),
+      ),
+    );
+  }
+}
 
-              SizedBox(width: 16.w),
+class _IosPrimaryButton extends StatefulWidget {
+  const _IosPrimaryButton({
+    required this.label,
+    required this.onTap,
+  });
 
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: TextStyle(
-                        color: context.textPrimary,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: 3.h),
-                    Text(
-                      description,
-                      style: TextStyle(
-                        color: context.textSecondary,
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+  final String label;
+  final VoidCallback? onTap;
 
-              SizedBox(width: 12.w),
+  @override
+  State<_IosPrimaryButton> createState() => _IosPrimaryButtonState();
+}
 
-              // Radio circle
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                width: 24.r,
-                height: 24.r,
-                decoration: BoxDecoration(
-                  color: selected ? accent : Colors.transparent,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: selected
-                        ? accent
-                        : context.textSecondary.withOpacity(0.35),
-                    width: 2,
-                  ),
-                ),
-                child: selected
-                    ? Icon(Icons.check_rounded,
-                        color: Colors.white, size: 14.sp)
-                    : null,
+class _IosPrimaryButtonState extends State<_IosPrimaryButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnabled = widget.onTap != null;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: isEnabled ? (_) => setState(() => _pressed = true) : null,
+      onTapUp: isEnabled
+          ? (_) {
+              setState(() => _pressed = false);
+              widget.onTap?.call();
+            }
+          : null,
+      onTapCancel: isEnabled ? () => setState(() => _pressed = false) : null,
+      child: AnimatedScale(
+        scale: _pressed ? 0.985 : 1,
+        duration: const Duration(milliseconds: 120),
+        child: Container(
+          width: double.infinity,
+          height: 56.h,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: const Color(0xFF111111),
+            borderRadius: BorderRadius.circular(999.r),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x14000000),
+                blurRadius: 10,
+                offset: Offset(0, 4),
               ),
             ],
+          ),
+          child: Text(
+            widget.label,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.2,
+            ),
           ),
         ),
       ),

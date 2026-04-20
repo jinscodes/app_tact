@@ -12,15 +12,45 @@ import 'package:local_auth/local_auth.dart';
 class CategoryLockHandler {
   final LocalAuthentication _localAuth = LocalAuthentication();
 
+  // ── Public API ─────────────────────────────────────────────────────────────
+
+  /// Called when the user taps the lock icon.
+  /// Authenticates and returns true so the caller can persist the change to
+  /// Firestore (permanent lock / unlock).
   Future<bool> authenticateForLockChange({
     required BuildContext context,
     required bool currentLockState,
   }) async {
-    // Check if 2FA is registered before allowing lock/unlock
+    return _authenticateWithCheck(
+      context: context,
+      localizedReason: currentLockState
+          ? 'Authenticate to unlock category'
+          : 'Authenticate to lock category',
+    );
+  }
+
+  /// Called when the user taps the locked overlay.
+  /// Authenticates and returns true so the caller can grant temporary access
+  /// WITHOUT touching Firestore.
+  Future<bool> authenticateForTemporaryAccess({
+    required BuildContext context,
+  }) async {
+    return _authenticateWithCheck(
+      context: context,
+      localizedReason: 'Authenticate to temporarily access this category',
+    );
+  }
+
+  // ── Shared auth flow ───────────────────────────────────────────────────────
+
+  Future<bool> _authenticateWithCheck({
+    required BuildContext context,
+    required String localizedReason,
+  }) async {
+    // Require 2FA to be set up before any lock-related auth.
     if (!await _has2fa()) {
       if (!context.mounted) return false;
 
-      // Show bottom sheet; returns true if user chose "Go to Settings"
       final goToSettings = await showModalBottomSheet<bool>(
         context: context,
         isScrollControlled: true,
@@ -34,36 +64,29 @@ class CategoryLockHandler {
       );
 
       if (goToSettings == true && context.mounted) {
-        // Navigate to Privacy & Security and wait for the user to return
         await Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => const PrivacySecurityScreen(highlightSetup: true),
           ),
         );
-
-        // Re-check: if user set up 2FA, fall through to lock flow
         if (!context.mounted) return false;
         if (!await _has2fa()) return false;
-        // 2FA now set up – continue below
+        // 2FA now set up — fall through to biometric auth below.
       } else {
         return false;
       }
     }
 
-    // ── 2FA is present — proceed with biometric lock/unlock ──────────────────
     final authenticated = await BiometricAuthService.authenticate(
       context: context,
       localAuth: _localAuth,
-      localizedReason: currentLockState
-          ? 'Authenticate to unlock category'
-          : 'Authenticate to lock category',
+      localizedReason: localizedReason,
       unavailableMessage: 'Face ID is not available.',
       notEnrolledMessage:
           'No biometric authentication is set up on this device.',
     );
 
-    debugPrint('Face ID result: $authenticated');
-
+    debugPrint('Auth result: $authenticated');
     return authenticated;
   }
 

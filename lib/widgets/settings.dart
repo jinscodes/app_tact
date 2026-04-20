@@ -23,61 +23,47 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   final AuthService _authService = AuthService();
 
-  @override
-  void initState() {
-    super.initState();
-    // Rebuild when the app language changes so the value label updates.
-    LanguageService.locale.addListener(_onLocaleChanged);
-    ThemeService.themeMode.addListener(_onLocaleChanged);
-  }
-
-  void _onLocaleChanged() => setState(() {});
-
-  @override
-  void dispose() {
-    LanguageService.locale.removeListener(_onLocaleChanged);
-    ThemeService.themeMode.removeListener(_onLocaleChanged);
-    super.dispose();
-  }
-
   // ─── Build ────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildHeader(l),
-              Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 28.h, 16.w, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _sectionLabel(l.sectionPreferences),
-                    SizedBox(height: 10.h),
-                    _buildPreferencesGroup(l),
-                    SizedBox(height: 28.h),
-                    _sectionLabel(l.sectionAccount),
-                    SizedBox(height: 10.h),
-                    _buildAccountGroup(l),
-                    SizedBox(height: 28.h),
-                    _sectionLabel(l.sectionSupport),
-                    SizedBox(height: 10.h),
-                    _buildSupportGroup(l),
-                    SizedBox(height: 32.h),
-                    _buildLogoutButton(),
-                    SizedBox(height: 48.h),
-                  ],
+    return AnimatedBuilder(
+      animation: Listenable.merge([LanguageService.locale, appThemeController]),
+      builder: (context, _) => Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          bottom: false,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeader(l),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 28.h, 16.w, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _sectionLabel(l.sectionPreferences),
+                      SizedBox(height: 10.h),
+                      _buildPreferencesGroup(l),
+                      SizedBox(height: 28.h),
+                      _sectionLabel(l.sectionAccount),
+                      SizedBox(height: 10.h),
+                      _buildAccountGroup(l),
+                      SizedBox(height: 28.h),
+                      _sectionLabel(l.sectionSupport),
+                      SizedBox(height: 10.h),
+                      _buildSupportGroup(l),
+                      SizedBox(height: 32.h),
+                      _buildLogoutButton(),
+                      SizedBox(height: 48.h),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -211,7 +197,7 @@ class _SettingsState extends State<Settings> {
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
   String _themeModeLabel(AppLocalizations l) {
-    switch (ThemeService.themeMode.value) {
+    switch (appThemeController.themeMode) {
       case ThemeMode.light:
         return l.appearanceLight;
       case ThemeMode.dark:
@@ -227,12 +213,13 @@ class _SettingsState extends State<Settings> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withOpacity(0.55),
+      barrierColor: Colors.black.withValues(alpha: 0.55),
       isScrollControlled: true,
       builder: (_) => _LanguagePickerSheet(
         current: LanguageService.current.code,
         onSelect: (code) async {
           await LanguageService.setLanguage(code);
+          if (!mounted) return;
           Navigator.pop(context);
         },
       ),

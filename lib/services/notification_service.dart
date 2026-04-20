@@ -1,30 +1,22 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  Future<bool> hasRequestedNotificationPermission() async {
+  Future<bool> requestNotificationPermission() async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return true;
-
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('notification')
-          .doc('updates')
-          .get();
-
-      if (!doc.exists) return false;
-
-      final data = doc.data();
-      return data?['firstReq'] != null;
+      final status = await Permission.notification.request();
+      return status.isGranted || status.isLimited || status.isProvisional;
     } catch (e) {
-      print('Error checking notification permission: $e');
-      return true;
+      debugPrint('Error requesting notification permission: $e');
+      return false;
     }
   }
 
@@ -37,7 +29,6 @@ class NotificationService {
 
       final batch = FirebaseFirestore.instance.batch();
 
-      // Save settings
       final settingsRef = FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -53,7 +44,6 @@ class NotificationService {
         'promotions': enabled,
       });
 
-      // Save updates with firstReq
       final updatesRef = FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -68,8 +58,12 @@ class NotificationService {
 
       await batch.commit();
     } catch (e) {
-      print('Error setting notification preferences: $e');
+      debugPrint('Error setting notification preferences: $e');
       rethrow;
     }
+  }
+
+  void persistNotificationPreferenceInBackground({required bool enabled}) {
+    unawaited(setNotificationPreferences(enabled: enabled));
   }
 }

@@ -230,7 +230,6 @@ class _SignupScreenState extends State<SignupScreen> {
           'language': PlatformDispatcher.instance.locale.toString(),
           // Account state
           'accountStatus': 'active',
-          'onboardingCompleted': false,
           // Usage counters
           'totalLinks': 0,
           'totalCategories': 0,
@@ -264,8 +263,9 @@ class _SignupScreenState extends State<SignupScreen> {
       if (e.code == 'weak-password') msg = 'Password is too weak.';
       if (mounted) MessageUtils.showErrorMessage(context, msg);
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         MessageUtils.showErrorMessage(context, 'Unexpected error: $e');
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -309,7 +309,6 @@ class _SignupScreenState extends State<SignupScreen> {
             'language': PlatformDispatcher.instance.locale.toString(),
             // Account state
             'accountStatus': 'active',
-            'onboardingCompleted': false,
             // Usage counters
             'totalLinks': 0,
             'totalCategories': 0,

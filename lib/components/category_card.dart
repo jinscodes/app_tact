@@ -24,6 +24,8 @@ class CategoryCard extends StatefulWidget {
   final Function(String) onLinkTap;
   final Function(String) onSuccess;
   final Function(String) onError;
+  final bool isTemporarilyUnlocked;
+  final VoidCallback? onTemporarilyUnlock;
 
   CategoryCard({
     super.key,
@@ -32,6 +34,8 @@ class CategoryCard extends StatefulWidget {
     required this.onLinkTap,
     required this.onSuccess,
     required this.onError,
+    this.isTemporarilyUnlocked = false,
+    this.onTemporarilyUnlock,
   });
 
   @override
@@ -40,15 +44,30 @@ class CategoryCard extends StatefulWidget {
 
 class _CategoryCardState extends State<CategoryCard> {
   final CategoryLockHandler _lockHandler = CategoryLockHandler();
+  final ExpansionTileController _tileController = ExpansionTileController();
   bool _isAuthenticating = false;
   bool? _lockStateOverride;
 
+  @override
+  void initState() {
+    super.initState();
+    // If this card is mounted while already temporarily unlocked, auto-expand.
+    if (widget.isTemporarilyUnlocked) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _tileController.expand();
+      });
+    }
+  }
+
+  /// True when the category is locked in Firestore (with optimistic override).
   bool get _isLocked => _lockStateOverride ?? widget.category.isLocked;
 
+  /// True when the user can interact with the category content.
+  bool get _canAccess => !_isLocked || widget.isTemporarilyUnlocked;
+
+  /// Lock icon tap → permanent unlock / lock (persists to Firestore).
   Future<void> _handleCategoryLockTap(BuildContext context) async {
-    if (_isAuthenticating) {
-      return;
-    }
+    if (_isAuthenticating) return;
 
     setState(() => _isAuthenticating = true);
 
@@ -59,19 +78,35 @@ class _CategoryCardState extends State<CategoryCard> {
         currentLockState: isLocked,
       );
 
-      if (!didAuthenticate) {
-        return;
-      }
+      if (!didAuthenticate) return;
 
       if (isLocked) {
+        // Permanently unlock — clear temp flag too.
         await _unlockCategory(widget.category, context);
       } else {
         await _lockCategory(widget.category, context);
       }
     } finally {
-      if (mounted) {
-        setState(() => _isAuthenticating = false);
-      }
+      if (mounted) setState(() => _isAuthenticating = false);
+    }
+  }
+
+  /// Overlay tap → temporary unlock (local state only, no Firestore update).
+  Future<void> _handleTemporaryUnlock(BuildContext context) async {
+    if (_isAuthenticating) return;
+
+    setState(() => _isAuthenticating = true);
+
+    final didAuthenticate =
+        await _lockHandler.authenticateForTemporaryAccess(context: context);
+
+    if (!mounted) return;
+
+    if (didAuthenticate) {
+      widget.onTemporarilyUnlock?.call();
+      setState(() => _isAuthenticating = false);
+    } else {
+      setState(() => _isAuthenticating = false);
     }
   }
 
@@ -130,6 +165,13 @@ class _CategoryCardState extends State<CategoryCard> {
       _isAuthenticating = false;
       _lockStateOverride = null;
       return;
+    }
+
+    // Auto-expand when temporary unlock is granted.
+    if (!oldWidget.isTemporarilyUnlocked && widget.isTemporarilyUnlocked) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _tileController.expand();
+      });
     }
 
     if (_lockStateOverride != null &&
@@ -192,6 +234,24 @@ class _CategoryCardState extends State<CategoryCard> {
     );
   }
 
+  Widget _buildLockIcon(bool isLocked) {
+    // Always show red closed lock when locked in DB, even if temporarily unlocked.
+    if (isLocked) {
+      return Icon(
+        Icons.lock_rounded,
+        key: const ValueKey('locked'),
+        color: Colors.red,
+        size: 20.sp,
+      );
+    }
+    return Icon(
+      Icons.lock_open_outlined,
+      key: const ValueKey('unlocked'),
+      color: Colors.grey[400],
+      size: 20.sp,
+    );
+  }
+
   Widget _buildEmptyState(BuildContext context) {
     return CategoryEmptyState(
       onAddLink: () => _showAddLinkDialog(context, widget.category.id),
@@ -200,28 +260,32 @@ class _CategoryCardState extends State<CategoryCard> {
   }
 
   Widget _buildLinksState(BuildContext context, List<LinkItem> links) {
-    final isLocked = _isLocked;
+    // When temporarily unlocked, show links read-only (no add/delete/edit).
+    final isTemporary = _isLocked && widget.isTemporarilyUnlocked;
     Widget content = Column(
       children: [
         ...links.map((link) => LinkItemCard(
               key: ValueKey(link.id),
               link: link,
               onTap: widget.onLinkTap,
-              onEdit: () => _showEditLinkDialog(context, link),
-              onDelete: () => _deleteLinkWithUndo(context, link),
+              onEdit:
+                  isTemporary ? null : () => _showEditLinkDialog(context, link),
+              onDelete:
+                  isTemporary ? null : () => _deleteLinkWithUndo(context, link),
             )),
         SizedBox(height: 8.h),
-        CategoryActionButtons(
-          onAddLink: () => _showAddLinkDialog(context, widget.category.id),
-          onDelete: () => _showDeleteCategoryDialog(context, widget.category),
-        ),
+        if (!isTemporary)
+          CategoryActionButtons(
+            onAddLink: () => _showAddLinkDialog(context, widget.category.id),
+            onDelete: () => _showDeleteCategoryDialog(context, widget.category),
+          ),
         SizedBox(height: 16.h),
       ],
     );
 
-    if (isLocked) {
+    if (!_canAccess) {
       return CategoryLockedOverlay(
-        onTap: _isAuthenticating ? null : () => _handleCategoryLockTap(context),
+        onTap: _isAuthenticating ? null : () => _handleTemporaryUnlock(context),
         isAuthenticating: _isAuthenticating,
         child: content,
       );
@@ -232,7 +296,6 @@ class _CategoryCardState extends State<CategoryCard> {
 
   @override
   Widget build(BuildContext context) {
-    final isLocked = _isLocked;
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
@@ -257,6 +320,7 @@ class _CategoryCardState extends State<CategoryCard> {
         ),
         child: ExpansionTile(
           key: PageStorageKey(widget.category.id),
+          controller: _tileController,
           tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           childrenPadding: EdgeInsets.symmetric(horizontal: 16.w),
           backgroundColor: Colors.transparent,
@@ -285,12 +349,7 @@ class _CategoryCardState extends State<CategoryCard> {
                         ),
                       ),
                     )
-                  : Icon(
-                      isLocked ? Icons.lock_rounded : Icons.lock_open_outlined,
-                      key: ValueKey(isLocked),
-                      color: isLocked ? Colors.red : Colors.grey[400],
-                      size: 20.sp,
-                    ),
+                  : _buildLockIcon(_isLocked),
             ),
           ),
           leading: Container(

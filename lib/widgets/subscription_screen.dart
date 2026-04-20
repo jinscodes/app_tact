@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use, unused_field, unused_element
-
 import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/subscription_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
@@ -18,15 +16,12 @@ class SubscriptionScreen extends StatefulWidget {
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
   Map<String, dynamic>? _profileData;
   bool _loading = true;
-  Offerings? _offerings;
-  bool _purchasing = false;
   bool _restoring = false;
 
   @override
   void initState() {
     super.initState();
     _loadProfileData();
-    _loadOfferings();
   }
 
   Future<void> _loadProfileData() async {
@@ -41,7 +36,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         final activeEntitlements = info.entitlements.active;
         if (activeEntitlements.isNotEmpty) {
           status = 'active';
-          // Use the first active entitlement as the plan label
           final first = activeEntitlements.values.first;
           plan = first.identifier;
           final String? exp = first.expirationDate;
@@ -54,7 +48,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         }
       }
 
-      // Map to existing helper schema
       _profileData = {
         'subscriptionPlan': plan,
         'subscriptionStatus': status,
@@ -63,44 +56,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     } catch (_) {}
     if (mounted) {
       setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _loadOfferings() async {
-    try {
-      final Offerings? offerings =
-          await SubscriptionService.instance.getOfferings();
-      if (mounted) {
-        setState(() {
-          _offerings = offerings;
-        });
-      }
-    } catch (_) {}
-  }
-
-  Future<void> _purchase(Package package) async {
-    if (_purchasing) return;
-    setState(() => _purchasing = true);
-    final info = await SubscriptionService.instance.purchasePackage(package);
-    if (mounted) {
-      setState(() => _purchasing = false);
-    }
-    if (info != null) {
-      await _loadProfileData();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(AppLocalizations.of(context).subPurchaseSuccessful)),
-        );
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context).subPurchaseFailed)),
-        );
-      }
     }
   }
 
@@ -169,18 +124,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   padding:
                       EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                   children: [
-                    // ── Plan status card ─────────────────────────────
                     _PlanStatusCard(
                         isActive: isActive, plan: plan, renewal: renewal),
-
                     if (!isActive) ...[
                       SizedBox(height: 16.h),
                       _UpgradeBanner(onTap: _openTactPaywallPage),
                     ],
-
                     SizedBox(height: 24.h),
-
-                    // ── Section label ────────────────────────────────
                     Padding(
                       padding: EdgeInsets.only(bottom: 10.h),
                       child: Row(
@@ -206,7 +156,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         ],
                       ),
                     ),
-
                     _SubActionRow(
                       icon: Icons.credit_card_outlined,
                       label: AppLocalizations.of(context).subUpgradeManagePlan,
@@ -219,7 +168,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           : AppLocalizations.of(context).subRestorePurchases,
                       onTap: _restoring ? () {} : _restore,
                     ),
-
                     SizedBox(height: 32.h),
                   ],
                 ),
@@ -229,7 +177,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 }
 
-// ── Plan status card ─────────────────────────────────────────────────────────
 class _PlanStatusCard extends StatelessWidget {
   final bool isActive;
   final String plan;

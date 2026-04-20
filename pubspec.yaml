@@ -26,6 +26,7 @@ dependencies:
   cached_network_image: ^3.4.1
   purchases_flutter: ^9.10.3
   purchases_ui_flutter: any
+  permission_handler: ^11.3.1
   shared_preferences: ^2.2.3
 
 flutter_launcher_icons:

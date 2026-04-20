@@ -21,6 +21,14 @@ class Links extends StatefulWidget {
 
 class _LinksState extends State<Links> {
   final LinksService _linksService = LinksService();
+  late final Stream<List<Category>> _categoriesStream;
+  final Set<String> _temporarilyUnlockedIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _categoriesStream = _linksService.getCategoriesStream();
+  }
 
   Future<void> _launchURL(String url) async {
     final l = AppLocalizations.of(context);
@@ -123,7 +131,7 @@ class _LinksState extends State<Links> {
                     children: [
                       Expanded(
                         child: StreamBuilder<List<Category>>(
-                          stream: _linksService.getCategoriesStream(),
+                          stream: _categoriesStream,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -203,6 +211,15 @@ class _LinksState extends State<Links> {
                                       category: category,
                                       linksService: _linksService,
                                       onLinkTap: _launchURL,
+                                      isTemporarilyUnlocked:
+                                          _temporarilyUnlockedIds
+                                              .contains(category.id),
+                                      onTemporarilyUnlock: () {
+                                        setState(() {
+                                          _temporarilyUnlockedIds
+                                              .add(category.id);
+                                        });
+                                      },
                                       onSuccess: (message) =>
                                           MessageUtils.showSuccessMessage(
                                               context, message),

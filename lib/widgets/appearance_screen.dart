@@ -1,40 +1,17 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:app_tact/l10n/app_localizations.dart';
 import 'package:app_tact/services/theme_service.dart';
 import 'package:app_tact/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class AppearanceScreen extends StatefulWidget {
+class AppearanceScreen extends StatelessWidget {
   const AppearanceScreen({super.key});
-
-  @override
-  State<AppearanceScreen> createState() => _AppearanceScreenState();
-}
-
-class _AppearanceScreenState extends State<AppearanceScreen> {
-  ThemeMode _selected = ThemeService.themeMode.value;
-
-  @override
-  void initState() {
-    super.initState();
-    ThemeService.themeMode.addListener(_onThemeChanged);
-  }
-
-  void _onThemeChanged() => setState(() {
-        _selected = ThemeService.themeMode.value;
-      });
-
-  @override
-  void dispose() {
-    ThemeService.themeMode.removeListener(_onThemeChanged);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final themeController = ThemeControllerScope.of(context);
+    final selectedMode = themeController.themeMode;
 
     return Container(
       decoration: BoxDecoration(
@@ -82,24 +59,33 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                   mode: ThemeMode.system,
                   icon: Icons.brightness_auto_rounded,
                   label: l.appearanceSystem,
-                  selected: _selected == ThemeMode.system,
-                  onTap: () => ThemeService.setMode(ThemeMode.system),
+                  selected: selectedMode == ThemeMode.system,
+                  onTap: () async {
+                    themeController.setTheme(ThemeMode.system);
+                    await themeController.persistThemeSelection();
+                  },
                 ),
                 SizedBox(height: 10.h),
                 _ThemeOption(
                   mode: ThemeMode.light,
                   icon: Icons.light_mode_rounded,
                   label: l.appearanceLight,
-                  selected: _selected == ThemeMode.light,
-                  onTap: () => ThemeService.setMode(ThemeMode.light),
+                  selected: selectedMode == ThemeMode.light,
+                  onTap: () async {
+                    themeController.setTheme(ThemeMode.light);
+                    await themeController.persistThemeSelection();
+                  },
                 ),
                 SizedBox(height: 10.h),
                 _ThemeOption(
                   mode: ThemeMode.dark,
                   icon: Icons.dark_mode_rounded,
                   label: l.appearanceDark,
-                  selected: _selected == ThemeMode.dark,
-                  onTap: () => ThemeService.setMode(ThemeMode.dark),
+                  selected: selectedMode == ThemeMode.dark,
+                  onTap: () async {
+                    themeController.setTheme(ThemeMode.dark);
+                    await themeController.persistThemeSelection();
+                  },
                 ),
               ],
             ),
@@ -134,10 +120,12 @@ class _ThemeOption extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         decoration: BoxDecoration(
-          color: selected ? accent.withOpacity(0.12) : context.cardSurface,
+          color:
+              selected ? accent.withValues(alpha: 0.12) : context.cardSurface,
           borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color: selected ? accent.withOpacity(0.55) : context.borderColor,
+            color:
+                selected ? accent.withValues(alpha: 0.55) : context.borderColor,
             width: 1,
           ),
         ),
@@ -147,7 +135,7 @@ class _ThemeOption extends StatelessWidget {
               width: 38.r,
               height: 38.r,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.14),
+                color: accent.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Icon(icon, color: accent, size: 20.sp),
@@ -186,7 +174,7 @@ class _ThemeOption extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: context.textSecondary.withOpacity(0.35),
+                    color: context.textSecondary.withValues(alpha: 0.35),
                     width: 1.5,
                   ),
                 ),
